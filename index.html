@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Özel Rota Navigasyon</title>
+    <title>Özel Navigasyon</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     <style>
@@ -58,30 +58,27 @@
 <body>
 
     <div class="container">
-        <h1>ÖZEL ROTA</h1>
+        <h1>SABİT ROTA</h1>
         
-        <!-- Eve Git Butonu (Özel Rota Linki) -->
-        <button class="nav-btn" onclick="startCustomNav()">
-            🏠 Eve Git (Özel Rota)
+        <!-- Eve Git Butonu -->
+        <button class="nav-btn" onclick="startNav('home')">
+            🏠 Eve Git
         </button>
         
         <!-- İşe Git Butonu -->
-        <button class="nav-btn" onclick="startWorkNav()">
-            💼 İşe Git (Özel Rota)
+        <button class="nav-btn" onclick="startNav('work')">
+            💼 İşe Git
         </button>
     </div>
 
     <script>
-        function startCustomNav() {
-            // Tam olarak istediğin özel rota linki doğrudan buraya sabitlendi
-            const url = "https://www.google.com/maps/dir/40.7943456,30.3597422/hendek+ye%C5%9Filyurt+orta+okulu,+K%C3%BCp%C3%A7%C3%BCler,+3.+Sk.+No:4,+54200+Erenler%2FSakarya/@40.7994956,30.3411245,11z/am=t/data=!4m9!4m8!1m1!4e1!1m5!1m1!1s0x409df2ba3871a9f1:0x45caf5636d0c4911!2m2!1d30.6339677!2d40.845103?entry=tts&g_ep=EgoyMDI2MDkxNi4wIPu8ASoASAFQAw%3D%3D";
-            window.location.href = url;
-        }
-
-        function startWorkNav() {
-            // İstersen iş için de benzer özel rota URL'sini buraya ekleyebilirsin
-            const url = "https://www.google.com/maps/dir/40.7943456,30.3597422/hendek+ye%C5%9Filyurt+orta+okulu,+K%C3%BCp%C3%A7%C3%BCler,+3.+Sk.+No:4,+54200+Erenler%2FSakarya/@40.7994956,30.3411245,11z/am=t/data=!4m9!4m8!1m1!4e1!1m5!1m1!1s0x409df2ba3871a9f1:0x45caf5636d0c4911!2m2!1d30.6339677!2d40.845103?entry=tts&g_ep=EgoyMDI2MDkxNi4wIPu8ASoASAFQAw%3D%3D";
-            window.location.href = url;
+        function startNav(type) {
+            // Doğrudan test edip onayladığın nokta atışı harita linki
+            const directMapUrl = "https://maps.app.goo.gl/suCTMth3t5fvdwBk7";
+            
+            // İstersen eve ve işe gidiş için ayrı linkler tanımlayabilirsin, 
+            // şimdilik her iki buton da onayladığın bu direkt rotayı açacak:
+            window.location.href = directMapUrl;
         }
     </script>
 </body>
