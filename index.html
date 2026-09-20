@@ -73,12 +73,13 @@
 
     <script>
         function startNav(type) {
-            // Doğrudan test edip onayladığın nokta atışı harita linki
-            const directMapUrl = "https://maps.app.goo.gl/suCTMth3t5fvdwBk7";
-            
-            // İstersen eve ve işe gidiş için ayrı linkler tanımlayabilirsin, 
-            // şimdilik her iki buton da onayladığın bu direkt rotayı açacak:
-            window.location.href = directMapUrl;
+            if (type === 'home') {
+                // İşten Eve: Onayladığın doğrudan harita linki
+                window.location.href = "https://maps.app.goo.gl/suCTMth3t5fvdwBk7";
+            } else {
+                // Evden İşe: Onayladığın doğrudan harita linki
+                window.location.href = "https://maps.app.goo.gl/8YfAAg8tAri6AzxN9";
+            }
         }
     </script>
 </body>
