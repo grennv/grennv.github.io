@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>En Hızlı Navigasyon</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: #4285F4;
+            font-weight: 700;
+        }
+        .nav-btn {
+            width: 100%;
+            padding: 22px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #222831;
+            border: 2px solid #393e46;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        .nav-btn:active {
+            transform: scale(0.97);
+            background-color: #4285F4;
+            border-color: #4285F4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>EN HIZLI ROTA</h1>
+        
+        <!-- Eve Git Butonu (En Kısa Süre / Dakika Bazlı) -->
+        <button class="nav-btn" onclick="startFastestNav('40.7947518,30.3596194')">
+            🏠 Eve Git (En Hızlı)
+        </button>
+        
+        <!-- İşe Git Butonu (En Kısa Süre / Dakika Bazlı) -->
+        <button class="nav-btn" onclick="startFastestNav('40.845103,30.6339677')">
+            💼 İşe Git (En Hızlı)
+        </button>
+    </div>
+
+    <script>
+        function startFastestNav(destinationCoord) {
+            // travelmode=driving ile araçlı sürüş seçilir.
+            // Google Haritalar, trafik ve otoyol (O-7) durumuna göre dakika bazındaki en kısa yolu otomatik hesaplar.
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${destinationCoord}&travelmode=driving`;
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>
