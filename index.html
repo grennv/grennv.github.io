@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#080c14">
+<title>EvDüzen — Temizlik • Market • Mola</title>
+<style>
+/* ============================================================
+   RESET & DEĞİŞKENLER
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070b13;
+  --card:#111a2b;
+  --card2:#16213a;
+  --card3:#1b2843;
+  --line:rgba(255,255,255,.075);
+  --line2:rgba(255,255,255,.14);
+  --txt:#e9effb;
+  --muted:#8ba0c2;
+  --muted2:#647790;
+  --c1:#22d3ee;
+  --c2:#a855f7;
+  --c3:#34d399;
+  --c4:#fbbf24;
+  --c5:#fb7185;
+  --danger:#f87171;
+  --r:18px;
+  --r-sm:12px;
+  --shadow:0 18px 40px -18px rgba(0,0,0,.85);
+  --glow1:0 0 0 1px rgba(34,211,238,.28), 0 12px 34px -12px rgba(34,211,238,.45);
+  --glow2:0 0 0 1px rgba(168,85,247,.28), 0 12px 34px -12px rgba(168,85,247,.45);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1100px 700px at 8% -8%, rgba(34,211,238,.13) 0%, transparent 58%),
+    radial-gradient(950px 650px at 105% 4%, rgba(168,85,247,.15) 0%, transparent 55%),
+    radial-gradient(900px 900px at 50% 120%, rgba(52,211,153,.08) 0%, transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--txt);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+  padding-bottom:40px;
+}
+::selection{background:rgba(34,211,238,.32)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#22304d;border-radius:20px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#31456b}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+
+/* ============================================================
+   ÜST BAR
+   ============================================================ */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  background:linear-gradient(180deg,rgba(7,11,19,.92),rgba(7,11,19,.72));
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  max-width:1040px;margin:0 auto;padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{
+  width:44px;height:44px;flex:none;border-radius:14px;
+  display:grid;place-items:center;font-size:22px;
+  background:linear-gradient(135deg,rgba(34,211,238,.22),rgba(168,85,247,.22));
+  border:1px solid var(--line2);
+  box-shadow:0 8px 24px -12px rgba(34,211,238,.7);
+}
+.brand h1{
+  font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.1;
+  background:linear-gradient(100deg,#e9effb 10%,#7dd3fc 55%,#c084fc 95%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  white-space:nowrap;
+}
+.brand p{font-size:11px;color:var(--muted2);letter-spacing:.9px;text-transform:uppercase;font-weight:600;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.clock{
+  font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
+  padding:8px 13px;border-radius:11px;
+  background:var(--card);border:1px solid var(--line);
+  color:var(--c1);letter-spacing:.4px;
+}
+.icon-btn{
+  width:40px;height:40px;border-radius:11px;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);color:var(--txt);
+  font-size:17px;display:grid;place-items:center;transition:.22s;
+}
+.icon-btn:hover{background:var(--card3);border-color:var(--line2);transform:translateY(-1px)}
+.icon-btn.active{box-shadow:var(--glow1);border-color:rgba(34,211,238,.4)}
+.icon-btn.off{opacity:.45}
+
+/* ============================================================
+   SEKMELER
+   ============================================================ */
+.tabs{
+  position:sticky;top:69px;z-index:55;
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  background:rgba(7,11,19,.72);
+  border-bottom:1px solid var(--line);
+}
+.tabs-in{
+  max-width:1040px;margin:0 auto;padding:8px 16px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.tab{
+  cursor:pointer;border:1px solid var(--line);border-radius:14px;
+  background:rgba(17,26,43,.7);color:var(--muted);
+  padding:11px 8px;font-size:13.5px;font-weight:700;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:.25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;
+}
+.tab span{font-size:16px;line-height:1}
+.tab:hover{color:var(--txt);background:var(--card2);transform:translateY(-1px)}
+.tab.active{
+  color:#fff;border-color:transparent;
+  background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(59,130,246,.85));
+  box-shadow:0 12px 28px -14px rgba(34,211,238,.95);
+}
+.tab[data-tab="market"].active{
+  background:linear-gradient(135deg,rgba(52,211,153,.9),rgba(34,211,238,.8));
+  box-shadow:0 12px 28px -14px rgba(52,211,153,.95);
+}
+.tab[data-tab="oyun"].active{
+  background:linear-gradient(135deg,rgba(168,85,247,.9),rgba(236,72,153,.8));
+  box-shadow:0 12px 28px -14px rgba(168,85,247,.95);
+}
+
+/* ============================================================
+   PANEL & GENEL
+   ============================================================ */
+.panel{display:none;padding-top:22px;animation:fadeUp .42s cubic-bezier(.2,.7,.3,1)}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.panel-head{margin-bottom:18px}
+.panel-head h2{
+  font-size:26px;font-weight:800;letter-spacing:-.7px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.panel-head h2 em{
+  font-style:normal;font-size:11px;font-weight:800;letter-spacing:1.2px;
+  padding:5px 10px;border-radius:99px;text-transform:uppercase;
+  background:rgba(34,211,238,.13);color:var(--c1);border:1px solid rgba(34,211,238,.28);
+}
+.panel-head p{color:var(--muted);font-size:14px;margin-top:7px;line-height:1.55;max-width:640px}
+
+.card{
+  background:linear-gradient(160deg,var(--card) 0%,rgba(17,26,43,.72) 100%);
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow);
+}
+.card + .card{margin-top:14px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field.wide{grid-column:1/-1}
+.field > span{
+  font-size:11px;font-weight:800;letter-spacing:.85px;
+  text-transform:uppercase;color:var(--muted2);
+}
+input,select,textarea{
+  width:100%;font-family:inherit;font-size:14.5px;color:var(--txt);
+  background:rgba(7,11,19,.75);border:1px solid var(--line2);
+  border-radius:var(--r-sm);padding:12px 13px;outline:none;
+  transition:.2s;appearance:none;-webkit-appearance:none;
+}
+input::placeholder{color:#4e5f78}
+input:focus,select:focus,textarea:focus{
+  border-color:rgba(34,211,238,.65);
+  box-shadow:0 0 0 3.5px rgba(34,211,238,.13);
+  background:rgba(7,11,19,.95);
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238ba0c2' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;
+  padding-right:38px;cursor:pointer;
+}
+input[type="date"],input[type="time"],input[type="datetime-local"]{cursor:pointer}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+  filter:invert(.7) sepia(1) saturate(4) hue-rotate(150deg);
+  cursor:pointer;opacity:.85;
+}
+
+.btn{
+  cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;
+  border:1px solid var(--line2);border-radius:13px;
+  background:var(--card3);color:var(--txt);
+  padding:12px 18px;transition:.22s;white-space:nowrap;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn:hover{background:#233152;transform:translateY(-1.5px);border-color:rgba(255,255,255,.22)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.primary{
+  border-color:transparent;color:#04121a;
+  background:linear-gradient(135deg,#22d3ee,#38bdf8);
+  box-shadow:0 14px 30px -14px rgba(34,211,238,.95);
+}
+.btn.primary:hover{box-shadow:0 18px 38px -14px rgba(34,211,238,1)}
+.btn.green{
+  border-color:transparent;color:#04170f;
+  background:linear-gradient(135deg,#34d399,#22d3ee);
+  box-shadow:0 14px 30px -14px rgba(52,211,153,.95);
+}
+.btn.purple{
+  border-color:transparent;color:#f7f0ff;
+  background:linear-gradient(135deg,#a855f7,#ec4899);
+  box-shadow:0 14px 30px -14px rgba(168,85,247,.95);
+}
+.btn.small{padding:9px 14px;font-size:12.5px;border-radius:11px}
+.btn.ghost{background:transparent}
+.btn.danger{color:#ffd9d9;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1)}
+.btn.danger:hover{background:rgba(248,113,113,.2)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* ============================================================
+   LİSTE / KARTLAR
+   ============================================================ */
+.list-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin:24px 0 12px;flex-wrap:wrap;
+}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{
+  cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;
+  padding:8px 14px;border-radius:99px;transition:.2s;
+  background:var(--card);border:1px solid var(--line);color:var(--muted);
+}
+.chip:hover{color:var(--txt);border-color:var(--line2)}
+.chip.active{background:rgba(34,211,238,.15);color:var(--c1);border-color:rgba(34,211,238,.42)}
+.count{font-size:12.5px;color:var(--muted2);font-weight:700}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.item{
+  display:flex;align-items:flex-start;gap:13px;
+  background:linear-gradient(150deg,var(--card2),rgba(17,26,43,.6));
+  border:1px solid var(--line);border-radius:15px;
+  padding:14px;transition:.25s;animation:fadeUp .35s both;
+}
+.item:hover{border-color:var(--line2);transform:translateX(3px)}
+.item.done{opacity:.5}
+.item.done .item-title{text-decoration:line-through;color:var(--muted)}
+.item.overdue{border-color:rgba(248,113,113,.42);background:linear-gradient(150deg,rgba(248,113,113,.09),rgba(17,26,43,.6))}
+.item-body{flex:1;min-width:0}
+.item-title{font-weight:700;font-size:15.5px;line-height:1.35;word-break:break-word}
+.item-note{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.5;word-break:break-word}
+.item-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.pill{
+  font-size:11.5px;font-weight:700;padding:4.5px 10px;border-radius:99px;
+  background:rgba(255,255,255,.055);border:1px solid var(--line);
+  color:var(--muted);display:inline-flex;align-items:center;gap:5px;
+  font-variant-numeric:tabular-nums;
+}
+.pill.time{color:var(--c1);background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.25)}
+.pill.time.late{color:#fca5a5;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35);animation:pulse 1.9s infinite}
+.pill.repeat{color:var(--c2);background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.25)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+.check{
+  width:27px;height:27px;flex:none;border-radius:9px;cursor:pointer;
+  border:2px solid var(--line2);background:transparent;color:transparent;
+  font-size:14px;font-weight:900;display:grid;place-items:center;
+  transition:.22s;margin-top:1px;
+}
+.check:hover{border-color:var(--c3);transform:scale(1.1)}
+.check.on{
+  background:linear-gradient(135deg,var(--c3),#22d3ee);
+  border-color:transparent;color:#04170f;
+}
+.del{
+  width:32px;height:32px;flex:none;border-radius:10px;cursor:pointer;
+  background:transparent;border:1px solid transparent;color:var(--muted2);
+  font-size:15px;display:grid;place-items:center;transition:.2s;
+}
+.del:hover{background:rgba(248,113,113,.14);color:#fca5a5;border-color:rgba(248,113,113,.3)}
+
+.empty{
+  text-align:center;padding:48px 20px;border-radius:var(--r);
+  border:1.5px dashed var(--line2);background:rgba(17,26,43,.35);
+}
+.empty .e-ico{font-size:44px;margin-bottom:12px;opacity:.65;filter:grayscale(.25)}
+.empty h4{font-size:16px;font-weight:800;margin-bottom:6px}
+.empty p{font-size:13.5px;color:var(--muted2);line-height:1.6}
+
+/* ============================================================
+   MARKET
+   ============================================================ */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;margin-bottom:16px;
+}
+.stat{
+  background:linear-gradient(150deg,var(--card2),rgba(17,26,43,.55));
+  border:1px solid var(--line);border-radius:15px;padding:13px 15px;
+}
+.stat span{display:block;font-size:10.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--muted2);margin-bottom:5px}
+.stat b{font-size:21px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.stat.c1 b{color:var(--c1)} .stat.c3 b{color:var(--c3)} .stat.c4 b{color:var(--c4)}
+
+.trip-card{
+  border-color:rgba(52,211,153,.28);
+  background:linear-gradient(150deg,rgba(52,211,153,.075),rgba(17,26,43,.8));
+}
+.trip-card h3{font-size:16.5px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.trip-card .hint{font-size:12.5px;color:var(--muted2);margin-bottom:15px;line-height:1.5}
+.trip-info{
+  margin-top:14px;padding:14px;border-radius:14px;
+  background:rgba(7,11,19,.6);border:1px solid rgba(52,211,153,.25);
+  display:flex;align-items:center;gap:13px;flex-wrap:wrap;
+  animation:fadeUp .35s both;
+}
+.trip-info .ti-ico{font-size:26px}
+.trip-info .ti-txt{flex:1;min-width:180px}
+.trip-info .ti-txt b{display:block;font-size:14.5px;font-weight:800}
+.trip-info .ti-txt small{color:var(--muted);font-size:12.5px}
+
+.group{margin-bottom:16px;animation:fadeUp .35s both}
+.group-head{
+  font-size:12px;font-weight:800;letter-spacing:.85px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:9px;padding-left:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.group-count{
+  font-size:10.5px;padding:2.5px 8px;border-radius:99px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted2);
+  letter-spacing:0;
+}
+.item.shop .item-title{font-size:15px}
+.qty-badge{
+  font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:9px;flex:none;
+  background:rgba(34,211,238,.12);color:var(--c1);
+  border:1px solid rgba(34,211,238,.25);font-variant-numeric:tabular-nums;
+  align-self:center;
+}
+
+/* ============================================================
+   OYUNLAR
+   ============================================================ */
+.game-picker{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;
+}
+.game-card{
+  cursor:pointer;font-family:inherit;color:var(--muted);
+  background:linear-gradient(150deg,var(--card2),rgba(17,26,43,.55));
+  border:1px solid var(--line);border-radius:16px;
+  padding:16px 10px;transition:.26s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  font-size:13px;font-weight:800;
+}
+.game-card .gc-ico{font-size:26px;line-height:1;transition:.26s}
+.game-card:hover{transform:translateY(-3px);border-color:var(--line2);color:var(--txt)}
+.game-card:hover .gc-ico{transform:scale(1.14) rotate(-5deg)}
+.game-card.active{
+  color:#fff;border-color:rgba(168,85,247,.55);
+  background:linear-gradient(150deg,rgba(168,85,247,.22),rgba(236,72,153,.13));
+  box-shadow:0 16px 34px -18px rgba(168,85,247,.95);
+}
+.game-card.active .gc-ico{transform:scale(1.14)}
+
+.game-stage{
+  background:linear-gradient(160deg,var(--card),rgba(17,26,43,.7));
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow);min-height:340px;
+  animation:fadeUp .35s both;
+}
+.game-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;
+}
+.game-bar .stat{padding:10px 14px;flex:0 0 auto;min-width:88px}
+.game-bar .stat b{font-size:17px}
+.game-bar .spacer{flex:1}
+
+/* Hafıza */
+.mem-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;max-width:440px;margin:0 auto;
+}
+.mem-card{
+  aspect-ratio:1;perspective:800px;cursor:pointer;
+  animation:fadeUp .4s both;
+}
+.mem-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);
+  border-radius:14px;
+}
+.mem-card.flipped .mem-inner,.mem-card.matched .mem-inner{transform:rotateY(180deg)}
+.mem-face{
+  position:absolute;inset:0;border-radius:14px;
+  display:grid;place-items:center;backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;font-size:28px;
+}
+.mem-back{
+  background:linear-gradient(150deg,#1e2c48,#152039);
+  border:1px solid var(--line2);color:#3f5b85;font-size:20px;font-weight:900;
+}
+.mem-card:hover .mem-back{border-color:rgba(34,211,238,.45);background:linear-gradient(150deg,#24365a,#19263f)}
+.mem-front{
+  transform:rotateY(180deg);
+  background:linear-gradient(150deg,rgba(34,211,238,.16),rgba(168,85,247,.16));
+  border:1px solid rgba(34,211,238,.35);
+}
+.mem-card.matched .mem-front{
+  background:linear-gradient(150deg,rgba(52,211,153,.24),rgba(34,211,238,.2));
+  border-color:rgba(52,211,153,.6);
+  box-shadow:0 0 22px -4px rgba(52,211,153,.55);
+}
+.mem-card.matched{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.09)}}
+
+/* Tepki Testi */
+.react-box{
+  border-radius:var(--r);cursor:pointer;user-select:none;
+  min-height:290px;display:grid;place-items:center;text-align:center;
+  padding:30px 20px;transition:background .16s ease,border-color .16s ease,transform .16s;
+  background:linear-gradient(150deg,#1b2743,#131d31);
+  border:1.5px solid var(--line2);
+}
+.react-box:hover{transform:scale(1.008)}
+.react-box.waiting{
+  background:linear-gradient(150deg,#3b1420,#2a0e18);
+  border-color:rgba(248,113,113,.5);
+}
+.react-box.ready{
+  background:linear-gradient(150deg,#0e5a44,#0b4433);
+  border-color:rgba(52,211,153,.8);
+  box-shadow:0 0 60px -14px rgba(52,211,153,.9);
+}
+.react-box.early{
+  background:linear-gradient(150deg,#4a2a10,#331c0a);
+  border-color:rgba(251,191,36,.6);
+}
+.react-box.done{
+  background:linear-gradient(150deg,rgba(34,211,238,.16),rgba(168,85,247,.13));
+  border-color:rgba(34,211,238,.45);
+}
+.react-emoji{font-size:48px;line-height:1;margin-bottom:14px}
+.react-content h3{font-size:23px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.react-content p{color:var(--muted);font-size:13.5px;line-height:1.6}
+
+/* Yılan */
+.snake-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+#snake-canvas{
+  width:100%;max-width:360px;aspect-ratio:1;height:auto;
+  border-radius:16px;border:1.5px solid var(--line2);
+  background:#0a1120;box-shadow:0 20px 50px -22px rgba(0,0,0,1),inset 0 0 60px -20px rgba(34,211,238,.25);
+  display:block;touch-action:none;
+}
+.dpad{
+  display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);
+  gap:7px;justify-content:center;
+}
+.dpad button{
+  border-radius:14px;border:1px solid var(--line2);cursor:pointer;
+  background:linear-gradient(150deg,#1e2c48,#152039);color:var(--c1);
+  font-size:19px;font-family:inherit;display:grid;place-items:center;
+  transition:.18s;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.dpad button:active{transform:scale(.9);background:rgba(34,211,238,.22)}
+.dpad .up{grid-area:1/2} .dpad .left{grid-area:2/1}
+.dpad .down{grid-area:3/2} .dpad .right{grid-area:2/3}
+.dpad .mid{grid-area:2/2;border:none;background:transparent;color:var(--muted2);font-size:12px;cursor:default}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast-box{
+  position:fixed;right:16px;bottom:16px;z-index:999;
+  display:flex;flex-direction:column;gap:10px;
+  max-width:min(370px,calc(100vw - 32px));pointer-events:none;
+}
+.toast{
+  pointer-events:auto;
+  background:linear-gradient(150deg,#152239,#0f1728);
+  border:1px solid var(--line2);border-left:3.5px solid var(--c1);
+  border-radius:14px;padding:14px 16px;
+  box-shadow:0 22px 50px -18px rgba(0,0,0,1);
+  animation:slideIn .42s cubic-bezier(.2,.9,.3,1);backdrop-filter:blur(14px);
+}
+.toast.out{animation:slideOut .4s forwards}
+.toast.warn{border-left-color:var(--c4)}
+.toast.good{border-left-color:var(--c3)}
+.toast.bad{border-left-color:var(--danger)}
+.toast-title{font-weight:800;font-size:14px;margin-bottom:5px;letter-spacing:-.2px}
+.toast-body{font-size:13px;color:var(--muted);line-height:1.55;word-break:break-word}
+@keyframes slideIn{from{opacity:0;transform:translateX(60px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes slideOut{to{opacity:0;transform:translateX(60px) scale(.94)}}
+
+/* ============================================================
+   MOBİL
+   ============================================================ */
+@media (max-width:640px){
+  .brand p{display:none}
+  .brand h1{font-size:17px}
+  .logo{width:40px;height:40px;font-size:20px}
+  .clock{display:none}
+  .tabs-in{gap:6px;padding:7px 12px}
+  .tab{font-size:11.5px;padding:10px 4px;gap:5px;border-radius:12px}
+  .tab span{font-size:15px}
+  .panel-head h2{font-size:22px}
+  .card{padding:15px}
+  .grid{grid-template-columns:1fr 1fr}
+  .grid .field.wide{grid-column:1/-1}
+  .mem-grid{gap:7px}
+  .mem-face{font-size:23px}
+  .game-picker{gap:7px}
+  .game-card{padding:13px 6px;font-size:11px;border-radius:14px}
+  .game-card .gc-ico{font-size:22px}
+  .game-stage{padding:14px}
+  .toast-box{right:10px;left:10px;bottom:10px;max-width:none}
+  .item{padding:12px;gap:10px}
+}
+@media (max-width:400px){
+  .grid{grid-template-columns:1fr}
+  .dpad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px)}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ÜST BAR ================= -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="logo">🏠</div>
+      <div>
+        <h1>EvDüzen</h1>
+        <p>Temizlik • Market • Mola</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="clock" id="clock">--:--</div>
+      <button class="icon-btn" id="btn-notify" title="Bildirim izni ver">🔔</button>
+      <button class="icon-btn active" id="btn-sound" title="Sesi aç/kapat">🔊</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= SEKMELER ================= -->
+<nav class="tabs">
+  <div class="tabs-in">
+    <button class="tab active" data-tab="temizlik"><span>🧹</span> Temizlik</button>
+    <button class="tab" data-tab="market"><span>🛒</span> Market</button>
+    <button class="tab" data-tab="oyun"><span>🎮</span> Oyunlar</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============================================================
+       BÖLÜM 1 — EV TEMİZLİĞİ
+       ============================================================ -->
+  <section class="panel active" id="panel-temizlik">
+    <div class="panel-head">
+      <h2>🧹 Ev Temizliği <em>Hatırlatıcı</em></h2>
+      <p>Nereyi temizlemeyi unuttuğunu yaz, gün ve saatini seç. Zamanı geldiğinde sana bildirim gönderelim — bir daha "aaa orayı temizlememiştim" demeyeceksin.</p>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <label class="field">
+          <span>Nereyi temizleyeceksin?</span>
+          <input id="t-area" list="area-list" placeholder="Örn: Mutfak tezgahı" autocomplete="off">
+          <datalist id="area-list">
+            <option value="Mutfak tezgahı"></option>
+            <option value="Buzdolabı"></option>
+            <option value="Fırın / Ocak"></option>
+            <option value="Banyo"></option>
+            <option value="Tuvalet"></option>
+            <option value="Salon"></option>
+            <option value="Yatak odası"></option>
+            <option value="Çocuk odası"></option>
+            <option value="Koridor"></option>
+            <option value="Balkon"></option>
+            <option value="Camlar"></option>
+            <option value="Perdeler"></option>
+            <option value="Halılar"></option>
+            <option value="Toz alma"></option>
+            <option value="Yerler / Paspas"></option>
+            <option value="Çamaşır makinesi"></option>
+            <option value="Bulaşık makinesi"></option>
+            <option value="Ayakkabılık"></option>
+            <option value="Kiler / Depo"></option>
+            <option value="Çöp kovası"></option>
+          </datalist>
+        </label>
+
+        <label class="field">
+          <span>Gün</span>
+          <input type="date" id="t-date">
+        </label>
+
+        <label class="field">
+          <span>Saat</span>
+          <input type="time" id="t-time">
+        </label>
+
+        <label class="field">
+          <span>Tekrar</span>
+          <select id="t-repeat">
+            <option value="yok">Tek seferlik</option>
+            <option value="gunluk">Her gün</option>
+            <option value="haftalik">Her hafta</option>
+            <option value="aylik">Her ay</option>
+          </select>
+        </label>
+
+        <label class="field wide">
+          <span>Not (opsiyonel)</span>
+          <input id="t-note" placeholder="Örn: balkon camları da silinecek, deterjan bitti" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="t-add">＋ Görev Ekle</button>
+        <button class="btn ghost small" id="t-today">Bugün 20:00</button>
+        <button class="btn ghost small" id="t-tomorrow">Yarın 10:00</button>
+        <button class="btn ghost small" id="t-week">1 hafta sonra</button>
+      </div>
+    </div>
+
+    <div class="list-head">
+      <div class="chips" id="t-filters">
+        <button class="chip active" data-filter="bekleyen">Bekleyen</button>
+        <button class="chip" data-filter="tumu">Tümü</button>
+        <button class="chip" data-filter="bitti">Tamamlanan</button>
+      </div>
+      <span class="count" id="t-count"></span>
+    </div>
+
+    <div class="list" id="t-list"></div>
+  </section>
+
+  <!-- ============================================================
+       BÖLÜM 2 — MARKET ALIŞVERİŞİ
+       ============================================================ -->
+  <section class="panel" id="panel-market">
+    <div class="panel-head">
+      <h2>🛒 Market & Alışveriş <em>Akıllı Liste</em></h2>
+      <p>Evdeki eksikleri buraya ekle. Markete, mağazaya ya da züccaciyeye ne zaman gideceğini belirt — tam o saatte "şunları alacaksın" diye hatırlatalım.</p>
+    </div>
+
+    <div class="stats" id="m-stats">
+      <div class="stat c1"><span>Toplam Ürün</span><b id="m-total">0</b></div>
+      <div class="stat c4"><span>Alınacak</span><b id="m-left">0</b></div>
+      <div class="stat c3"><span>Sepette</span><b id="m-done">0</b></div>
+    </div>
+
+    <!-- Alışveriş planı -->
+    <div class="card trip-card">
+      <h3>🗓️ Alışveriş Zamanı Planla</h3>
+      <p class="hint">Ne zaman ve nereye gideceğini seç. O an geldiğinde listedeki tüm eksiklerinle birlikte bildirim alacaksın.</p>
+      <div class="grid">
+        <label class="field">
+          <span>Ne zaman gidiyorsun?</span>
+          <input type="datetime-local" id="m-when">
+        </label>
+        <label class="field">
+          <span>Nereye?</span>
+          <select id="m-store">
+            <option>🛒 Market</option>
+            <option>🏪 Süpermarket</option>
+            <option>🥬 Pazar / Semt pazarı</option>
+            <option>🍽️ Züccaciye</option>
+            <option>💊 Eczane</option>
+            <option>🔨 Hırdavat / Yapı market</option>
+            <option>🐾 Petshop</option>
+            <option>📦 Diğer</option>
+          </select>
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn green" id="m-plan">🔔 Planla ve Hatırlat</button>
+        <button class="btn ghost small" id="m-quick">1 saat sonra</button>
+        <button class="btn ghost small" id="m-quick2">Bu akşam 19:00</button>
+      </div>
+      <div id="m-trip-info"></div>
+    </div>
+
+    <!-- Ürün ekleme -->
+    <div class="card" style="margin-top:14px">
+      <div class="grid">
+        <label class="field" style="grid-column:span 1">
+          <span>Ürün / İhtiyaç</span>
+          <input id="m-name" placeholder="Örn: Süt, deterjan, tabak" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Miktar</span>
+          <input id="m-qty" placeholder="2 lt / 1 paket" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Kategori</span>
+          <select id="m-cat">
+            <option>Meyve & Sebze</option>
+            <option>Süt Ürünleri</option>
+            <option>Et & Tavuk</option>
+            <option>Fırın & Kahvaltılık</option>
+            <option>İçecek</option>
+            <option>Atıştırmalık</option>
+            <option>Temizlik</option>
+            <option>Züccaciye</option>
+            <option>Ev & Yaşam</option>
+            <option>Kişisel Bakım</option>
+            <option>Diğer</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Nereden?</span>
+          <select id="m-where">
+            <option>Market</option>
+            <option>Süpermarket</option>
+            <option>Pazar</option>
+            <option>Züccaciye</option>
+            <option>Eczane</option>
+            <option>Hırdavat</option>
+            <option>Petshop</option>
+            <option>Farketmez</option>
+          </select>
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn green" id="m-add">＋ Listeye Ekle</button>
+        <button class="btn ghost small" id="m-clear-done">Alınanları Temizle</button>
+        <button class="btn danger small" id="m-clear-all">Listeyi Boşalt</button>
+      </div>
+    </div>
+
+    <div class="list-head">
+      <div class="chips" id="m-filters">
+        <button class="chip active" data-filter="hepsi">Hepsi</button>
+        <button class="chip" data-filter="kalan">Alınacaklar</button>
+        <button class="chip" data-filter="alinan">Alınanlar</button>
+      </div>
+      <span class="count" id="m-count"></span>
+    </div>
+
+    <div class="list" id="m-list"></div>
+  </section>
+
+  <!-- ============================================================
+       BÖLÜM 3 — OYUNLAR
+       ============================================================ -->
+  <section class="panel" id="panel-oyun">
+    <div class="panel-head">
+      <h2>🎮 Mola Zamanı <em>Mini Oyunlar</em></h2>
+      <p>Bütün o büyük işleri hallettikten sonra biraz kafanı dağıt. Kısa, keyifli ve tamamen tarayıcıda çalışan üç mini oyun.</p>
+    </div>
+
+    <div class="game-picker">
+      <button class="game-card active" data-game="memory">
+        <span class="gc-ico">🧠</span><span>Hafıza</span>
+      </button>
+      <button class="game-card" data-game="reaction">
+        <span class="gc-ico">⚡</span><span>Tepki Testi</span>
+      </button>
+      <button class="game-card" data-game="snake">
+        <span class="gc-ico">🐍</span><span>Yılan</span>
+      </button>
+    </div>
+
+    <div class="game-stage" id="game-stage"></div>
+  </section>
+
+</main>
+
+<div class="toast-box" id="toast-box"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   0) YARDIMCILAR
+   ============================================================ */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g,
+  c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+const pad = n => String(n).padStart(2, "0");
+
+const fmtFull = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit", month: "long", weekday: "short",
+  hour: "2-digit", minute: "2-digit"
+});
+const fmtShort = new Intl.DateTimeFormat("tr-TR", {
+  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
+});
+
+function localInputValue(d) {
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+         "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
+function kalanSure(iso) {
+  const diff = new Date(iso).getTime() - Date.now();
+  if (isNaN(diff)) return { text: "—", late: false };
+  if (diff <= 0) {
+    const gec = Math.abs(diff);
+    const d = Math.floor(gec / 86400000);
+    const h = Math.floor((gec % 86400000) / 3600000);
+    const m = Math.floor((gec % 3600000) / 60000);
+    let s = "⏰ Zamanı geldi";
+    if (d > 0) s = "⏰ " + d + " gün geçti";
+    else if (h > 0) s = "⏰ " + h + " saat geçti";
+    else if (m > 0) s = "⏰ " + m + " dk geçti";
+    return { text: s, late: true };
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  if (d > 0) return { text: "⏳ " + d + " gün " + h + " saat", late: false };
+  if (h > 0) return { text: "⏳ " + h + " saat " + m + " dk", late: false };
+  if (m > 0) return { text: "⏳ " + m + " dk " + s + " sn", late: false };
+  return { text: "⏳ " + s + " saniye", late: false };
+}
+
+const REPEAT_LABEL = {
+  yok: null,
+  gunluk: "🔁 Her gün",
+  haftalik: "🔁 Her hafta",
+  aylik: "🔁 Her ay"
+};
+
+const CAT_EMOJI = {
+  "Meyve & Sebze": "🥬",
+  "Süt Ürünleri": "🧀",
+  "Et & Tavuk": "🍗",
+  "Fırın & Kahvaltılık": "🥐",
+  "İçecek": "🥤",
+  "Atıştırmalık": "🍫",
+  "Temizlik": "🧴",
+  "Züccaciye": "🍽️",
+  "Ev & Yaşam": "🏠",
+  "Kişisel Bakım": "🧼",
+  "Diğer": "📦"
+};
+
+/* ============================================================
+   1) DURUM (STATE) & KAYIT
+   ============================================================ */
+const STORAGE_KEY = "evduzen_v1";
+
+let state = {
+  tasks: [],
+  items: [],
+  trip: null,
+  sound: true,
+  records: { memory: null, reaction: null, snake: 0 }
+};
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    state = Object.assign(state, parsed);
+    state.records = Object.assign({ memory: null, reaction: null, snake: 0 }, parsed.records || {});
+    if (!Array.isArray(state.tasks)) state.tasks = [];
+    if (!Array.isArray(state.items)) state.items = [];
+  } catch (e) { console.warn("Kayıt okunamadı", e); }
+}
+
+/* ============================================================
+   2) SES & BİLDİRİM
+   ============================================================ */
+let audioCtx = null;
+function beep(freq, dur, type) {
+  if (!state.sound) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || "sine";
+    o.frequency.value = freq || 880;
+    o.connect(g); g.connect(audioCtx.destination);
+    const t = audioCtx.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.15));
+    o.start(t);
+    o.stop(t + (dur || 0.15) + 0.03);
+  } catch (e) {}
+}
+function chime() {
+  beep(784, 0.13, "sine");
+  setTimeout(() => beep(1046, 0.16, "sine"), 130);
+  setTimeout(() => beep(1318, 0.22, "sine"), 280);
+}
+
+const toastBox = $("#toast-box");
+function toast(title, body, type) {
+  const el = document.createElement("div");
+  el.className = "toast " + (type || "");
+  el.innerHTML =
+    '<div class="toast-title">' + esc(title) + "</div>" +
+    '<div class="toast-body">' + esc(body).replace(/\n/g, "<br>") + "</div>";
+  toastBox.appendChild(el);
+  setTimeout(() => {
+    el.classList.add("out");
+    setTimeout(() => el.remove(), 420);
+  }, 7500);
+}
+
+function notify(title, body, type) {
+  toast(title, body, type);
+  chime();
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      const n = new Notification(title, {
+        body: body,
+        tag: "evduzen-" + Date.now(),
+        requireInteraction: false
+      });
+      n.onclick = function () { window.focus(); n.close(); };
+    }
+  } catch (e) {}
+}
+
+const btnNotify = $("#btn-notify");
+function updateNotifyBtn() {
+  if (!("Notification" in window)) {
+    btnNotify.textContent = "🔕";
+    btnNotify.classList.add("off");
+    btnNotify.title = "Tarayıcı bildirimi desteklemiyor";
+    return;
+  }
+  if (Notification.permission === "granted") {
+    btnNotify.textContent = "🔔";
+    btnNotify.classList.add("active");
+    btnNotify.classList.remove("off");
+    btnNotify.title = "Bildirimler açık";
+  } else if (Notification.permission === "denied") {
+    btnNotify.textContent = "🔕";
+    btnNotify.classList.remove("active");
+    btnNotify.classList.add("off");
+    btnNotify.title = "Bildirimler engellendi";
+  } else {
+    btnNotify.textContent = "🔔";
+    btnNotify.classList.remove("active");
+    btnNotify.classList.add("off");
+    btnNotify.title = "Bildirimlere izin ver";
+  }
+}
+btnNotify.addEventListener("click", () => {
+  if (!("Notification" in window)) {
+    toast("Bildirim desteklenmiyor", "Tarayıcın sistem bildirimlerini desteklemiyor. Uygulama içi bildirimler yine çalışacak.", "warn");
+    return;
+  }
+  if (Notification.permission === "granted") {
+    toast("Bildirimler açık ✅", "Zamanı gelen her görev için haber vereceğim.", "good");
+    return;
+  }
+  Notification.requestPermission().then(p => {
+    updateNotifyBtn();
+    if (p === "granted") {
+      toast("Harika! 🎉", "Artık zamanı geldiğinde sistem bildirimi göndereceğim.", "good");
+      notify("EvDüzen hazır", "Bildirimler başarıyla etkinleştirildi.");
+    } else {
+      toast("İzin verilmedi", "Uygulama içi bildirimler yine de çalışacak.", "warn");
+    }
+  });
+});
+
+const btnSound = $("#btn-sound");
+btnSound.addEventListener("click", () => {
+  state.sound = !state.sound;
+  save();
+  btnSound.textContent = state.sound ? "🔊" : "🔇";
+  btnSound.classList.toggle("active", state.sound);
+  btnSound.classList.toggle("off", !state.sound);
+  if (state.sound) beep(880, 0.12);
+});
+
+/* ============================================================
+   3) SEKME YÖNETİMİ
+   ============================================================ */
+let currentTab = "temizlik";
+$$(".tab").forEach(t => {
+  t.addEventListener("click", () => switchTab(t.dataset.tab));
+});
+
+function switchTab(name) {
+  currentTab = name;
+  $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+  $$(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + name));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (name !== "oyun") {
+    gameCleanup();
+  } else {
+    openGame(currentGame || "memory");
+  }
+}
+
+/* ============================================================
+   4) BÖLÜM 1 — TEMİZLİK
+   ============================================================ */
+let taskFilter = "bekleyen";
+
+const tArea   = $("#t-area");
+const tDate   = $("#t-date");
+const tTime   = $("#t-time");
+const tRepeat = $("#t-repeat");
+const tNote   = $("#t-note");
+const tList   = $("#t-list");
+
+function defaultDates() {
+  const now = new Date();
+  tDate.value = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+  const t = new Date(now.getTime() + 60 * 60 * 1000);
+  tTime.value = pad(t.getHours()) + ":" + pad(t.getMinutes());
+}
+
+function addTask() {
+  const area = tArea.value.trim();
+  if (!area) {
+    toast("Alan gerekli", "Nereyi temizleyeceğini yazmayı unuttun 🙂", "warn");
+    tArea.focus();
+    return;
+  }
+  if (!tDate.value) {
+    toast("Tarih gerekli", "Temizlik için bir gün seç.", "warn");
+    tDate.focus();
+    return;
+  }
+  const time = tTime.value || "09:00";
+  const dt = new Date(tDate.value + "T" + time + ":00");
+  if (isNaN(dt.getTime())) {
+    toast("Geçersiz tarih", "Lütfen tarih ve saati kontrol et.", "bad");
+    return;
+  }
+
+  state.tasks.push({
+    id: "t" + Date.now() + Math.random().toString(36).slice(2, 6),
+    area: area,
+    note: tNote.value.trim(),
+    datetime: dt.toISOString(),
+    repeat: tRepeat.value,
+    done: false,
+    notified: false,
+    createdAt: Date.now()
+  });
+  save();
+
+  tArea.value = "";
+  tNote.value = "";
+  tArea.focus();
+
+  toast("Görev eklendi ✅", area + " — " + fmtFull.format(dt), "good");
+  beep(880, 0.1);
+  renderTasks();
+}
+
+$("#t-add").addEventListener("click", addTask);
+tArea.addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+tNote.addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+
+$("#t-today").addEventListener("click", () => {
+  const d = new Date();
+  tDate.value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  tTime.value = "20:00";
+});
+$("#t-tomorrow").addEventListener("click", () => {
+  const d = new Date(Date.now() + 86400000);
+  tDate.value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  tTime.value = "10:00";
+});
+$("#t-week").addEventListener("click", () => {
+  const d = new Date(Date.now() + 7 * 86400000);
+  tDate.value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  tTime.value = "11:00";
+});
+
+$$("#t-filters .chip").forEach(c => {
+  c.addEventListener("click", () => {
+    $$("#t-filters .chip").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    taskFilter = c.dataset.filter;
+    renderTasks();
+  });
+});
+
+function nextOccurrence(iso, repeat) {
+  const d = new Date(iso);
+  if (repeat === "gunluk") d.setDate(d.getDate() + 1);
+  else if (repeat === "haftalik") d.setDate(d.getDate() + 7);
+  else if (repeat === "aylik") d.setMonth(d.getMonth() + 1);
+  else return null;
+  return d.toISOString();
+}
+
+tList.addEventListener("click", e => {
+  const doneBtn = e.target.closest("[data-done]");
+  const delBtn  = e.target.closest("[data-del]");
+
+  if (doneBtn) {
+    const id = doneBtn.dataset.done;
+    const task = state.tasks.find(t => t.id === id);
+    if (!task) return;
+    task.done = !task.done;
+
+    if (task.done) {
+      beep(660, 0.1);
+      if (task.repeat && task.repeat !== "yok") {
+        const nxt = nextOccurrence(task.datetime, task.repeat);
+        if (nxt) {
+          state.tasks.push({
+            id: "t" + Date.now() + Math.random().toString(36).slice(2, 6),
+            area: task.area,
+            note: task.note,
+            datetime: nxt,
+            repeat: task.repeat,
+            done: false,
+            notified: false,
+            createdAt: Date.now()
+          });
+          toast("Tekrarlandı 🔁",
+            task.area + " için bir sonraki tarih: " + fmtFull.format(new Date(nxt)), "good");
+        }
+      } else {
+        toast("Aferin! 🎉", task.area + " temizlendi olarak işaretlendi.", "good");
+      }
+    }
+    save();
+    renderTasks();
+  }
+
+  if (delBtn) {
+    const id = delBtn.dataset.del;
+    const idx = state.tasks.findIndex(t => t.id === id);
+    if (idx > -1) {
+      const removed = state.tasks[idx];
+      state.tasks.splice(idx, 1);
+      save();
+      renderTasks();
+      toast("Silindi 🗑️", removed.area + " listeden kaldırıldı.", "bad");
+    }
+  }
+});
+
+function renderTasks() {
+  let list = state.tasks.slice();
+
+  if (taskFilter === "bekleyen") list = list.filter(t => !t.done);
+  else if (taskFilter === "bitti") list = list.filter(t => t.done);
+
+  list.sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return new Date(a.datetime) - new Date(b.datetime);
+  });
+
+  const pending = state.tasks.filter(t => !t.done).length;
+  const overdue = state.tasks.filter(t => !t.done && new Date(t.datetime) <= new Date()).length;
+  $("#t-count").textContent =
+    pending + " bekleyen" + (overdue ? " • " + overdue + " gecikmiş" : "");
+
+  if (!list.length) {
+    const msg = taskFilter === "bitti"
+      ? ["🎉", "Henüz tamamlanan yok", "Bir görevi bitirdiğinde burada görünecek."]
+      : taskFilter === "tumu"
+        ? ["📋", "Hiç görev yok", "Yukarıdaki formdan ilk temizlik görevini ekle."]
+        : ["✨", "Bekleyen görev yok", "Her şey temiz görünüyor! Yeni bir görev ekleyebilirsin."];
+    tList.innerHTML =
+      '<div class="empty"><div class="e-ico">' + msg[0] + "</div>" +
+      "<h4>" + msg[1] + "</h4><p>" + msg[2] + "</p></div>";
+    return;
+  }
+
+  tList.innerHTML = list.map(t => {
+    const k = kalanSure(t.datetime);
+    const late = k.late && !t.done;
+    const rl = REPEAT_LABEL[t.repeat];
+    return '<div class="item ' + (t.done ? "done " : "") + (late ? "overdue" : "") + '">' +
+      '<button class="check ' + (t.done ? "on" : "") + '" data-done="' + t.id + '" title="Tamamla">✓</button>' +
+      '<div class="item-body">' +
+        '<div class="item-title">' + esc(t.area) + "</div>" +
+        (t.note ? '<div class="item-note">📝 ' + esc(t.note) + "</div>" : "") +
+        '<div class="item-meta">' +
+          '<span class="pill">📅 ' + esc(fmtFull.format(new Date(t.datetime))) + "</span>" +
+          (t.done
+            ? '<span class="pill">✅ Tamamlandı</span>'
+            : '<span class="pill time ' + (late ? "late" : "") + '" data-iso="' + t.datetime + '">' + k.text + "</span>") +
+          (rl ? '<span class="pill repeat">' + rl + "</span>" : "") +
+        "</div>" +
+      "</div>" +
+      '<button class="del" data-del="' + t.id + '" title="Sil">🗑️</button>' +
+    "</div>";
+  }).join("");
+}
+
+/* ============================================================
+   5) BÖLÜM 2 — MARKET
+   ============================================================ */
+let marketFilter = "hepsi";
+
+const mName  = $("#m-name");
+const mQty   = $("#m-qty");
+const mCat   = $("#m-cat");
+const mWhere = $("#m-where");
+const mList  = $("#m-list");
+
+function addItem() {
+  const name = mName.value.trim();
+  if (!name) {
+    toast("Ürün adı gerekli", "Ne alacağını yazmayı unuttun 🙂", "warn");
+    mName.focus();
+    return;
+  }
+  state.items.push({
+    id: "i" + Date.now() + Math.random().toString(36).slice(2, 6),
+    name: name,
+    qty: mQty.value.trim(),
+    category: mCat.value,
+    where: mWhere.value,
+    done: false,
+    createdAt: Date.now()
+  });
+  save();
+
+  mName.value = "";
+  mQty.value = "";
+  mName.focus();
+
+  beep(760, 0.09);
+  toast("Listeye eklendi 🛒", name + (mQty.value ? "" : ""), "good");
+  renderItems();
+}
+
+$("#m-add").addEventListener("click", addItem);
+mName.addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
+mQty.addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
+
+mList.addEventListener("click", e => {
+  const doneBtn = e.target.closest("[data-done]");
+  const delBtn  = e.target.closest("[data-del]");
+
+  if (doneBtn) {
+    const it = state.items.find(i => i.id === doneBtn.dataset.done);
+    if (!it) return;
+    it.done = !it.done;
+    save();
+    beep(it.done ? 900 : 420, 0.08);
+    renderItems();
+  }
+  if (delBtn) {
+    const idx = state.items.findIndex(i => i.id === delBtn.dataset.del);
+    if (idx > -1) {
+      state.items.splice(idx, 1);
+      save();
+      renderItems();
+    }
+  }
+});
+
+$$("#m-filters .chip").forEach(c => {
+  c.addEventListener("click", () => {
+    $$("#m-filters .chip").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    marketFilter = c.dataset.filter;
+    renderItems();
+  });
+});
+
+$("#m-clear-done").addEventListener("click", () => {
+  const n = state.items.filter(i => i.done).length;
+  if (!n) { toast("Temizlenecek bir şey yok", "Henüz alınan ürün işaretlenmemiş.", "warn"); return; }
+  state.items = state.items.filter(i => !i.done);
+  save();
+  renderItems();
+  toast("Temizlendi 🧹", n + " ürün listeden çıkarıldı.", "good");
+});
+
+$("#m-clear-all").addEventListener("click", () => {
+  if (!state.items.length) return;
+  if (!confirm("Tüm alışveriş listesi silinsin mi?")) return;
+  state.items = [];
+  save();
+  renderItems();
+  toast("Liste boşaltıldı", "Alışveriş listesi tamamen temizlendi.", "bad");
+});
+
+function updateMarketStats() {
+  const total = state.items.length;
+  const done = state.items.filter(i => i.done).length;
+  $("#m-total").textContent = total;
+  $("#m-left").textContent = total - done;
+  $("#m-done").textContent = done;
+
+  const pending = total - done;
+  $("#m-count").textContent = pending
+    ? pending + " ürün alınacak"
+    : (total ? "Hepsi alındı 🎉" : "");
+}
+
+function renderItems() {
+  let list = state.items.slice();
+
+  if (marketFilter === "kalan") list = list.filter(i => !i.done);
+  else if (marketFilter === "alinan") list = list.filter(i => i.done);
+
+  updateMarketStats();
+
+  if (!list.length) {
+    const msg = marketFilter === "alinan"
+      ? ["📦", "Henüz alınan yok", "Aldığın ürünleri işaretlediğinde burada listelenir."]
+      : marketFilter === "kalan"
+        ? ["✅", "Alınacak bir şey kalmadı", "Liste tamamen tamamlandı, harika!"]
+        : ["🛒", "Alışveriş listesi boş", "Yukarıdan evdeki eksikleri eklemeye başla."];
+    mList.innerHTML =
+      '<div class="empty"><div class="e-ico">' + msg[0] + "</div>" +
+      "<h4>" + msg[1] + "</h4><p>" + msg[2] + "</p></div>";
+    return;
+  }
+
+  const groups = {};
+  const order = [];
+  list.forEach(it => {
+    if (!groups[it.category]) { groups[it.category] = []; order.push(it.category); }
+    groups[it.category].push(it);
+  });
+
+  let html = "";
+  order.forEach(cat => {
+    const g = groups[cat];
+    const kalan = g.filter(x => !x.done).length;
+    html += '<div class="group">' +
+      '<div class="group-head">' + (CAT_EMOJI[cat] || "📦") + " " + esc(cat) +
+        '<span class="group-count">' + kalan + "/" + g.length + "</span>" +
+      "</div>";
+    g.sort((a, b) => (a.done === b.done ? a.createdAt - b.createdAt : (a.done ? 1 : -1)));
+    g.forEach(it => {
+      html += '<div class="item shop ' + (it.done ? "done" : "") + '">' +
+        '<button class="check ' + (it.done ? "on" : "") + '" data-done="' + it.id + '">✓</button>' +
+        '<div class="item-body">' +
+          '<div class="item-title">' + esc(it.name) + "</div>" +
+          '<div class="item-meta">' +
+            '<span class="pill">📍 ' + esc(it.where) + "</span>" +
+          "</div>" +
+        "</div>" +
+        (it.qty ? '<span class="qty-badge">' + esc(it.qty) + "</span>" : "") +
+        '<button class="del" data-del="' + it.id + '">🗑️</button>' +
+      "</div>";
+    });
+    html += "</div>";
+  });
+
+  mList.innerHTML = html;
+}
+
+/* ---------- Alışveriş planı ---------- */
+const mWhen = $("#m-when");
+
+function setWhen(offsetMs) {
+  mWhen.value = localInputValue(new Date(Date.now() + offsetMs));
+}
+
+$("#m-quick").addEventListener("click", () => setWhen(60 * 60 * 1000));
+$("#m-quick2").addEventListener("click", () => {
+  const d = new Date();
+  d.setHours(19, 0, 0, 0);
+  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1);
+  mWhen.value = localInputValue(d);
+});
+
+$("#m-plan").addEventListener("click", () => {
+  if (!mWhen.value) {
+    toast("Zaman seç", "Alışverişe ne zaman gideceğini belirt.", "warn");
+    mWhen.focus();
+    return;
+  }
+  const d = new Date(mWhen.value);
+  if (isNaN(d.getTime())) {
+    toast("Geçersiz zaman", "Lütfen tarih ve saati kontrol et.", "bad");
+    return;
+  }
+  state.trip = {
+    when: d.toISOString(),
+    store: $("#m-store").value,
+    notified: false
+  };
+  save();
+  renderTrip();
+  chime();
+  toast("Plan hazır 🔔",
+    $("#m-store").value + " için " + fmtFull.format(d) + " tarihinde hatırlatacağım.", "good");
+});
+
+function renderTrip() {
+  const box = $("#m-trip-info");
+  if (!state.trip) { box.innerHTML = ""; return; }
+
+  const k = kalanSure(state.trip.when);
+  const pending = state.items.filter(i => !i.done);
+
+  box.innerHTML =
+    '<div class="trip-info">' +
+      '<div class="ti-ico">🗓️</div>' +
+      '<div class="ti-txt">' +
+        "<b>" + esc(state.trip.store) + " • " + esc(fmtFull.format(new Date(state.trip.when))) + "</b>" +
+        '<small data-iso="' + state.trip.when + '" class="' + (k.late ? "late" : "") + '">' +
+          k.text + " • " + pending.length + " ürün alınacak" +
+        "</small>" +
+      "</div>" +
+      '<button class="btn danger small" id="m-cancel-trip">İptal</button>' +
+    "</div>";
+
+  const cancel = $("#m-cancel-trip");
+  if (cancel) {
+    cancel.addEventListener("click", () => {
+      state.trip = null;
+      save();
+      renderTrip();
+      toast("Plan iptal edildi", "Alışveriş hatırlatması kaldırıldı.", "warn");
+    });
+  }
+}
+
+/* ============================================================
+   6) BÖLÜM 3 — OYUNLAR
+   ============================================================ */
+let currentGame = "memory";
+let gameCleanup = function () {};
+
+$$(".game-card").forEach(c => {
+  c.addEventListener("click", () => openGame(c.dataset.game));
+});
+
+function openGame(name) {
+  gameCleanup();
+  gameCleanup = function () {};
+  currentGame = name;
+  $$(".game-card").forEach(b => b.classList.toggle("active", b.dataset.game === name));
+  if (name === "memory") initMemory();
+  else if (name === "reaction") initReaction();
+  else if (name === "snake") initSnake();
+}
+
+/* ---------------- HAFIZA OYUNU ---------------- */
+function initMemory() {
+  const stage = $("#game-stage");
+  const EMO = ["🍎", "🍋", "🍇", "🍓", "🥑", "🍍", "🍒", "🥕"];
+
+  stage.innerHTML =
+    '<div class="game-bar">' +
+      '<div class="stat"><span>Hamle</span><b id="mem-moves">0</b></div>' +
+      '<div class="stat"><span>Süre</span><b id="mem-time">0s</b></div>' +
+      '<div class="stat"><span>Rekor</span><b id="mem-best">' +
+        (state.records.memory ? state.records.memory + " hamle" : "—") + "</b></div>" +
+      '<div class="spacer"></div>' +
+      '<button class="btn small" id="mem-reset">🔄 Yeniden</button>' +
+    "</div>" +
+    '<div class="mem-grid" id="mem-grid"></div>';
+
+  const grid = $("#mem-grid");
+  let deck = EMO.concat(EMO).sort(() => Math.random() - 0.5);
+
+  let first = null, lock = false, moves = 0, matched = 0, seconds = 0, finished = false;
+
+  function build() {
+    grid.innerHTML = deck.map((e, i) =>
+      '<div class="mem-card" data-i="' + i + '" style="animation-delay:' + (i * 22) + 'ms">' +
+        '<div class="mem-inner">' +
+          '<div class="mem-face mem-back">?</div>' +
+          '<div class="mem-face mem-front">' + e + "</div>" +
+        "</div>" +
+      "</div>"
+    ).join("");
+  }
+  build();
+
+  const timer = setInterval(() => {
+    if (finished) return;
+    seconds++;
+    const el = $("#mem-time");
+    if (el) el.textContent = seconds + "s";
+  }, 1000);
+
+  function reset() {
+    deck = EMO.concat(EMO).sort(() => Math.random() - 0.5);
+    first = null; lock = false; moves = 0; matched = 0; seconds = 0; finished = false;
+    $("#mem-moves").textContent = "0";
+    $("#mem-time").textContent = "0s";
+    build();
+  }
+
+  grid.addEventListener("click", e => {
+    const card = e.target.closest(".mem-card");
+    if (!card || lock) return;
+    if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
+
+    card.classList.add("flipped");
+    beep(520, 0.05, "triangle");
+
+    if (!first) { first = card; return; }
+
+    const second = card;
+    if (first === second) return;
+
+    moves++;
+    $("#mem-moves").textContent = moves;
+
+    const a = first.dataset.i, b = second.dataset.i;
+    if (deck[a] === deck[b]) {
+      first.classList.add("matched");
+      second.classList.add("matched");
+      first = null;
+      matched++;
+      beep(880, 0.09, "sine");
+      if (matched === EMO.length) {
+        finished = true;
+        setTimeout(() => {
+          chime();
+          const best = state.records.memory;
+          let rec = "";
+          if (best === null || moves < best) {
+            state.records.memory = moves;
+            save();
+            $("#mem-best").textContent = moves + " hamle";
+            rec = " 🏆 Yeni rekor!";
+          }
+          toast("Tebrikler! 🎉",
+            "Tüm kartları " + moves + " hamlede ve " + seconds + " saniyede buldun." + rec, "good");
+        }, 420);
+      }
+    } else {
+      lock = true;
+      const f = first;
+      first = null;
+      beep(240, 0.1, "sawtooth");
+      setTimeout(() => {
+        f.classList.remove("flipped");
+        second.classList.remove("flipped");
+        lock = false;
+      }, 720);
+    }
+  });
+
+  $("#mem-reset").addEventListener("click", () => {
+    reset();
+    beep(700, 0.07);
+  });
+
+  gameCleanup = function () { clearInterval(timer); };
+}
+
+/* ---------------- TEPKİ TESTİ ---------------- */
+function initReaction() {
+  const stage = $("#game-stage");
+
+  stage.innerHTML =
+    '<div class="game-bar">' +
+      '<div class="stat"><span>Son Sonuç</span><b id="rx-last">—</b></div>' +
+      '<div class="stat"><span>En İyi</span><b id="rx-best">' +
+        (state.records.reaction ? state.records.reaction + " ms" : "—") + "</b></div>" +
+      '<div class="spacer"></div>' +
+      '<button class="btn small" id="rx-reset">🔄 Rekoru Sıfırla</button>' +
+    "</div>" +
+    '<div class="react-box" id="react-box">' +
+      '<div class="react-content">' +
+        '<div class="react-emoji">⚡</div>' +
+        "<h3>Tepki Testi</h3>" +
+        "<p>Başlamak için bu alana tıkla.<br>Kutu yeşile döndüğünde olabildiğince hızlı tıkla!</p>" +
+      "</div>" +
+    "</div>";
+
+  const box = $("#react-box");
+  const content = box.querySelector(".react-content");
+
+  let phase = "idle";
+  let timeout = null;
+  let startTime = 0;
+
+  function setPhase(p, cls, html) {
+    phase = p;
+    box.className = "react-box " + (cls || "");
+    content.innerHTML = html;
+  }
+
+  box.addEventListener("click", () => {
+    if (phase === "idle" || phase === "done") {
+      setPhase("waiting", "waiting",
+        '<div class="react-emoji">⏳</div><h3>Bekle...</h3>' +
+        "<p>Yeşili bekle. Erken tıklarsan kaybedersin!</p>");
+      const delay = 1200 + Math.random() * 2800;
+      timeout = setTimeout(() => {
+        phase = "ready";
+        startTime = performance.now();
+        box.className = "react-box ready";
+        content.innerHTML = '<div class="react-emoji">🟢</div><h3>TIKLA!</h3>';
+        beep(1000, 0.06, "square");
+      }, delay);
+      return;
+    }
+
+    if (phase === "waiting") {
+      clearTimeout(timeout);
+      beep(180, 0.18, "sawtooth");
+      setPhase("done", "early",
+        '<div class="react-emoji">😅</div><h3>Çok erken!</h3>' +
+        "<p>Yeşil olmadan tıkladın. Tekrar denemek için tıkla.</p>");
+      return;
+    }
+
+    if (phase === "ready") {
+      const ms = Math.round(performance.now() - startTime);
+      const emoji = ms < 220 ? "🚀" : ms < 300 ? "⚡" : ms < 420 ? "👍" : "🐢";
+      const yorum = ms < 220 ? "İnanılmaz hızlı!" : ms < 300 ? "Çok iyi!" : ms < 420 ? "Fena değil." : "Biraz yavaş, tekrar dene.";
+      setPhase("done", "done",
+        '<div class="react-emoji">' + emoji + "</div>" +
+        "<h3>" + ms + " ms</h3>" +
+        "<p>" + yorum + " Tekrar denemek için tıkla.</p>");
+      $("#rx-last").textContent = ms + " ms";
+      beep(ms < 250 ? 1200 : 700, 0.12);
+
+      if (state.records.reaction === null || ms < state.records.reaction) {
+        state.records.reaction = ms;
+        save();
+        $("#rx-best").textContent = ms + " ms";
+        setTimeout(() => toast("🏆 Yeni rekor!", ms + " ms ile en hızlı tepkini verdin.", "good"), 200);
+      }
+    }
+  });
+
+  $("#rx-reset").addEventListener("click", () => {
+    state.records.reaction = null;
+    save();
+    $("#rx-best").textContent = "—";
+    toast("Rekor sıfırlandı", "Tepki testi rekoru temizlendi.", "warn");
+  });
+
+  gameCleanup = function () { clearTimeout(timeout); };
+}
+
+/* ---------------- YILAN OYUNU ---------------- */
+function initSnake() {
+  const stage = $("#game-stage");
+
+  stage.innerHTML =
+    '<div class="game-bar">' +
+      '<div class="stat"><span>Skor</span><b id="sn-score">0</b></div>' +
+      '<div class="stat"><span>Rekor</span><b id="sn-best">' + (state.records.snake || 0) + "</b></div>" +
+      '<div class="spacer"></div>' +
+      '<button class="btn small" id="sn-restart">🔄 Yeniden Başlat</button>' +
+    "</div>" +
+    '<div class="snake-wrap">' +
+      '<canvas id="snake-canvas" width="360" height="360"></canvas>' +
+      '<div class="dpad">' +
+        '<button class="up" data-dir="up">▲</button>' +
+        '<button class="left" data-dir="left">◀</button>' +
+        '<button class="mid">🐍</button>' +
+        '<button class="right" data-dir="right">▶</button>' +
+        '<button class="down" data-dir="down">▼</button>' +
+      "</div>" +
+      "<p style=\"color:var(--muted2);font-size:12.5px;text-align:center;max-width:340px;line-height:1.6\">" +
+        "Klavye oklarını veya yandaki tuşları kullan. İlk hareketle oyun başlar." +
+      "</p>" +
+    "</div>";
+
+  const canvas = $("#snake-canvas");
+  const ctx = canvas.getContext("2d");
+
+  const COLS = 18, ROWS = 18;
+  const CELL = canvas.width / COLS;
+
+  let snake, dir, nextDir, food, score, speed, running, loop, gameOverFlag;
+
+  function randFood() {
+    let p, guard = 0;
+    do {
+      p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
+      guard++;
+    } while (snake.some(s => s.x === p.x && s.y === p.y) && guard < 500);
+    return p;
+  }
+
+  function reset() {
+    snake = [{ x: 9, y: 9 }, { x: 8, y: 9 }, { x: 7, y: 9 }];
+    dir = { x: 1, y: 0 };
+    nextDir = { x: 1, y: 0 };
+    food = randFood();
+    score = 0;
+    speed = 145;
+    running = false;
+    gameOverFlag = false;
+    clearInterval(loop);
+    loop = null;
+    $("#sn-score").textContent = "0";
+    draw();
+    drawOverlay("Hazır?", "Başlamak için bir yön tuşuna bas");
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    clearInterval(loop);
+    loop = setInterval(step, speed);
+  }
+
+  function step() {
+    dir = nextDir;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS ||
+        snake.some(s => s.x === head.x && s.y === head.y)) {
+      endGame();
+      return;
+    }
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+      score += 10;
+      $("#sn-score").textContent = score;
+      beep(720, 0.07, "square");
+      food = randFood();
+      if (speed > 72) {
+        speed -= 4;
+        clearInterval(loop);
+        loop = setInterval(step, speed);
+      }
+    } else {
+      snake.pop();
+    }
+    draw();
+  }
+
+  function endGame() {
+    running = false;
+    gameOverFlag = true;
+    clearInterval(loop);
+    loop = null;
+    beep(200, 0.22, "sawtooth");
+    setTimeout(() => beep(150, 0.28, "sawtooth"), 140);
+
+    let recTxt = "";
+    if (score > (state.records.snake || 0)) {
+      state.records.snake = score;
+      save();
+      $("#sn-best").textContent = score;
+      recTxt = " 🏆 Yeni rekor!";
+    }
+    draw();
+    drawOverlay("Oyun Bitti", "Skor: " + score + recTxt + " — Tekrar için bir tuşa bas");
+  }
+
+  function draw() {
+    ctx.fillStyle = "#0a1120";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // ızgara
+    ctx.strokeStyle = "rgba(255,255,255,0.028)";
+    ctx.lineWidth = 1;
+    for (let i = 1; i < COLS; i++) {
+      ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(canvas.width, i * CELL); ctx.stroke();
+    }
+
+    // yem
+    const fx = food.x * CELL + CELL / 2;
+    const fy = food.y * CELL + CELL / 2;
+    const grd = ctx.createRadialGradient(fx, fy, 1, fx, fy, CELL * 0.85);
+    grd.addColorStop(0, "#fda4af");
+    grd.addColorStop(1, "rgba(244,63,94,0)");
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(fx, fy, CELL * 0.85, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#fb7185";
+    ctx.beginPath(); ctx.arc(fx, fy, CELL * 0.31, 0, Math.PI * 2); ctx.fill();
+
+    // yılan
+    snake.forEach((s, i) => {
+      const t = i / Math.max(snake.length - 1, 1);
+      const x = s.x * CELL, y = s.y * CELL;
+      const pad2 = i === 0 ? 1.5 : 2.5;
+      const r = 5;
+
+      let col;
+      if (i === 0) col = "#22d3ee";
+      else {
+        const rr = Math.round(34 + t * 130);
+        const gg = Math.round(211 - t * 60);
+        const bb = Math.round(238 - t * 40);
+        col = "rgb(" + rr + "," + gg + "," + bb + ")";
+      }
+      ctx.fillStyle = col;
+      ctx.shadowColor = i === 0 ? "rgba(34,211,238,.75)" : "rgba(34,211,238,.22)";
+      ctx.shadowBlur = i === 0 ? 14 : 5;
+      roundRect(ctx, x + pad2, y + pad2, CELL - pad2 * 2, CELL - pad2 * 2, r);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      if (i === 0) {
+        ctx.fillStyle = "#04121a";
+        const ex = x + CELL / 2, ey = y + CELL / 2;
+        const ox = dir.x * 3.2, oy = dir.y * 3.2;
+        const px = dir.x === 0 ? 3.2 : 0;
+        const py = dir.y === 0 ? 3.2 : 0;
+        ctx.beginPath(); ctx.arc(ex + ox + px, ey + oy + py, 1.9, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex + ox - px, ey + oy - py, 1.9, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+  }
+
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function drawOverlay(title, sub) {
+    ctx.fillStyle = "rgba(7,11,19,0.78)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#e9effb";
+    ctx.font = "800 22px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(title, canvas.width / 2, canvas.height / 2 - 12);
+    ctx.fillStyle = "#8ba0c2";
+    ctx.font = "600 13px 'Segoe UI', system-ui, sans-serif";
+    const words = sub.split(" ");
+    let line = "", lines = [];
+    words.forEach(w => {
+      const test = line ? line + " " + w : w;
+      if (ctx.measureText(test).width > canvas.width - 40) { lines.push(line); line = w; }
+      else line = test;
+    });
+    lines.push(line);
+    lines.forEach((l, i) => ctx.fillText(l, canvas.width / 2, canvas.height / 2 + 14 + i * 19));
+  }
+
+  function setDir(nx, ny) {
+    if (!running && !gameOverFlag) start();
+    else if (gameOverFlag) { reset(); start(); return; }
+    if (dir.x === -nx && dir.y === -ny) return;
+    if (nx === dir.x && ny === dir.y) return;
+    nextDir = { x: nx, y: ny };
+  }
+
+  function onKey(e) {
+    const k = e.key;
+    let handled = true;
+    if (k === "ArrowUp" || k === "w" || k === "W") setDir(0, -1);
+    else if (k === "ArrowDown" || k === "s" || k === "S") setDir(0, 1);
+    else if (k === "ArrowLeft" || k === "a" || k === "A") setDir(-1, 0);
+    else if (k === "ArrowRight" || k === "d" || k === "D") setDir(1, 0);
+    else handled = false;
+    if (handled && currentTab === "oyun" && currentGame === "snake") e.preventDefault();
+  }
+
+  document.addEventListener("keydown", onKey);
+
+  stage.querySelectorAll(".dpad button[data-dir]").forEach(b => {
+    b.addEventListener("click", () => {
+      const d = b.dataset.dir;
+      if (d === "up") setDir(0, -1);
+      if (d === "down") setDir(0, 1);
+      if (d === "left") setDir(-1, 0);
+      if (d === "right") setDir(1, 0);
+    });
+  });
+
+  // dokunmatik kaydırma
+  let touchX = null, touchY = null;
+  canvas.addEventListener("touchstart", e => {
+    const t = e.changedTouches[0];
+    touchX = t.clientX; touchY = t.clientY;
+  }, { passive: true });
+  canvas.addEventListener("touchend", e => {
+    if (touchX === null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchX;
+    const dy = t.clientY - touchY;
+    if (Math.abs(dx) < 22 && Math.abs(dy) < 22) return;
+    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+    touchX = null;
+  }, { passive: true });
+
+  $("#sn-restart").addEventListener("click", () => {
+    reset();
+    beep(700, 0.08);
+  });
+
+  reset();
+
+  gameCleanup = function () {
+    clearInterval(loop);
+    document.removeEventListener("keydown", onKey);
+  };
+}
+
+/* ============================================================
+   7) ZAMANLAYICI & HATIRLATMA KONTROLÜ
+   ============================================================ */
+function updateClock() {
+  const now = new Date();
+  $("#clock").textContent = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+}
+
+function updateCountdowns() {
+  $$("[data-iso]").forEach(el => {
+    const iso = el.dataset.iso;
+    if (!iso) return;
+    const k = kalanSure(iso);
+    el.textContent = k.text;
+    el.classList.toggle("late", k.late);
+  });
+}
+
+function checkReminders() {
+  const now = Date.now();
+  let changed = false;
+
+  // Temizlik görevleri
+  state.tasks.forEach(t => {
+    if (t.done || t.notified) return;
+    if (new Date(t.datetime).getTime() <= now) {
+      t.notified = true;
+      changed = true;
+      const body = t.area +
+        (t.note ? "\nNot: " + t.note : "") +
+        "\n\n" + fmtFull.format(new Date(t.datetime));
+      notify("🧹 Temizlik Zamanı!", body, "warn");
+    }
+  });
+
+  // Alışveriş planı
+  if (state.trip && !state.trip.notified && new Date(state.trip.when).getTime() <= now) {
+    state.trip.notified = true;
+    changed = true;
+    const pending = state.items.filter(i => !i.done);
+    let body = state.trip.store + " için yola çıkma vakti!\n";
+    if (pending.length) {
+      body += "\nAlacakların (" + pending.length + "):\n" +
+        pending.map(i => "• " + i.name + (i.qty ? " (" + i.qty + ")" : "")).join("\n");
+    } else {
+      body += "\nListende alınacak ürün görünmüyor.";
+    }
+    notify("🛒 Alışveriş Zamanı!", body, "warn");
+  }
+
+  if (changed) {
+    save();
+    renderTasks();
+    renderTrip();
+  }
+}
+
+let tickN = 0;
+function tick() {
+  updateClock();
+  updateCountdowns();
+  tickN++;
+  if (tickN % 5 === 0) checkReminders();
+}
+
+/* ============================================================
+   8) BAŞLAT
+   ============================================================ */
+function init() {
+  load();
+
+  btnSound.textContent = state.sound ? "🔊" : "🔇";
+  btnSound.classList.toggle("active", state.sound);
+  btnSound.classList.toggle("off", !state.sound);
+
+  updateNotifyBtn();
+  defaultDates();
+  setWhen(60 * 60 * 1000);
+
+  renderTasks();
+  renderItems();
+  renderTrip();
+
+  updateClock();
+  setInterval(tick, 1000);
+
+  // İlk kullanıcı etkileşiminde ses bağlamını aç
+  const unlock = () => {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {}
+    document.removeEventListener("pointerdown", unlock);
+    document.removeEventListener("keydown", unlock);
+  };
+  document.addEventListener("pointerdown", unlock);
+  document.addEventListener("keydown", unlock);
+
+  // Hoş geldin mesajı
+  const totalPending = state.tasks.filter(t => !t.done).length;
+  const itemsPending = state.items.filter(i => !i.done).length;
+  if (totalPending || itemsPending || state.trip) {
+    setTimeout(() => {
+      let msg = [];
+      if (totalPending) msg.push(totalPending + " bekleyen temizlik görevi");
+      if (itemsPending) msg.push(itemsPending + " alınacak ürün");
+      if (state.trip) msg.push("planlanmış alışveriş");
+      toast("Tekrar hoş geldin 👋", msg.join(" • ") + " seni bekliyor.", "");
+    }, 800);
+  } else {
+    setTimeout(() => {
+      toast("EvDüzen'e hoş geldin 👋",
+        "Temizlik görevlerini ekle, alışveriş listesini oluştur ve mola verirken mini oyunlarla eğlen.", "");
+    }, 700);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
