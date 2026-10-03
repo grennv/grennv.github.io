@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaşam Asistanı Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome İkonları -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 500: '#6366f1', 600: '#4f46e5' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white pb-24">
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="authScreen" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full shadow-2xl space-y-5 text-center">
+            <div class="bg-gradient-to-tr from-indigo-500 to-pink-500 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-house-chimney text-2xl text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-black tracking-wide">Yaşam Asistanı</h2>
+                <p class="text-xs text-slate-400 mt-1">Devam etmek için bir giriş seç</p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <button onclick="loginWithGoogle()" class="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition shadow-md">
+                    <i class="fa-brands fa-google text-red-500 text-sm"></i>
+                    <span>Google ile Giriş Yap</span>
+                </button>
+                <button onclick="loginAsGuest()" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition">
+                    <i class="fa-solid fa-user-secret text-indigo-400 text-sm"></i>
+                    <span>Misafir Olarak Devam Et</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÜST BAŞLIK -->
+    <header class="w-full max-w-lg mx-auto p-4 flex justify-between items-center mt-2">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-indigo-500 to-pink-500 p-2.5 rounded-2xl shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-sparkles text-lg text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-black tracking-wide bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Yaşam Asistanı</h1>
+                <p id="userBadge" class="text-[10px] text-slate-400 font-medium">Misafir</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <button onclick="requestNotificationPermission()" id="notifBtn" title="Bildirim İzni" class="bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/30 text-indigo-300 p-2.5 rounded-xl transition text-xs shadow-sm">
+                <i class="fa-solid fa-bell"></i>
+            </button>
+            <button onclick="toggleDarkMode()" class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-slate-300 hover:text-white transition shadow-sm">
+                <i id="themeIcon" class="fa-solid fa-sun"></i>
+            </button>
+            <button onclick="logout()" title="Çıkış" class="bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 p-2.5 rounded-xl transition text-xs shadow-sm">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ANA İÇERİK -->
+    <main class="w-full max-w-lg mx-auto px-4 flex-grow flex flex-col space-y-4">
+
+        <!-- 1. TEMİZLİK -->
+        <section id="tab-clean" class="tab-content space-y-4">
+            <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-3xl border border-slate-800 shadow-xl">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="p-3 bg-cyan-500/20 text-cyan-400 rounded-2xl border border-cyan-500/30">
+                        <i class="fa-solid fa-broom text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-100">Temizlik Takipçisi</h2>
+                        <p class="text-[11px] text-slate-400">Vaktinde tepeden mesaj al.</p>
+                    </div>
+                </div>
+
+                <form id="cleanForm" class="space-y-3">
+                    <input type="text" id="cleanTask" placeholder="Örn: Odayı Topla" required
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-xs text-white placeholder-slate-600">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="datetime-local" id="cleanTime" required
+                            class="w-full px-3 py-2.5 rounded-2xl border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-[11px] text-slate-300">
+                        <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-2.5 px-3 rounded-2xl text-xs transition shadow-lg shadow-cyan-500/20">
+                            Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-3xl border border-slate-800 shadow-xl">
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Liste</h3>
+                <div id="cleanList" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- 2. MARKET -->
+        <section id="tab-market" class="tab-content hidden space-y-4">
+            <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-3xl border border-slate-800 shadow-xl">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="p-3 bg-amber-500/20 text-amber-400 rounded-2xl border border-amber-500/30">
+                        <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-100">Market Asistanı</h2>
+                        <p class="text-[11px] text-slate-400">Eksikleri kaydet.</p>
+                    </div>
+                </div>
+
+                <form id="marketForm" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="marketItem" placeholder="Ürün (Süt vb.)" required
+                            class="w-full px-4 py-3 rounded-2xl border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs text-white placeholder-slate-600">
+                        <input type="text" id="marketPlace" placeholder="Mağaza" required
+                            class="w-full px-4 py-3 rounded-2xl border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs text-white placeholder-slate-600">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="datetime-local" id="marketTime" required
+                            class="w-full px-3 py-2.5 rounded-2xl border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-amber-500 text-[11px] text-slate-300">
+                        <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold py-2.5 px-3 rounded-2xl text-xs transition shadow-lg shadow-amber-500/20">
+                            Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-3xl border border-slate-800 shadow-xl">
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Alışveriş Listesi</h3>
+                <div id="marketList" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- 3. OYUNLAR -->
+        <section id="tab-games" class="tab-content hidden space-y-4">
+            <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-3xl border border-slate-800 shadow-xl">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="p-3 bg-pink-500/20 text-pink-400 rounded-2xl border border-pink-500/30">
+                        <i class="fa-solid fa-gamepad text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-100">Dinlenme Köşesi</h2>
+                        <p class="text-[11px] text-slate-400">Mini oyunlarla kafanı dağıt.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5 mb-4">
+                    <button onclick="switchGame('clicker')" id="btnGame1" class="p-2 rounded-xl border border-pink-500/50 bg-pink-500/10 text-pink-300 font-bold text-[11px] transition text-center">Enerji</button>
+                    <button onclick="switchGame('memory')" id="btnGame2" class="p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold text-[11px] transition text-center">Hafıza</button>
+                    <button onclick="switchGame('reaction')" id="btnGame3" class="p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold text-[11px] transition text-center">Refleks</button>
+                </div>
+
+                <!-- Clicker -->
+                <div id="gameClicker" class="text-center py-6 bg-slate-950/60 rounded-2xl border border-slate-800 p-4">
+                    <p class="text-xs text-slate-400 mb-3">Topa tıkla!</p>
+                    <button onclick="clickerScore++" class="w-28 h-28 bg-gradient-to-tr from-pink-600 to-indigo-600 text-white rounded-full text-2xl font-black shadow-xl shadow-pink-500/20 transform active:scale-95 transition flex flex-col items-center justify-center mx-auto border-4 border-pink-400/30">
+                        <i class="fa-solid fa-bolt text-lg mb-1 animate-pulse"></i>
+                        <span id="clickerCount">0</span>
+                    </button>
+                    <button onclick="clickerScore=0; updateGames()" class="mt-3 text-[10px] text-rose-400 hover:underline">Sıfırla</button>
+                </div>
+
+                <!-- Hafıza -->
+                <div id="gameMemory" class="hidden text-center py-4 bg-slate-950/60 rounded-2xl border border-slate-800 p-4">
+                    <p class="text-xs text-slate-400 mb-3">Eşleşen emojileri bul! (Hamle: <span id="memoryMoves" class="text-pink-400 font-bold">0</span>)</p>
+                    <div id="memoryGrid" class="grid grid-cols-4 gap-2 max-w-xs mx-auto"></div>
+                    <button onclick="initMemoryGame()" class="mt-3 px-3 py-1.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold rounded-xl transition">Yeniden Başlat</button>
+                </div>
+
+                <!-- Refleks -->
+                <div id="gameReaction" class="hidden text-center py-6 bg-slate-950/60 rounded-2xl border border-slate-800 p-4">
+                    <p class="text-xs text-slate-400 mb-3">Yeşile döndüğünde tıkla!</p>
+                    <div id="reactionBox" onclick="reactBoxClick()" class="w-full h-24 bg-slate-800 rounded-xl flex items-center justify-center font-bold text-xs text-slate-300 cursor-pointer transition select-none">
+                        Başlamak için tıkla
+                    </div>
+                    <p id="reactionTime" class="text-xs text-pink-400 font-bold mt-3"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ALT APP MENÜ -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto p-3 z-40">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-2 rounded-2xl shadow-2xl flex justify-around items-center">
+            <button onclick="switchTab('clean')" id="nav-clean" class="flex flex-col items-center space-y-1 py-1.5 px-5 rounded-xl text-cyan-400 bg-cyan-500/10 transition font-bold">
+                <i class="fa-solid fa-broom text-base"></i>
+                <span class="text-[10px]">Temizlik</span>
+            </button>
+            <button onclick="switchTab('market')" id="nav-market" class="flex flex-col items-center space-y-1 py-1.5 px-5 rounded-xl text-slate-400 hover:text-slate-200 transition font-medium">
+                <i class="fa-solid fa-cart-shopping text-base"></i>
+                <span class="text-[10px]">Market</span>
+            </button>
+            <button onclick="switchTab('games')" id="nav-games" class="flex flex-col items-center space-y-1 py-1.5 px-5 rounded-xl text-slate-400 hover:text-slate-200 transition font-medium">
+                <i class="fa-solid fa-gamepad text-base"></i>
+                <span class="text-[10px]">Rahatla</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JS KODLARI -->
+    <script>
+        let currentUser = localStorage.getItem('currentUser') || null;
+
+        function checkAuth() {
+            const authScreen = document.getElementById('authScreen');
+            const badge = document.getElementById('userBadge');
+            if (currentUser) {
+                authScreen.classList.add('hidden');
+                badge.innerText = currentUser;
+            } else {
+                authScreen.classList.remove('hidden');
+            }
+        }
+
+        function loginWithGoogle() {
+            currentUser = "Google Kullanıcısı";
+            localStorage.setItem('currentUser', currentUser);
+            checkAuth();
+        }
+
+        function loginAsGuest() {
+            currentUser = "Misafir";
+            localStorage.setItem('currentUser', currentUser);
+            checkAuth();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            checkAuth();
+        }
+
+        checkAuth();
+
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) return alert("Tarayıcı desteklemiyor.");
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") new Notification("Yaşam Asistanı", { body: "Bildirimler aktif!" });
+            });
+        }
+
+        function sendSystemNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/3209/3209265.png' });
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            ['clean', 'market', 'games'].forEach(t => {
+                const btn = document.getElementById('nav-' + t);
+                if (t === tabId) {
+                    let colorClass = tabId === 'clean' ? 'text-cyan-400 bg-cyan-500/10' : (tabId === 'market' ? 'text-amber-400 bg-amber-500/10' : 'text-pink-400 bg-pink-500/10');
+                    btn.className = `flex flex-col items-center space-y-1 py-1.5 px-5 rounded-xl transition font-bold ${colorClass}`;
+                } else {
+                    btn.className = "flex flex-col items-center space-y-1 py-1.5 px-5 rounded-xl text-slate-400 hover:text-slate-200 transition font-medium bg-transparent";
+                }
+            });
+        }
+
+        let cleanTasks = JSON.parse(localStorage.getItem('cleanTasks')) || [];
+        let marketItems = JSON.parse(localStorage.getItem('marketItems')) || [];
+
+        document.getElementById('cleanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            cleanTasks.push({ id: Date.now(), task: document.getElementById('cleanTask').value, time: document.getElementById('cleanTime').value, done: false, notified: false });
+            localStorage.setItem('cleanTasks', JSON.stringify(cleanTasks));
+            this.reset();
+            renderCleanTasks();
+        });
+
+        function toggleClean(id) {
+            cleanTasks = cleanTasks.map(item => item.id === id ? { ...item, done: !item.done } : item);
+            localStorage.setItem('cleanTasks', JSON.stringify(cleanTasks));
+            renderCleanTasks();
+        }
+
+        function deleteClean(id) {
+            cleanTasks = cleanTasks.filter(item => item.id !== id);
+            localStorage.setItem('cleanTasks', JSON.stringify(cleanTasks));
+            renderCleanTasks();
+        }
+
+        function renderCleanTasks() {
+            const list = document.getElementById('cleanList');
+            if (cleanTasks.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-600 text-center py-3">Görev yok.</p>`;
+                return;
+            }
+            list.innerHTML = cleanTasks.map(item => `
+                <div class="flex items-center justify-between p-3 rounded-2xl border border-slate-800 bg-slate-950/50">
+                    <div class="flex items-center space-x-2.5">
+                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleClean(${item.id})" class="w-4 h-4 text-cyan-500 rounded accent-cyan-500 cursor-pointer">
+                        <div>
+                            <p class="text-xs font-medium ${item.done ? 'line-through text-slate-600' : 'text-slate-200'}">${item.task}</p>
+                            <span class="text-[10px] text-cyan-400 font-semibold"><i class="fa-regular fa-clock mr-1"></i>${new Date(item.time).toLocaleString('tr-TR')}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteClean(${item.id})" class="text-slate-600 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('marketForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            marketItems.push({ id: Date.now(), item: document.getElementById('marketItem').value, place: document.getElementById('marketPlace').value, time: document.getElementById('marketTime').value, done: false, notified: false });
+            localStorage.setItem('marketItems', JSON.stringify(marketItems));
+            this.reset();
+            renderMarketItems();
+        });
+
+        function toggleMarket(id) {
+            marketItems = marketItems.map(m => m.id === id ? { ...m, done: !m.done } : m);
+            localStorage.setItem('marketItems', JSON.stringify(marketItems));
+            renderMarketItems();
+        }
+
+        function deleteMarket(id) {
+            marketItems = marketItems.filter(m => m.id !== id);
+            localStorage.setItem('marketItems', JSON.stringify(marketItems));
+            renderMarketItems();
+        }
+
+        function renderMarketItems() {
+            const list = document.getElementById('marketList');
+            if (marketItems.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-600 text-center py-3">Liste boş.</p>`;
+                return;
+            }
+            list.innerHTML = marketItems.map(m => `
+                <div class="flex items-center justify-between p-3 rounded-2xl border border-slate-800 bg-slate-950/50">
+                    <div class="flex items-center space-x-2.5">
+                        <input type="checkbox" ${m.done ? 'checked' : ''} onchange="toggleMarket(${m.id})" class="w-4 h-4 text-amber-500 rounded accent-amber-500 cursor-pointer">
+                        <div>
+                            <p class="text-xs font-medium ${m.done ? 'line-through text-slate-600' : 'text-slate-200'}">${m.item}</p>
+                            <span class="text-[10px] text-amber-400 font-semibold"><i class="fa-solid fa-store mr-1"></i>${m.place} • ${new Date(m.time).toLocaleString('tr-TR')}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteMarket(${m.id})" class="text-slate-600 hover:text-rose-400 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+
+        let clickerScore = 0;
+        function updateGames() { document.getElementById('clickerCount').innerText = clickerScore; }
+        setInterval(updateGames, 100);
+
+        function switchGame(gameName) {
+            ['Clicker', 'Memory', 'Reaction'].forEach((g, idx) => {
+                document.getElementById('game' + g).classList.add('hidden');
+                document.getElementById('btnGame' + (idx+1)).className = "p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold text-[11px] transition text-center";
+            });
+            document.getElementById('game' + gameName.charAt(0).toUpperCase() + gameName.slice(1)).classList.remove('hidden');
+            event.target.className = "p-2 rounded-xl border border-pink-500/50 bg-pink-500/10 text-pink-300 font-bold text-[11px] transition text-center";
+            if (gameName === 'memory') initMemoryGame();
+        }
+
+        let memoryMoves = 0, memoryCards = ['🍎','🍎','🍌','🍌','🍇','🍇','🍕','🍕'], matchedPairs = 0, firstCard = null, lockBoard = false;
+        function initMemoryGame() {
+            memoryMoves = 0; matchedPairs = 0; document.getElementById('memoryMoves').innerText = memoryMoves;
+            memoryCards.sort(() => Math.random() - 0.5);
+            document.getElementById('memoryGrid').innerHTML = memoryCards.map((emoji) => `
+                <button onclick="flipCard(this, '${emoji}')" class="h-10 bg-slate-900 border border-slate-800 rounded-xl text-lg flex items-center justify-center transition active:scale-95" data-val="${emoji}">❓</button>
+            `).join('');
+        }
+
+        function flipCard(btn, emoji) {
+            if (lockBoard || btn.classList.contains('matched') || firstCard === btn) return;
+            btn.innerText = emoji; btn.classList.add('bg-pink-500/20', 'border-pink-500');
+            if (!firstCard) { firstCard = btn; return; }
+            memoryMoves++; document.getElementById('memoryMoves').innerText = memoryMoves;
+            if (firstCard.dataset.val === emoji) {
+                firstCard.classList.add('matched'); btn.classList.add('matched'); firstCard = null; matchedPairs++;
+                if (matchedPairs === 4) setTimeout(() => alert('Tebrikler!'), 200);
+            } else {
+                lockBoard = true;
+                setTimeout(() => { firstCard.innerText = '❓'; firstCard.classList.remove('bg-pink-500/20', 'border-pink-500'); btn.innerText = '❓'; btn.classList.remove('bg-pink-500/20', 'border-pink-500'); firstCard = null; lockBoard = false; }, 700);
+            }
+        }
+
+        let reactionState = 'idle', startTime = 0, timeoutId = null;
+        function reactBoxClick() {
+            const box = document.getElementById('reactionBox');
+            const res = document.getElementById('reactionTime');
+            if (reactionState === 'idle') {
+                box.className = "w-full h-24 bg-rose-600 rounded-xl flex items-center justify-center font-bold text-xs text-white cursor-pointer transition select-none";
+                box.innerText = "Bekle...";
+                reactionState = 'waiting';
+                res.innerText = "";
+                timeoutId = setTimeout(() => {
+                    box.className = "w-full h-24 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-xs text-white cursor-pointer transition select-none shadow-lg shadow-emerald-500/30";
+                    box.innerText = "ŞİMDİ TIKLA!";
+                    reactionState = 'ready';
+                    startTime = Date.now();
+                }, Math.random() * 2000 + 1000);
+            } else if (reactionState === 'waiting') {
+                clearTimeout(timeoutId);
+                box.className = "w-full h-24 bg-slate-800 rounded-xl flex items-center justify-center font-bold text-xs text-slate-300 cursor-pointer transition select-none";
+                box.innerText = "Çok erken bastın! Tekrar tıkla";
+                reactionState = 'idle';
+            } else if (reactionState === 'ready') {
+                let diff = Date.now() - startTime;
+                box.className = "w-full h-24 bg-slate-800 rounded-xl flex items-center justify-center font-bold text-xs text-slate-300 cursor-pointer transition select-none";
+                box.innerText = "Tekrar oyna";
+                res.innerText = `Süren: ${diff} ms! 🚀`;
+                reactionState = 'idle';
+            }
+        }
+
+        function checkReminders() {
+            const now = new Date().getTime();
+            let updated = false;
+            
+            cleanTasks.forEach(item => {
+                if (!item.done && !item.notified && Math.abs(new Date(item.time).getTime() - now) < 15000) {
+                    sendSystemNotification("🧹 Temizlik Zamanı!", `Hatırlatma: ${item.task}`);
+                    item.notified = true; updated = true;
+                }
+            });
+
+            marketItems.forEach(m => {
+                if (!m.done && !m.notified && Math.abs(new Date(m.time).getTime() - now) < 15000) {
+                    sendSystemNotification("🛒 Alışveriş Vakti!", `${m.place} için ${m.item} almayı unutma!`);
+                    m.notified = true; updated = true;
+                }
+            });
+
+            if (updated) {
+                localStorage.setItem('cleanTasks', JSON.stringify(cleanTasks));
+                localStorage.setItem('marketItems', JSON.stringify(marketItems));
+            }
+        }
+
+        renderCleanTasks();
+        renderMarketItems();
+        setInterval(checkReminders, 10000);
+    </script>
+</body>
+</html>
