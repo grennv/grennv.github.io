@@ -1,1742 +1,2146 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Mutfak Şefi</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f1020">
+<title>Hamburger Simülatörü 3D — Multiplayer</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#070b13;color:#e9effb;padding:10px 10px 60px;font-size:14px;line-height:1.4}
-h1{font-size:16px;font-weight:800;color:#fbbf24;padding:4px 0}
-h2{font-size:14px;font-weight:800;margin:14px 0 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.tag{font-size:10px;font-weight:700;color:#647790;background:#111a2b;padding:3px 7px;border-radius:99px}
-.wrap{max-width:900px;margin:auto}
-input,select,textarea{font-family:inherit;font-size:13px;background:#111a2b;color:#e9effb;border:1px solid #22304d;border-radius:9px;padding:9px 11px;outline:none;width:100%}
-input:focus,textarea:focus,select:focus{border-color:#f97316}
-.btn{cursor:pointer;font-family:inherit;font-weight:700;font-size:12.5px;background:#1b2843;color:#e9effb;border:1px solid #22304d;border-radius:9px;padding:9px 13px;white-space:nowrap;transition:.15s}
-.btn:active{transform:scale(.97)}
-.btn.orange{background:linear-gradient(135deg,#f97316,#fbbf24);color:#1a0a02;border:none}
-.btn.green{background:linear-gradient(135deg,#34d399,#22d3ee);color:#04170f;border:none}
-.btn.blue{background:linear-gradient(135deg,#3b82f6,#06b6d4);color:#fff;border:none}
-.btn.purple{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border:none}
-.btn.red{background:#7f1d1d;border-color:#991b1b;color:#fca5a5}
-.btn.sm{padding:6px 10px;font-size:11px}
-.btn.full{width:100%}
-.row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px;align-items:center}
-.row input{flex:1;min-width:120px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:6px}
-.ing{background:#16213a;border:1px solid #22304d;border-radius:10px;padding:8px;cursor:pointer;font-size:12px;user-select:none;transition:.15s;text-align:left;color:#e9effb;font-family:inherit;position:relative}
-.ing:active{transform:scale(.97)}
-.ing.have{background:rgba(52,211,153,.18);border-color:rgba(52,211,153,.7)}
-.ing.dis{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.5);opacity:.6}
-.ing-name{font-weight:700;margin-top:2px;line-height:1.2;word-break:break-word}
-.ing-emoji{font-size:16px}
-.ing-loc{position:absolute;top:4px;right:4px;font-size:10px;opacity:.7}
-.cook{width:100%;padding:15px;font-size:15px;font-weight:800;background:linear-gradient(135deg,#f97316,#fbbf24);color:#1a0a02;border:none;border-radius:14px;margin:12px 0;cursor:pointer;font-family:inherit;text-align:center}
-.cook small{display:block;font-size:11px;font-weight:600;opacity:.85;margin-top:3px}
-.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
-.recipe{background:#16213a;border:1px solid #22304d;border-radius:12px;padding:11px;display:flex;flex-direction:column;gap:6px;position:relative}
-.recipe.can{border-color:rgba(52,211,153,.55);background:linear-gradient(135deg,rgba(52,211,153,.08),#16213a)}
-.recipe.almost{border-color:rgba(251,191,36,.5)}
-.recipe .badge{position:absolute;top:0;right:0;font-size:9px;font-weight:800;padding:4px 9px;border-bottom-left-radius:10px;text-transform:uppercase}
-.recipe.can .badge{background:rgba(52,211,153,.25);color:#34d399}
-.recipe.almost .badge{background:rgba(251,191,36,.22);color:#fbbf24}
-.recipe.no .badge{background:rgba(120,120,140,.15);color:#647790}
-.recipe .emoji{font-size:26px;line-height:1;margin-top:10px}
-.recipe h3{font-size:14px;font-weight:800;line-height:1.2}
-.recipe .desc{font-size:11.5px;color:#8ba0c2;line-height:1.4}
-.recipe .pills{display:flex;gap:3px;flex-wrap:wrap;margin-top:2px}
-.pill{font-size:10px;font-weight:700;padding:2.5px 7px;border-radius:99px;background:rgba(255,255,255,.05);color:#8ba0c2}
-.pill.ok{background:rgba(52,211,153,.13);color:#34d399}
-.pill.miss{background:rgba(248,113,113,.12);color:#fca5a5}
-.recipe .meta{font-size:10.5px;color:#647790;font-weight:700;margin-top:auto;padding-top:6px;border-top:1px solid #22304d}
-.recipe .acts{display:flex;gap:4px;margin-top:6px}
-.recipe .acts button{flex:1;cursor:pointer;font-family:inherit;font-weight:700;font-size:10.5px;background:#1b2843;color:#8ba0c2;border:1px solid #22304d;border-radius:7px;padding:6px 4px}
-.recipe .acts .fav-on{color:#fb7185;background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.4)}
-.list-item{display:flex;align-items:center;gap:9px;background:#16213a;border:1px solid #22304d;border-radius:10px;padding:9px 11px;margin-bottom:5px}
-.list-item .chk{width:22px;height:22px;border-radius:7px;border:2px solid #3a4763;background:transparent;color:transparent;cursor:pointer;font-weight:900;font-size:12px;flex:none;font-family:inherit}
-.list-item .chk.on{background:linear-gradient(135deg,#34d399,#22d3ee);border-color:transparent;color:#04170f}
-.list-item .info{flex:1;min-width:0}
-.list-item .name{font-weight:700;font-size:12.5px;word-break:break-word}
-.list-item .sub{font-size:10.5px;color:#647790;margin-top:2px}
-.list-item .del{background:transparent;border:none;color:#647790;cursor:pointer;font-size:14px;padding:4px;font-family:inherit}
-.empty{text-align:center;padding:22px 12px;border:1.5px dashed #22304d;border-radius:12px;color:#647790;font-size:12.5px;line-height:1.6}
-.empty .ico{font-size:30px;margin-bottom:6px;display:block;opacity:.6}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:none;align-items:center;justify-content:center;padding:10px}
-.modal.show{display:flex}
-.modal-box{background:#0d1526;border:1px solid #22304d;border-radius:16px;max-width:560px;width:100%;max-height:92vh;overflow-y:auto}
-.modal-box.wide{max-width:720px}
-.modal-head{padding:12px 15px;border-bottom:1px solid #22304d;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#0d1526;z-index:1}
-.modal-head h3{font-size:14.5px;font-weight:800;padding-right:10px}
-.modal-head button{background:transparent;border:none;color:#8ba0c2;font-size:22px;cursor:pointer;padding:0 6px;font-family:inherit;line-height:1}
-.modal-body{padding:13px 15px 18px}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px}
-.tab{cursor:pointer;font-family:inherit;font-weight:700;font-size:11px;background:#111a2b;color:#8ba0c2;border:1px solid #22304d;border-radius:10px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tab.active{background:linear-gradient(135deg,rgba(249,115,22,.9),rgba(251,191,36,.8));color:#1a0a02;border-color:transparent}
-.tab .tico{font-size:16px}
-.panel{display:none}
-.panel.active{display:block}
-.serv{display:flex;align-items:center;gap:8px;background:#070b13;border-radius:10px;padding:10px;border:1px solid #22304d;margin:10px 0;flex-wrap:wrap}
-.serv .lbl{font-size:11px;font-weight:800;color:#647790;text-transform:uppercase;flex:1;min-width:100px}
-.serv .ctrl{display:flex;align-items:center;gap:5px}
-.serv .ctrl button{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f97316,#fbbf24);color:#1a0a02;border:none;font-weight:900;font-size:16px;cursor:pointer;font-family:inherit}
-.serv .ctrl input{width:48px;text-align:center;font-weight:800;font-size:15px;padding:6px 3px}
-.ing-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px;margin:8px 0}
-.ing-list li{display:flex;gap:6px;align-items:center;font-size:12px;background:#070b13;border:1px solid #22304d;border-radius:8px;padding:7px 9px}
-.ing-list li.has{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.06)}
-.ing-list li.miss{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.06)}
-.ing-list .amt{font-weight:800;color:#22d3ee;font-size:11px;flex:none}
-.ing-list .nm{flex:1;word-break:break-word}
-.steps{padding-left:20px;margin-top:8px;line-height:1.7;font-size:12.5px;color:#8ba0c2}
-.steps li{margin-bottom:6px}
-.note-box{margin-top:10px;padding:10px;background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.25);border-radius:10px}
-.note-box label{display:block;font-size:10.5px;font-weight:800;color:#22d3ee;text-transform:uppercase;margin-bottom:5px}
-.note-box textarea{min-height:55px;resize:vertical;font-size:12.5px}
-.toast{position:fixed;bottom:12px;left:12px;right:12px;background:linear-gradient(135deg,#152239,#0f1728);border:1px solid #22304d;border-left:3px solid #22d3ee;border-radius:12px;padding:11px 13px;z-index:999;font-size:13px;max-width:400px;margin:auto;box-shadow:0 10px 30px -10px rgba(0,0,0,.9)}
-.toast.good{border-left-color:#34d399}.toast.warn{border-left-color:#fbbf24}.toast.bad{border-left-color:#f87171}
-video{width:100%;border-radius:10px;background:#000;display:block;max-height:60vh;object-fit:cover}
-.detect{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-top:10px}
-.detect-item{display:flex;gap:6px;align-items:center;background:#16213a;border:1px solid #22304d;border-radius:9px;padding:8px}
-.detect-item.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08)}
-.detect-item .chk{width:22px;height:22px;border-radius:7px;border:2px solid #3a4763;background:transparent;color:transparent;cursor:pointer;flex:none;font-weight:900;font-family:inherit;font-size:11px}
-.detect-item .chk.on{background:linear-gradient(135deg,#34d399,#22d3ee);border-color:transparent;color:#04170f}
-.hint{font-size:11.5px;color:#8ba0c2;line-height:1.5;margin:8px 0;text-align:center}
-.loading{text-align:center;padding:30px 20px}
-.loading .sp{width:38px;height:38px;border:3.5px solid rgba(249,115,22,.2);border-top-color:#f97316;border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading p{color:#8ba0c2;font-size:12.5px}
-.stat{background:#16213a;border:1px solid #22304d;border-radius:11px;padding:10px 12px;margin-bottom:7px}
-.stat span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;color:#647790;margin-bottom:3px}
-.stat b{font-size:16px;font-weight:800}
-.stat.cy b{color:#f97316}.stat.c3 b{color:#34d399}.stat.c4 b{color:#fbbf24}.stat.c1 b{color:#22d3ee}.stat.c5 b{color:#fb7185}
-.macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
-.macro{background:#16213a;border:1px solid #22304d;border-radius:11px;padding:9px;text-align:center}
-.macro b{display:block;font-size:17px;font-weight:800;color:#22d3ee}
-.macro span{font-size:9.5px;color:#647790;text-transform:uppercase;font-weight:700}
-.badge-card{padding:10px 8px;border-radius:11px;background:#16213a;border:1px solid #22304d;text-align:center;opacity:.4}
-.badge-card.earned{opacity:1;border-color:rgba(251,191,36,.5);background:linear-gradient(135deg,rgba(251,191,36,.08),#16213a)}
-.badge-card .be{font-size:24px;margin-bottom:3px}
-.badge-card .bn{font-size:10.5px;font-weight:800;line-height:1.2}
-.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:7px}
-#errorBox{position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:8px 12px;z-index:9999;font-size:11px;font-family:monospace;display:none;white-space:pre-wrap;max-height:40vh;overflow-y:auto}
-@media(max-width:480px){.grid{grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}.recipe-grid{grid-template-columns:1fr}}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0f1020;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    user-select:none;-webkit-user-select:none;touch-action:none}
+  canvas{display:block;position:fixed;inset:0}
+  .hidden{display:none!important}
+
+  #hud{position:fixed;inset:0;pointer-events:none;z-index:10;
+       padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px)}
+  #topBar{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;flex-wrap:wrap}
+  .pill{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+        background:rgba(12,14,28,.65);backdrop-filter:blur(10px);
+        border:1px solid rgba(255,255,255,.15);color:#fff;font-size:14px}
+  .pill b{font-size:17px;font-weight:800;color:#7dffb0}
+  #rolePill{padding:8px 14px;border-radius:999px;color:#fff;font-size:13px;font-weight:800;
+    border:1px solid rgba(255,255,255,.2);background:rgba(40,60,120,.7)}
+  #rolePill.chef{background:rgba(180,60,40,.75);border-color:rgba(255,180,120,.5)}
+  #rolePill.waiter{background:rgba(40,120,180,.75);border-color:rgba(120,200,255,.5)}
+  #quitBtn{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,120,120,.4);
+    background:rgba(120,20,30,.6);color:#fff;font-size:12px;font-weight:700;cursor:pointer;pointer-events:auto}
+
+  #stockBar{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 55px);
+    display:flex;gap:4px;background:rgba(12,14,28,.72);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:6px 8px}
+  .stock-item{display:flex;flex-direction:column;align-items:center;padding:3px 5px;
+    border-radius:8px;background:rgba(255,255,255,.06);min-width:32px}
+  .stock-item span{font-size:15px}
+  .stock-item b{font-size:11px;color:#fff;font-weight:800}
+  .stock-item.low b{color:#ff9f4d}
+  .stock-item.empty b{color:#ff5a5f}
+
+  #ordersPanel{position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 55px);
+    width:min(170px,42vw);background:rgba(12,14,28,.7);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:8px;
+    max-height:50vh;overflow-y:auto}
+  #ordersPanel .ptitle{font-size:10px;letter-spacing:2px;color:#9fb0d0;
+    font-weight:800;text-align:center;margin-bottom:6px}
+  .order-row{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:8px;
+    background:rgba(255,255,255,.08);margin-bottom:4px;font-size:12px;color:#fff}
+  .order-row .em{font-size:15px}
+  .order-row .nm{flex:1;font-weight:700}
+  .order-row.waiting{background:rgba(255,200,80,.2)}
+  .order-row.eating{background:rgba(80,200,120,.2)}
+  .order-row.paying{background:rgba(255,100,100,.25)}
+
+  #heldPanel{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 100px);
+    display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:14px;
+    background:rgba(12,14,28,.85);border:2px solid rgba(255,215,100,.6);
+    backdrop-filter:blur(10px);z-index:13}
+  .held-emoji{font-size:28px}
+  .held-name{font-size:14px;font-weight:800;color:#ffd84d}
+
+  #crosshair{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
+    border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 8px rgba(0,0,0,.6)}
+  #crosshair.active{background:#7dffb0;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
+    box-shadow:0 0 14px #7dffb0}
+
+  #prompt{position:absolute;left:50%;top:56%;transform:translateX(-50%);
+    padding:6px 16px;border-radius:10px;background:rgba(12,14,28,.85);
+    border:1px solid rgba(125,255,176,.5);color:#7dffb0;font-size:13px;font-weight:800;
+    letter-spacing:1px;white-space:nowrap;backdrop-filter:blur(6px)}
+
+  #hint{position:absolute;left:50%;transform:translateX(-50%);
+    bottom:calc(env(safe-area-inset-bottom) + 180px);
+    color:#fff;font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;
+    background:rgba(12,14,28,.75);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.12);opacity:0;transition:opacity .25s;white-space:nowrap}
+  #hint.show{opacity:1}
+
+  #toasts{position:absolute;left:50%;top:30%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}
+  .toast{font-size:18px;font-weight:800;color:#7dffb0;
+    text-shadow:0 2px 10px rgba(0,0,0,.8);transition:all .5s ease;white-space:nowrap}
+  .toast.gold{color:#ffd84d}
+
+  #interactBtn{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);
+    width:72px;height:72px;border-radius:50%;z-index:12;
+    background:radial-gradient(circle at 35% 30%,#8fe6ff,#4aa8ff);
+    display:flex;align-items:center;justify-content:center;font-size:30px;
+    box-shadow:0 6px 24px rgba(74,168,255,.55),inset 0 -4px 0 rgba(0,0,0,.2);
+    border:2px solid rgba(255,255,255,.4);cursor:pointer;transition:transform .1s}
+  #interactBtn:active{transform:scale(.92)}
+  #interactBtn.pulse{animation:ipulse .8s infinite alternate}
+  @keyframes ipulse{to{box-shadow:0 6px 30px rgba(74,255,170,.8),inset 0 -4px 0 rgba(0,0,0,.2)}}
+
+  #joyBase{position:fixed;width:130px;height:130px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);
+    transform:translate(-50%,-50%);pointer-events:none;z-index:11;
+    backdrop-filter:blur(4px);opacity:0;transition:opacity .12s}
+  #joyBase.on{opacity:1}
+  #joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(150,180,255,.8));
+    box-shadow:0 4px 16px rgba(0,0,0,.4)}
+
+  .modal{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;
+    padding:16px;background:rgba(5,8,18,.7);backdrop-filter:blur(8px);pointer-events:auto}
+  .modal-content{width:100%;max-width:520px;max-height:85vh;overflow-y:auto;
+    background:linear-gradient(180deg,#1a2240,#0e1428);
+    border:1px solid rgba(125,170,255,.25);border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;
+    background:linear-gradient(180deg,#1a2240,#161e3a);z-index:1;border-radius:20px 20px 0 0}
+  .modal-header h2{font-size:16px;color:#fff;font-weight:800;letter-spacing:.5px}
+  .close-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-weight:700}
+  .close-btn:active{background:rgba(255,255,255,.25)}
+
+  #shopBody,#assemblyBody{padding:14px 16px 20px}
+  .shop-balance{text-align:center;font-size:14px;color:#a9b6d6;margin-bottom:14px}
+  .shop-balance b{color:#7dffb0;font-size:20px;font-weight:900}
+  .shop-grid{display:flex;flex-direction:column;gap:8px}
+  .shop-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px}
+  .si-emoji{font-size:26px;width:36px;text-align:center}
+  .si-info{flex:1;min-width:0}
+  .si-name{font-size:14px;font-weight:700;color:#fff}
+  .si-stock{font-size:11px;color:#8fa2c8;margin-top:2px}
+  .buy-btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#5ad98a,#33a85b);color:#08200f;
+    font-size:12px;font-weight:800;white-space:nowrap;line-height:1.2;flex-shrink:0}
+  .buy-btn:active{transform:scale(.95)}
+  .buy-btn:disabled{background:#333a4d;color:#66708a}
+  .buy-btn small{display:block;font-size:10px;opacity:.85;font-weight:700}
+
+  .burger-option{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;padding:12px;margin-bottom:10px}
+  .bo-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .bo-emoji{font-size:32px}
+  .bo-name{font-size:15px;font-weight:800;color:#fff}
+  .bo-price{font-size:13px;color:#7dffb0;font-weight:700}
+  .bo-needs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .bo-needs span{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+  .bo-needs .ok{background:rgba(60,200,110,.25);color:#a8ffce}
+  .bo-needs .missing{background:rgba(255,90,95,.25);color:#ff9da3}
+  .bo-btn{width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;
+    font-size:13px;font-weight:800;background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400}
+  .bo-btn:disabled{background:#333a4d;color:#66708a;cursor:default}
+
+  .cash-content{max-width:400px}
+  #cashBody{padding:16px 18px 20px}
+  .cash-display{background:rgba(0,0,0,.3);border-radius:14px;padding:14px;margin-bottom:14px;
+    border:1px solid rgba(255,255,255,.08)}
+  .cash-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;
+    font-size:13px;color:#a9b6d6}
+  .cash-row b{font-size:16px;color:#fff;font-weight:800}
+  .cash-row.highlight b{color:#ffd84d;font-size:22px}
+  .cash-row.given b{color:#7dffb0}
+  .cash-row.over b{color:#ff5a5f}
+  .denom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .denom-btn{padding:14px 4px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+    background:linear-gradient(180deg,#2a3a5c,#1a2440);color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+  .denom-btn:active{transform:scale(.94)}
+  .cash-actions{display:flex;gap:10px}
+  .cash-actions button{flex:1;padding:14px;border-radius:12px;border:none;cursor:pointer;
+    font-size:15px;font-weight:800}
+  #cashClear{background:rgba(255,255,255,.12);color:#fff}
+  #cashConfirm{background:linear-gradient(180deg,#5ad98a,#33a85b);color:#08200f}
+  #cashConfirm:disabled{background:#333a4d;color:#66708a}
+
+  .screen{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;
+    background:radial-gradient(circle at 50% 35%,rgba(60,80,160,.5),rgba(8,10,22,.97) 70%);
+    backdrop-filter:blur(6px);color:#fff;overflow-y:auto}
+  .screen h1{font-size:clamp(26px,7vw,38px);font-weight:900;letter-spacing:-1px;
+    background:linear-gradient(180deg,#fff,#8fb4ff);-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .screen p{font-size:14px;line-height:1.7;color:#a9b6d6;max-width:400px}
+  .screen p b{color:#7dffb0}
+  .btn{padding:14px 34px;border-radius:999px;border:none;cursor:pointer;
+    font-size:16px;font-weight:800;color:#08101f;
+    background:linear-gradient(180deg,#8fe6ff,#4aa8ff);
+    box-shadow:0 8px 30px rgba(74,168,255,.5);transition:transform .12s;margin:4px}
+  .btn:active{transform:scale(.95)}
+  .btn.secondary{background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400;
+    box-shadow:0 8px 30px rgba(212,168,0,.5)}
+  .btn.ghost{background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  .code-box{font-size:36px;font-weight:900;letter-spacing:8px;padding:20px 28px;
+    border-radius:16px;background:rgba(125,255,176,.15);color:#7dffb0;
+    border:3px solid #7dffb0;font-family:monospace;margin:14px 0;
+    text-shadow:0 0 20px rgba(125,255,176,.6)}
+  .code-input{font-size:32px;font-weight:900;letter-spacing:8px;padding:14px 20px;
+    border-radius:14px;background:rgba(0,0,0,.4);color:#fff;
+    border:2px solid rgba(125,170,255,.5);text-align:center;width:min(280px,80vw);
+    font-family:monospace;text-transform:uppercase;outline:none}
+  .code-input:focus{border-color:#7dffb0}
+
+  .role-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .role-card{padding:20px 24px;border-radius:16px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);
+    transition:all .2s;min-width:130px}
+  .role-card:hover{background:rgba(255,255,255,.1)}
+  .role-card.selected{border-color:#7dffb0;background:rgba(125,255,176,.15);
+    box-shadow:0 0 20px rgba(125,255,176,.4)}
+  .role-card .rc-emoji{font-size:44px;display:block;margin-bottom:6px}
+  .role-card .rc-name{font-size:16px;font-weight:800;color:#fff}
+
+  .waiting-dots{font-size:40px;letter-spacing:8px;animation:blink 1.2s infinite}
+  @keyframes blink{50%{opacity:.3}}
+
+  .keys{font-size:12px;color:#7d8aa8;margin-top:8px;line-height:1.8}
+  kbd{background:rgba(255,255,255,.12);padding:2px 7px;border-radius:5px;
+      font-family:inherit;font-size:11px;border:1px solid rgba(255,255,255,.15)}
 </style>
 </head>
 <body>
-<div id="errorBox"></div>
-<div class="wrap">
-  <div class="row" style="justify-content:space-between">
-    <h1>👨‍🍳 Mutfak Şefi</h1>
-    <div class="row" style="margin:0">
-      <button class="btn sm" id="themeBtn">🌙</button>
-      <button class="btn sm" id="setBtn">⚙️</button>
-    </div>
+
+<div id="hud">
+  <div id="topBar">
+    <div class="pill">💰 <b id="balance">1000</b> TL</div>
+    <div id="rolePill" class="chef">👨‍🍳 ŞEF</div>
+    <button id="quitBtn">🏁 Bitir</button>
   </div>
-
-  <div class="tabs">
-    <button class="tab active" data-t="ana"><span class="tico">🏠</span>Ana</button>
-    <button class="tab" data-t="diyet"><span class="tico">🥗</span>Diyet</button>
-    <button class="tab" data-t="istat"><span class="tico">📊</span>İstat</button>
-    <button class="tab" data-t="sosyal"><span class="tico">👥</span>Sosyal</button>
+  <div id="stockBar">
+    <div class="stock-item" id="st-patty"><span>🥩</span><b>0</b></div>
+    <div class="stock-item" id="st-bun"><span>🍞</span><b>0</b></div>
+    <div class="stock-item" id="st-lettuce"><span>🥬</span><b>0</b></div>
+    <div class="stock-item" id="st-tomato"><span>🍅</span><b>0</b></div>
+    <div class="stock-item" id="st-cheese"><span>🧀</span><b>0</b></div>
   </div>
-
-  <div class="panel active" id="p-ana">
-    <div class="row">
-      <button class="btn orange" id="camBtn">📷 Dolabı Tara</button>
-      <button class="btn" id="shopBtn">🛒 Alışveriş <span id="shopBadge"></span></button>
-      <button class="btn" id="photoBtn">📸 Albüm</button>
-    </div>
-    <h2>🥕 Malzemeler <span class="tag" id="ingCount">0</span></h2>
-    <div class="row">
-      <input id="search" placeholder="🔍 Ara...">
-      <button class="btn sm" id="clearBtn">🧹</button>
-    </div>
-    <div class="grid" id="ingGrid"></div>
-
-    <button class="cook" id="cookBtn">👨‍🍳 Ne Yapabilirim?<small id="cookSub">Malzeme seç 👆</small></button>
-
-    <div id="recipeArea" style="display:none">
-      <h2>🍽️ Tarifler <span class="tag" id="recipeSub"></span></h2>
-      <div class="row" id="filterRow">
-        <button class="btn sm" data-mf="all">Hepsi</button>
-        <button class="btn sm" data-mf="fav">⭐</button>
-        <button class="btn sm" data-mf="veg">🌿</button>
-        <button class="btn sm" data-mf="vegan">🌱</button>
-        <button class="btn sm" data-mf="hizli">⚡</button>
-        <button class="btn sm" data-mf="tatli">🍰</button>
-      </div>
-      <div class="recipe-grid" id="recipeGrid"></div>
-    </div>
-
-    <h2>📖 Geçmiş <span class="tag" id="histCount"></span></h2>
-    <div id="histList"></div>
+  <div id="ordersPanel">
+    <div class="ptitle">SİPARİŞLER</div>
+    <div id="ordersList"></div>
   </div>
+  <div id="crosshair"></div>
+  <div id="prompt" class="hidden"></div>
+  <div id="hint"></div>
+  <div id="toasts"></div>
+</div>
 
-  <div class="panel" id="p-diyet">
-    <h2>🥗 Diyet & Hedefler</h2>
-    <div id="dietArea"></div>
-  </div>
+<div id="heldPanel" class="hidden">
+  <div class="held-emoji" id="heldEmoji">🍔</div>
+  <div class="held-name" id="heldName">Burger</div>
+</div>
 
-  <div class="panel" id="p-istat">
-    <h2>📊 İstatistik</h2>
-    <div id="statsArea"></div>
-    <div class="row" style="margin-top:12px">
-      <button class="btn blue sm" id="marketBtn">🛍️ Market Fiyat</button>
-      <button class="btn purple sm" id="planBtn">📅 Haftalık Plan</button>
-      <button class="btn sm" id="eduBtn">🎓 Eğitim</button>
-    </div>
-  </div>
+<div id="interactBtn" class="hidden">👆</div>
+<div id="joyBase"><div id="joyKnob"></div></div>
 
-  <div class="panel" id="p-sosyal">
-    <h2>🏆 Rozetler <span class="tag" id="badgeCount"></span></h2>
-    <div class="badges-grid" id="badgesGrid"></div>
-    <h2>👨‍👩‍👧 Aile</h2>
-    <div class="row">
-      <input id="famName" placeholder="İsim" style="flex:1">
-      <input id="famEmoji" placeholder="😀" maxlength="2" style="max-width:60px">
-      <button class="btn orange sm" id="famAdd">Ekle</button>
-    </div>
-    <div id="famList"></div>
-    <h2>🎁 Puan</h2>
-    <div id="pointsArea"></div>
+<div id="shopModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2>🖥️ MALZEME SİPARİŞİ</h2>
+      <button class="close-btn" data-close="shopModal">✕</button></div>
+    <div id="shopBody"></div>
   </div>
 </div>
 
-<div class="modal" id="detailModal"><div class="modal-box wide">
-  <div class="modal-head"><h3 id="dTitle">Tarif</h3><button id="dClose">✕</button></div>
-  <div class="modal-body" id="dBody"></div>
-</div></div>
-
-<div class="modal" id="shopModal"><div class="modal-box">
-  <div class="modal-head"><h3>🛒 Alışveriş</h3><button id="sClose">✕</button></div>
-  <div class="modal-body">
-    <div class="row"><input id="sInput" placeholder="Ürün ekle..."><button class="btn orange sm" id="sAdd">Ekle</button></div>
-    <div class="row"><button class="btn sm" id="sClear">Alınanları Temizle</button><button class="btn sm" id="sCopy">📋 Kopyala</button></div>
-    <div id="sList"></div>
+<div id="assemblyModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2>🍔 BURGER YAP</h2>
+      <button class="close-btn" data-close="assemblyModal">✕</button></div>
+    <div id="assemblyBody"></div>
   </div>
-</div></div>
+</div>
 
-<div class="modal" id="camModal"><div class="modal-box">
-  <div class="modal-head"><h3>📷 Dolabı Tara</h3><button id="cClose">✕</button></div>
-  <div class="modal-body" id="cBody"></div>
-</div></div>
-
-<div class="modal" id="photoModal"><div class="modal-box">
-  <div class="modal-head"><h3>📸 Albüm</h3><button id="phClose">✕</button></div>
-  <div class="modal-body">
-    <button class="btn orange full" id="phAdd" style="margin-bottom:10px">📷 Fotoğraf Ekle</button>
-    <input type="file" id="phFile" accept="image/*" style="display:none">
-    <div class="photo-grid" id="photoGrid"></div>
+<div id="cashModal" class="modal hidden">
+  <div class="modal-content cash-content">
+    <div class="modal-header"><h2>💵 PARA ÜSTÜ</h2></div>
+    <div id="cashBody"></div>
   </div>
-</div></div>
+</div>
 
-<div class="modal" id="marketModal"><div class="modal-box">
-  <div class="modal-head"><h3>🛍️ Market Fiyat Karşılaştırma</h3><button id="mkClose">✕</button></div>
-  <div class="modal-body">
-    <div class="row"><select id="mkIng"><option value="">Malzeme seç...</option></select></div>
-    <div id="mkResult"></div>
+<!-- ANA MENÜ -->
+<div id="menuScreen" class="screen">
+  <h1>🍔 BURGER HOUSE 3D</h1>
+  <p>Çok oyunculu modda arkadaşınla <b>şef</b> ve <b>garson</b> olarak birlikte oyna!</p>
+  <button class="btn" id="soloBtn">🎮 Tek Oyna</button>
+  <button class="btn secondary" id="multiBtn">👥 Arkadaşla Oyna</button>
+  <div class="keys">📱 Sol yarı: hareket • Sağ yarı: bakış • 👆 etkileşim<br>
+    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> + fare + <kbd>E</kbd></div>
+</div>
+
+<!-- ROL SEÇİMİ -->
+<div id="roleScreen" class="screen hidden">
+  <h1>Rolünü Seç</h1>
+  <div class="role-grid">
+    <div class="role-card" data-role="chef">
+      <span class="rc-emoji">👨‍🍳</span>
+      <div class="rc-name">Şef</div>
+    </div>
+    <div class="role-card" data-role="waiter">
+      <span class="rc-emoji">🧑‍🍳</span>
+      <div class="rc-name">Garson</div>
+    </div>
   </div>
-</div></div>
+  <button class="btn" id="roleNextBtn" disabled>DEVAM</button>
+  <button class="btn ghost" id="roleBackBtn">Geri</button>
+</div>
 
-<div class="modal" id="planModal"><div class="modal-box wide">
-  <div class="modal-head"><h3>📅 Haftalık Plan</h3><button id="plClose">✕</button></div>
-  <div class="modal-body">
-    <div id="plannerGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px"></div>
-    <div class="row"><button class="btn green sm" id="plShop">🛒 Eksikleri Alışverişe Ekle</button><button class="btn sm" id="plClear">🗑️ Temizle</button></div>
-  </div>
-</div></div>
+<!-- ODA SEÇİMİ -->
+<div id="roomChoiceScreen" class="screen hidden">
+  <h1>Oda</h1>
+  <p>Oda oluştur ve kodu arkadaşına ver, ya da arkadaşının kodunu gir.</p>
+  <button class="btn" id="createRoomBtn">🏠 Oda Oluştur</button>
+  <button class="btn secondary" id="joinRoomBtn">🔗 Odaya Katıl</button>
+  <button class="btn ghost" id="roomBackBtn">Geri</button>
+</div>
 
-<div class="modal" id="pickModal"><div class="modal-box">
-  <div class="modal-head"><h3>🍽️ Tarif Seç</h3><button id="pkClose">✕</button></div>
-  <div class="modal-body">
-    <div class="row"><input id="pkSearch" placeholder="🔍 Ara..."></div>
-    <div id="pkList"></div>
-  </div>
-</div></div>
+<!-- ODA OLUŞTURMA (HOST) -->
+<div id="hostScreen" class="screen hidden">
+  <h1>Oda Kodun</h1>
+  <p>Bu kodu arkadaşına ver, o da bu kodu girip sana bağlansın.</p>
+  <div class="code-box" id="roomCode">------</div>
+  <p class="waiting-dots">●●●</p>
+  <p>Bağlantı bekleniyor...</p>
+  <button class="btn ghost" id="hostCancelBtn">İptal</button>
+</div>
 
-<div class="modal" id="eduModal"><div class="modal-box wide">
-  <div class="modal-head"><h3>🎓 Yemek Eğitimi</h3><button id="edClose">✕</button></div>
-  <div class="modal-body" id="eduBody"></div>
-</div></div>
+<!-- ODAYA KATILMA (GUEST) -->
+<div id="joinScreen" class="screen hidden">
+  <h1>Odaya Katıl</h1>
+  <p>Arkadaşının oda kodunu gir:</p>
+  <input type="text" class="code-input" id="codeInput" maxlength="6" placeholder="------" autocomplete="off" autocapitalize="characters">
+  <button class="btn" id="joinConfirmBtn">BAĞLAN</button>
+  <button class="btn ghost" id="joinBackBtn">Geri</button>
+  <p id="joinError" style="color:#ff7d8e;font-size:13px;min-height:18px;margin-top:6px"></p>
+</div>
 
-<div class="modal" id="setModal"><div class="modal-box">
-  <div class="modal-head"><h3>⚙️ Ayarlar</h3><button id="stClose">✕</button></div>
-  <div class="modal-body">
-    <div class="row"><button class="btn sm" id="notifBtn">🔔 Bildirim</button><button class="btn sm" id="voiceBtn">🎙️ Sesli</button></div>
-    <div class="row"><button class="btn blue sm" id="expBtn">📥 Yedek Al</button><button class="btn blue sm" id="impBtn">📤 Yükle</button><button class="btn red sm" id="resetBtn">🗑️ Sıfırla</button></div>
-    <input type="file" id="impFile" accept=".json" style="display:none">
-  </div>
-</div></div>
+<!-- OYUN SONU -->
+<div id="endScreen" class="screen hidden">
+  <h1>VARDİYA BİTTİ</h1>
+  <div style="font-size:46px;font-weight:900;color:#7dffb0" id="finalMoney">1000 TL</div>
+  <p id="finalMsg"></p>
+  <button class="btn" id="againBtn">TEKRAR OYNA</button>
+</div>
 
-<script>
-// Hata yakalayıcı
-window.onerror = function(msg, url, line) {
-  var box = document.getElementById('errorBox');
-  if (box) {
-    box.style.display = 'block';
-    box.textContent += 'HATA: ' + msg + ' (satır ' + line + ')\n';
-  }
-  return false;
-};
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
 
-(function(){
-'use strict';
+<script type="module">
+import * as THREE from 'three';
 
-function $(id) { return document.getElementById(id); }
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
-}
-function norm(s) {
-  return String(s || '').toLowerCase()
-    .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/İ/g, 'i');
-}
-
-var toastEl = null;
-function toast(title, body, type) {
-  if (toastEl) toastEl.remove();
-  var el = document.createElement('div');
-  el.className = 'toast ' + (type || '');
-  el.innerHTML = '<b>' + esc(title) + '</b>' + (body ? '<div style="font-size:12px;color:#8ba0c2;margin-top:4px">' + esc(body) + '</div>' : '');
-  document.body.appendChild(el);
-  toastEl = el;
-  setTimeout(function() { if (toastEl === el) { el.remove(); toastEl = null; } }, 3000);
-}
-
-// ==== VERİ: MALZEMELER ====
-var INGS = [
-  ['kiyma','Dana Kıyma','🥩'],['kuzu_kiyma','Kuzu Kıyma','🥩'],['kofte','Köfte','🍖'],
-  ['kusbasi','Kuşbaşı','🥩'],['tavuk','Tavuk','🍗'],['tavuk_gogsu','Tavuk Göğsü','🍗'],
-  ['dana_doner','Dana Döner','🌯'],['tavuk_doner','Tavuk Döner','🌯'],
-  ['balik','Balık','🐟'],['somon','Somon','🐟'],['ton','Ton Balığı','🐟'],
-  ['sucuk','Sucuk','🌭'],['sosis','Sosis','🌭'],['salam','Salam','🥓'],['pastirma','Pastırma','🥓'],
-  ['patates','Patates','🥔'],['domates','Domates','🍅'],['salatalik','Salatalık','🥒'],
-  ['biber','Biber','🌶️'],['dolma_biber','Dolmalık Biber','🫑'],['sogan','Soğan','🧅'],
-  ['sarimsak','Sarımsak','🧄'],['havuc','Havuç','🥕'],['patlican','Patlıcan','🍆'],
-  ['kabak','Kabak','🥒'],['bezelye','Bezelye','🟢'],['brokoli','Brokoli','🥦'],
-  ['marul','Marul','🥗'],['ispanak','Ispanak','🥬'],['misir','Mısır','🌽'],
-  ['mantar','Mantar','🍄'],['lahana','Lahana','🥬'],['pirasa','Pırasa','🌿'],
-  ['maydanoz','Maydanoz','🌿'],['tursu','Turşu','🥒'],['sarma_yapragi','Sarma Yaprağı','🍃'],
-  ['mercimek','Mercimek','🥣'],['nohut','Nohut','🫘'],['fasulye','Kuru Fasulye','🫘'],
-  ['bulgur','Bulgur','🌾'],['pirinc','Pirinç','🍚'],['makarna','Makarna','🍝'],
-  ['spagetti','Spagetti','🍝'],['sehzade','Şehriye','🍜'],
-  ['muz','Muz','🍌'],['elma','Elma','🍎'],['armut','Armut','🍐'],['cilek','Çilek','🍓'],
-  ['karpuz','Karpuz','🍉'],['kavun','Kavun','🍈'],['kivi','Kivi','🥝'],['kiraz','Kiraz','🍒'],
-  ['limon','Limon','🍋'],['portakal','Portakal','🍊'],['mandalina','Mandalina','🍊'],
-  ['avokado','Avokado','🥑'],['seftali','Şeftali','🍑'],['kayisi','Kayısı','🍑'],
-  ['ananas','Ananas','🍍'],['uzum','Üzüm','🍇'],['nar','Nar','🍎'],['incir','İncir','🟣'],
-  ['sut','Süt','🥛'],['yogurt','Yoğurt','🥣'],['peynir','Beyaz Peynir','🧀'],
-  ['kasar','Kaşar','🧀'],['cheddar','Cheddar','🧀'],['mozzarella','Mozzarella','🧀'],
-  ['parmesan','Parmesan','🧀'],['tereyagi','Tereyağı','🧈'],['krema','Krema','🍶'],
-  ['yumurta','Yumurta','🥚'],['zeytin','Zeytin','🫒'],['zeytinyagi','Zeytinyağı','🫒'],
-  ['bal','Bal','🍯'],['recel','Reçel','🍯'],['tuz','Tuz','🧂'],['seker','Şeker','🍬'],
-  ['karabiber','Karabiber','⚫'],['pulbiber','Pul Biber','🌶️'],['kekik','Kekik','🌿'],
-  ['nane','Kuru Nane','🌿'],['kimyon','Kimyon','🟤'],['tarcin','Tarçın','🍂'],
-  ['salca','Salça','🥫'],['ketcap','Ketçap','🍅'],['mayonez','Mayonez','🥣'],
-  ['hardal','Hardal','🌭'],['sirke','Sirke','🍶'],['aycicek','Ayçiçek Yağı','🌻'],
-  ['vanilya','Vanilya','🌰'],['kabartma','Kabartma','🥄'],['maya','Maya','🫧'],
-  ['nisasta','Nişasta','🌾'],['kakao','Kakao','🍫'],['cikolata','Çikolata','🍫'],
-  ['un','Un','🌾'],['ekmek','Ekmek','🍞'],['hamburger_ekmek','Hamburger Ekmeği','🍔'],
-  ['lavas','Lavaş','🥙'],['yufka','Yufka','🥙'],['pizza_hamuru','Pizza Hamuru','🍕'],
-  ['milfoy','Milföy','🥐'],['manti','Mantı','🥟'],['pide','Pide','🥖'],
-  ['irmik','İrmik','🌾'],['tarhana','Tarhana','🥣'],['cay','Çay','🍵'],
-  ['kahve','Kahve','☕'],['dondurma','Dondurma','🍦'],['biskuvi','Bisküvi','🍪'],
-  ['ceviz','Ceviz','🌰'],['findik','Fındık','🌰'],['badem','Badem','🌰'],
-  ['antep_fistigi','Antep Fıstığı','🟢'],['kuru_uzum','Kuru Üzüm','🍇']
+/* ═══════ SABİTLER ═══════ */
+const INGREDIENTS = [
+  { id:'patty',   name:'Köfte',   emoji:'🥩', cost:40, pack:10 },
+  { id:'bun',     name:'Ekmek',   emoji:'🍞', cost:20, pack:10 },
+  { id:'lettuce', name:'Marul',   emoji:'🥬', cost:15, pack:10 },
+  { id:'tomato',  name:'Domates', emoji:'🍅', cost:20, pack:10 },
+  { id:'cheese',  name:'Peynir',  emoji:'🧀', cost:30, pack:10 },
 ];
-var ING = {};
-for (var i = 0; i < INGS.length; i++) {
-  ING[INGS[i][0]] = { id: INGS[i][0], n: INGS[i][1], e: INGS[i][2] };
-}
-
-// Porsiyon ölçüleri (2 kişilik)
-var AMT = {
-  kiyma:'200 g',kuzu_kiyma:'200 g',kofte:'6 adet',kusbasi:'300 g',tavuk:'4 parça',
-  tavuk_gogsu:'2 adet',dana_doner:'200 g',tavuk_doner:'200 g',balik:'2 adet',
-  somon:'2 fileto',ton:'1 kutu',sucuk:'150 g',sosis:'4 adet',salam:'6 dilim',
-  pastirma:'100 g',patates:'4 adet',domates:'3 adet',salatalik:'3 adet',
-  biber:'3 adet',dolma_biber:'6 adet',sogan:'2 adet',sarimsak:'4 diş',
-  havuc:'2 adet',patlican:'2 adet',kabak:'2 adet',bezelye:'1 sb',
-  brokoli:'1 demet',marul:'1 demet',ispanak:'500 g',misir:'2 adet',mantar:'300 g',
-  lahana:'yarım',pirasa:'2 sap',maydanoz:'1 demet',tursu:'1 kase',
-  sarma_yapragi:'500 g',mercimek:'1 sb',nohut:'1 sb',fasulye:'1 sb',
-  bulgur:'1.5 sb',pirinc:'1.5 sb',makarna:'300 g',spagetti:'300 g',sehzade:'0.5 sb',
-  muz:'2 adet',elma:'2 adet',armut:'2 adet',cilek:'250 g',karpuz:'1 dilim',
-  kavun:'1 dilim',kivi:'2 adet',kiraz:'250 g',limon:'2 adet',portakal:'2 adet',
-  mandalina:'3 adet',avokado:'1 adet',seftali:'2 adet',kayisi:'4 adet',
-  ananas:'4 dilim',uzum:'1 salkım',nar:'1 adet',incir:'4 adet',
-  sut:'2 sb',yogurt:'2 sb',peynir:'150 g',kasar:'150 g',cheddar:'4 dilim',
-  mozzarella:'200 g',parmesan:'50 g',tereyagi:'2 yk',krema:'1 paket',
-  yumurta:'2 adet',zeytin:'1 avuç',zeytinyagi:'3 yk',bal:'2 yk',recel:'3 yk',
-  tuz:'1 tk',seker:'1 sb',karabiber:'1 tk',pulbiber:'1 tk',kekik:'1 tk',
-  nane:'1 tk',kimyon:'1 tk',tarcin:'1 tk',salca:'2 yk',ketcap:'3 yk',
-  mayonez:'3 yk',hardal:'1 yk',sirke:'1 yk',aycicek:'3 yk',vanilya:'1 paket',
-  kabartma:'1 paket',maya:'1 paket',nisasta:'2 yk',kakao:'2 yk',cikolata:'100 g',
-  un:'2 sb',ekmek:'4 dilim',hamburger_ekmek:'2 adet',lavas:'2 adet',yufka:'2 adet',
-  pizza_hamuru:'1 adet',milfoy:'6 yaprak',manti:'300 g',pide:'2 adet',
-  irmik:'1 sb',tarhana:'3 yk',cay:'2 bardak',kahve:'2 fincan',dondurma:'4 top',
-  biskuvi:'1 paket',ceviz:'1 avuç',findik:'1 avuç',badem:'1 avuç',
-  antep_fistigi:'1 avuç',kuru_uzum:'1 avuç'
+const BURGERS = {
+  plain:   { name:'Sade',   price:35, needs:{ bun:1 } },
+  classic: { name:'Klasik', price:55, needs:{ bun:1, lettuce:1 } },
+  deluxe:  { name:'Deluxe', price:85, needs:{ bun:1, lettuce:1, tomato:1, cheese:1 } },
 };
+const BURGER_KEYS = ['plain','classic','deluxe'];
 
-// Fiyatlar (tahmini)
-var PRICE = {
-  kiyma:280,kuzu_kiyma:320,kofte:240,kusbasi:300,tavuk:85,tavuk_gogsu:95,
-  dana_doner:280,tavuk_doner:200,balik:150,somon:350,ton:60,sucuk:180,sosis:90,
-  salam:80,pastirma:220,patates:20,domates:25,salatalik:20,biber:30,
-  dolma_biber:35,sogan:15,sarimsak:80,havuc:20,patlican:30,kabak:25,bezelye:40,
-  brokoli:45,marul:20,ispanak:35,misir:25,mantar:60,lahana:20,pirasa:25,
-  maydanoz:12,tursu:40,sarma_yapragi:60,mercimek:45,nohut:45,fasulye:50,
-  bulgur:35,pirinc:40,makarna:25,spagetti:25,sehzade:30,muz:35,elma:20,
-  armut:25,cilek:50,karpuz:20,kavun:25,kivi:45,kiraz:60,limon:15,
-  portakal:25,mandalina:25,avokado:60,seftali:35,kayisi:40,ananas:55,
-  uzum:40,nar:45,incir:50,kuru_uzum:70,sut:25,yogurt:35,peynir:90,kasar:120,
-  cheddar:140,mozzarella:120,parmesan:180,tereyagi:180,krema:45,yumurta:10,
-  zeytin:80,zeytinyagi:180,bal:150,recel:80,tuz:10,seker:30,karabiber:30,
-  pulbiber:35,kekik:25,nane:20,kimyon:25,tarcin:25,salca:60,ketcap:40,
-  mayonez:50,hardal:35,sirke:20,aycicek:80,vanilya:20,kabartma:15,maya:15,
-  nisasta:25,kakao:70,cikolata:120,un:25,ekmek:15,hamburger_ekmek:20,
-  lavas:20,yufka:25,pizza_hamuru:30,milfoy:45,manti:90,pide:20,irmik:35,
-  tarhana:50,cay:90,kahve:120,dondurma:80,biskuvi:40,ceviz:250,findik:200,
-  badem:260,antep_fistigi:400
-};
-
-// ==== TARİFLER ====
-var RECIPES = [
-  {id:'menemen',n:'Menemen',e:'🍳',d:'Domates biber yumurta klasiği',i:['yumurta','domates','biber','sogan','aycicek','tuz'],t:'15 dk',z:'Kolay',veg:1,mood:'kahvalti',steps:['Soğan ve biberi doğra, yağda kavur.','Domatesleri rendele, ekle, 5 dk pişir.','Yumurtaları kır, karıştır.','Tuz ekle, sıcak servis yap.']},
-  {id:'omlet',n:'Omlet',e:'🥚',d:'Sade hızlı doyurucu',i:['yumurta','tereyagi','tuz','peynir'],t:'8 dk',z:'Kolay',veg:1,mood:'kahvalti',steps:['Yumurtaları çırp, tuz ekle.','Tereyağını erit.','Yumurtayı dök, kısık ateşte pişir.','Peyniri serp, katla.']},
-  {id:'sucuklu_yumurta',n:'Sucuklu Yumurta',e:'🌭',d:'Tavada sucuk yumurta',i:['sucuk','yumurta','tereyagi','tuz'],t:'10 dk',z:'Kolay',mood:'kahvalti',steps:['Sucukları dilimle, tavada kızart.','Yumurtaları üzerine kır.','Kısık ateşte pişir.']},
-  {id:'krep',n:'Krep',e:'🥞',d:'İnce yumuşak krepler',i:['un','sut','yumurta','tuz','aycicek'],t:'20 dk',z:'Kolay',veg:1,mood:'tatli',steps:['Un süt yumurta tuzu çırp.','10 dk dinlendir.','Yağlı tavaya ince dök.','Her iki tarafı pişir.']},
-  {id:'pankek',n:'Pankek',e:'🥞',d:'Kabarık pankek',i:['un','sut','yumurta','seker','bal','kabartma'],t:'25 dk',z:'Orta',veg:1,mood:'tatli',steps:['Kuru malzemeleri karıştır.','Süt ve yumurta ekle.','Yağsız tavada küçük dök.','Kabarcıklar oluşunca çevir.']},
-  {id:'peynirli_tost',n:'Peynirli Tost',e:'🧀',d:'Eriyen peynirli tost',i:['ekmek','peynir','tereyagi'],t:'5 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Ekmeği dilimle, tereyağı sür.','Peyniri koy.','Tost makinesinde kızart.']},
-  {id:'kasarli_tost',n:'Kaşarlı Tost',e:'🧀',d:'Uzayan kaşarlı tost',i:['ekmek','kasar','tereyagi','domates'],t:'6 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Ekmeği hazırla.','Kaşar ve domates koy.','Tost makinesinde pişir.']},
-  {id:'avokado_tost',n:'Avokado Tost',e:'🥑',d:'Sağlıklı pratik tost',i:['ekmek','avokado','limon','tuz','zeytinyagi'],t:'7 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Ekmeği kızart.','Avokadoyu ez, limon tuz ekle.','Ekmeğe sür, zeytinyağı gezdir.']},
-  {id:'yumurtali_ekmek',n:'Yumurtalı Ekmek',e:'🍞',d:'Kızarmış ekmek dilimleri',i:['ekmek','yumurta','tereyagi','tuz'],t:'10 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Yumurtayı çırp.','Ekmek dilimlerini batır.','Tereyağında kızart.']},
-  {id:'cilbir',n:'Çılbır',e:'🥚',d:'Yoğurtlu yumurta',i:['yumurta','yogurt','tereyagi','pulbiber','sirke','tuz'],t:'15 dk',z:'Orta',veg:1,mood:'kahvalti',steps:['Suda sirke ile yumurta haşla.','Yoğurdu sarımsakla karıştır.','Tabağa yoğurt koy.','Yumurtayı üstüne al, tereyağı pul biber gezdir.']},
-  {id:'mercimek_corba',n:'Mercimek Çorbası',e:'🥣',d:'Kış akşamlarının klasiği',i:['mercimek','sogan','havuc','patates','tereyagi','tuz'],t:'35 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Soğan ve havucu kavur.','Mercimek patates ekle.','Su ekle, 30 dk kaynat.','Blenderdan geçir.','Tereyağlı sosla servis yap.']},
-  {id:'ezogelin',n:'Ezogelin Çorbası',e:'🍲',d:'Bulgurlu mercimek çorbası',i:['mercimek','bulgur','salca','sogan','nane','tereyagi','tuz'],t:'40 dk',z:'Orta',veg:1,mood:'rahat',steps:['Soğanı kavur, salça ekle.','Mercimek ve bulguru ekle.','Su koy, kaynat.','Nane ve tereyağı sos dök.']},
-  {id:'yayla_corba',n:'Yayla Çorbası',e:'🥣',d:'Yoğurtlu naneli çorba',i:['yogurt','pirinc','un','nane','tereyagi','tuz'],t:'30 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Pirinci haşla.','Yoğurt ve unu karıştır.','Yavaşça ekle, kaynat.','Nane ve tereyağı sos yap.']},
-  {id:'tarhana_corba',n:'Tarhana Çorbası',e:'🍲',d:'Anadolu çorbası',i:['tarhana','salca','tereyagi','nane','tuz'],t:'20 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Suyu kaynat.','Tarhanayı ekle.','Salça ve tuz ekle.','10 dk kaynat.']},
-  {id:'sade_makarna',n:'Sade Makarna',e:'🍝',d:'Tereyağlı peynirli makarna',i:['makarna','tereyagi','tuz','peynir'],t:'15 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Makarnayı haşla.','Süz, tereyağı ekle.','Peynir rendele, karıştır.']},
-  {id:'domates_makarna',n:'Domates Soslu Makarna',e:'🍅',d:'Salça ve domates',i:['makarna','domates','salca','sarimsak','zeytinyagi','tuz'],t:'25 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Makarnayı haşla.','Sarımsağı kavur.','Domates ve salça ekle.','Karıştır.']},
-  {id:'yogurtlu_makarna',n:'Yoğurtlu Makarna',e:'🥣',d:'Yoğurt sarımsaklı',i:['makarna','yogurt','sarimsak','tereyagi','tuz'],t:'20 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Makarnayı haşla.','Yoğurdu sarımsakla karıştır.','Tereyağını erit, üzerine gezdir.']},
-  {id:'kiymali_makarna',n:'Kıymalı Makarna',e:'🍝',d:'Bolonez soslu',i:['makarna','kiyma','domates','salca','sogan','sarimsak','aycicek','tuz'],t:'40 dk',z:'Orta',mood:'rahat',steps:['Soğanı kavur, kıymayı ekle.','Domates ve salça ekle.','20 dk pişir.','Makarna ile karıştır.']},
-  {id:'ton_makarna',n:'Ton Balıklı Makarna',e:'🐟',d:'Pratik doyurucu',i:['makarna','ton','limon','zeytinyagi','tuz','karabiber'],t:'12 dk',z:'Kolay',mood:'hizli',steps:['Makarnayı haşla.','Ton balığı ekle.','Limon zeytinyağı ekle.','Karıştır.']},
-  {id:'firin_makarna',n:'Fırında Makarna',e:'🧀',d:'Beşamelli fırın makarna',i:['makarna','kasar','sut','un','tereyagi','tuz'],t:'45 dk',z:'Orta',veg:1,mood:'rahat',steps:['Makarnayı haşla.','Beşamel sos yap.','Tepsiye koy, kaşar serp.','Fırında 20 dk kızart.']},
-  {id:'carbonara',n:'Carbonara',e:'🍝',d:'İtalyan makarnası',i:['spagetti','yumurta','parmesan','salam','karabiber','tuz'],t:'20 dk',z:'Orta',mood:'rahat',steps:['Spagettiyi haşla.','Salamı kavur.','Yumurta ve peyniri çırp.','Sıcak makarnayla karıştır.']},
-  {id:'pirinc_pilavi',n:'Pirinç Pilavı',e:'🍚',d:'Tereyağlı tane tane pilav',i:['pirinc','tereyagi','tuz'],t:'25 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Pirinci yıka.','Tereyağında kavur.','Sıcak su ekle.','Kısık ateşte pişir, 10 dk dinlendir.']},
-  {id:'sehzade_pilav',n:'Şehriyeli Pilav',e:'🍚',d:'Klasik pilav',i:['pirinc','sehzade','tereyagi','tuz'],t:'28 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Şehriyeyi kavur.','Pirinci ekle.','Su ekle, kısık ateşte pişir.']},
-  {id:'bulgur_pilavi',n:'Bulgur Pilavı',e:'🌾',d:'Salçalı bulgur pilavı',i:['bulgur','sogan','salca','tereyagi','tuz'],t:'25 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Soğanı kavur, salça ekle.','Bulguru ekle.','Su ekle, pişir.']},
-  {id:'tavuklu_pilav',n:'Tavuklu Pilav',e:'🍚',d:'Pilav üstü tavuk',i:['tavuk','pirinc','tereyagi','tuz','nohut'],t:'45 dk',z:'Orta',mood:'rahat',steps:['Tavuğu haşla.','Suyuyla pilav pişir.','Tavuğu didikle, pilavın üzerine koy.']},
-  {id:'hamburger',n:'Hamburger',e:'🍔',d:'Ev yapımı hamburger',i:['kiyma','hamburger_ekmek','marul','domates','sogan','cheddar','ketcap','mayonez'],t:'25 dk',z:'Orta',mood:'hizli',steps:['Kıymaya tuz karabiber ekle.','Köfte yap, ızgarada pişir.','Ekmeği kızart.','Malzemeleri diz, sosları ekle.']},
-  {id:'cheeseburger',n:'Cheeseburger',e:'🧀',d:'Bol peynirli hamburger',i:['kiyma','hamburger_ekmek','cheddar','marul','domates','sogan','ketcap','mayonez'],t:'25 dk',z:'Orta',mood:'hizli',steps:['Köfte yap, ızgarada pişir.','Cheddar koy, erit.','Ekmeği hazırla, malzemeleri diz.']},
-  {id:'pizza_margarita',n:'Pizza Margarita',e:'🍕',d:'İtalyan klasiği',i:['pizza_hamuru','domates','mozzarella','maydanoz','zeytinyagi','tuz'],t:'30 dk',z:'Orta',veg:1,mood:'hizli',steps:['Hamuru aç, domates sos sür.','Mozzarella diz.','Fırında 12 dk pişir.']},
-  {id:'pizza_sucuklu',n:'Sucuklu Pizza',e:'🍕',d:'Bol sucuklu pizza',i:['pizza_hamuru','domates','kasar','sucuk','biber','zeytin'],t:'30 dk',z:'Orta',mood:'hizli',steps:['Hamuru aç, sos sür.','Malzemeleri diz.','Fırında 12 dk pişir.']},
-  {id:'pizza_karisik',n:'Karışık Pizza',e:'🍕',d:'Ne varsa üstüne',i:['pizza_hamuru','domates','kasar','sucuk','sosis','mantar','biber','misir','zeytin'],t:'35 dk',z:'Orta',mood:'hizli',steps:['Hamuru aç, sos sür.','Malzemeleri diz.','Fırında 15 dk pişir.']},
-  {id:'doner_tavuk',n:'Tavuk Döner',e:'🌯',d:'Lavaşta tavuk döner',i:['tavuk_doner','lavas','sogan','domates','marul','tursu','ketcap','mayonez'],t:'20 dk',z:'Kolay',mood:'hizli',steps:['Döneri ısıt.','Lavaşı ısıt.','Sebzeleri doğra.','Malzemeleri koy, sosları ekle, sar.']},
-  {id:'doner_dana',n:'Dana Döner',e:'🌯',d:'Lavaşta dana döner',i:['dana_doner','lavas','sogan','domates','marul','tursu','ketcap','mayonez'],t:'20 dk',z:'Kolay',mood:'hizli',steps:['Döneri ısıt.','Lavaşı ısıt.','Sebzeleri doğra.','Sar.']},
-  {id:'tantuni',n:'Tantuni',e:'🌯',d:'Mersin usulü tantuni',i:['kusbasi','lavas','domates','sogan','maydanoz','pulbiber','aycicek','tuz'],t:'30 dk',z:'Orta',mood:'hizli',steps:['Eti küçük doğra, tavada kavur.','Pulbiber ekle.','Lavaşa koy, sebzelerle sar.']},
-  {id:'lahmacun',n:'Lahmacun',e:'🥙',d:'Kıymalı ince hamur',i:['kiyma','un','domates','biber','sogan','sarimsak','salca','maydanoz'],t:'40 dk',z:'Zor',mood:'hizli',steps:['Hamur yoğur, dinlendir.','Kıymalı harç hazırla.','Hamuru aç, harç sür.','Fırında 8 dk pişir.']},
-  {id:'pide_kiymali',n:'Kıymalı Pide',e:'🥖',d:'Bol kıymalı pide',i:['pide','kiyma','domates','biber','sogan','tereyagi','tuz'],t:'30 dk',z:'Orta',mood:'hizli',steps:['Kıymalı harç hazırla.','Pide hamurunu aç.','Harcı yay, fırında 15 dk pişir.']},
-  {id:'pide_kasarli',n:'Kaşarlı Pide',e:'🥖',d:'Bol kaşarlı pide',i:['pide','kasar','tereyagi','domates','sucuk'],t:'15 dk',z:'Kolay',mood:'hizli',steps:['Pideyi ısıt.','Kaşar rendele, üzerine serp.','Fırında erit.']},
-  {id:'pide_kusbasi',n:'Kuşbaşılı Pide',e:'🥖',d:'Kuşbaşı etli pide',i:['pide','kusbasi','domates','biber','sogan','tereyagi','tuz'],t:'35 dk',z:'Orta',mood:'hizli',steps:['Eti doğra, soğanla kavur.','Pideyi aç, malzemeleri koy.','Fırında 15 dk pişir.']},
-  {id:'gozleme',n:'Gözleme',e:'🥙',d:'Yufka arası peynirli',i:['yufka','peynir','maydanoz','tereyagi','yumurta'],t:'20 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Harç hazırla.','Yufkayı ser, harcı koy, kapat.','Tavada pişir.']},
-  {id:'patso',n:'Patso',e:'🍟',d:'Patates ve sosis',i:['patates','sosis','ekmek','ketcap','mayonez','aycicek'],t:'25 dk',z:'Kolay',mood:'hizli',steps:['Patatesleri kızart.','Sosisleri pişir.','Ekmeği yar, hepsini koy, sosları ekle.']},
-  {id:'sosisli_sandvic',n:'Sosisli Sandviç',e:'🌭',d:'Hızlı atıştırmalık',i:['sosis','ekmek','ketcap','mayonez','hardal'],t:'10 dk',z:'Kolay',mood:'hizli',steps:['Sosisleri haşla.','Ekmeği yar.','Sosisleri koy, sosları ekle.']},
-  {id:'chicken_nuggets',n:'Tavuk Nuggets',e:'🍗',d:'Çıtır tavuk parçaları',i:['tavuk_gogsu','un','yumurta','aycicek','tuz'],t:'25 dk',z:'Orta',mood:'hizli',steps:['Tavuğu küp doğra.','Una bulayın, yumurtaya batır.','Kızgın yağda kızart.']},
-  {id:'balik_ekmek',n:'Balık Ekmek',e:'🥖',d:'Ekmek arası balık',i:['balik','ekmek','sogan','marul','limon','tuz'],t:'20 dk',z:'Kolay',mood:'hizli',steps:['Balığı kızart.','Ekmeği hazırla.','Soğan marul koy, balığı yerleştir, limon sık.']},
-  {id:'firin_tavuk',n:'Fırında Tavuk',e:'🍗',d:'Baharatlı fırın tavuk',i:['tavuk','zeytinyagi','limon','sarimsak','kekik','tuz','karabiber'],t:'60 dk',z:'Orta',mood:'rahat',steps:['Tavuğu marine et.','30 dk beklet.','Tepsiye diz.','180 derece 45 dk pişir.']},
-  {id:'tavuk_sote',n:'Tavuk Sote',e:'🍗',d:'Sebzelerle tavuk',i:['tavuk','biber','domates','sogan','sarimsak','salca','aycicek','tuz'],t:'30 dk',z:'Kolay',mood:'rahat',steps:['Tavuğu doğra, yağda kavur.','Sebzeleri ekle.','Salça ekle, 15 dk pişir.']},
-  {id:'mantarli_tavuk',n:'Mantarlı Tavuk',e:'🍗',d:'Kremalı tavuk sote',i:['tavuk','mantar','krema','sogan','sarimsak','tereyagi','tuz'],t:'30 dk',z:'Orta',mood:'rahat',steps:['Tavuğu kavur.','Soğan ve mantarı ekle.','Krema ekle, 10 dk pişir.']},
-  {id:'tavuk_sis',n:'Tavuk Şiş',e:'🍢',d:'Marine tavuk şiş',i:['tavuk_gogsu','zeytinyagi','limon','sarimsak','kekik','tuz'],t:'40 dk',z:'Kolay',mood:'rahat',steps:['Tavuğu küp doğra, marine et.','Şişlere diz.','Izgarada pişir.']},
-  {id:'karniyarik',n:'Karnıyarık',e:'🍆',d:'Kıymalı patlıcan dolması',i:['patlican','kiyma','sogan','domates','biber','salca','aycicek','tuz'],t:'55 dk',z:'Orta',mood:'rahat',steps:['Patlıcanları kızart.','Kıymalı harç hazırla.','Yar ve doldur.','Fırında 30 dk pişir.']},
-  {id:'imam_bayildi',n:'İmam Bayıldı',e:'🍆',d:'Zeytinyağlı patlıcan',i:['patlican','sogan','domates','biber','sarimsak','zeytinyagi','tuz'],t:'50 dk',z:'Orta',veg:1,mood:'rahat',steps:['Patlıcanları kızart.','Soğanlı harç hazırla.','Doldur, pişir.']},
-  {id:'musakka',n:'Musakka',e:'🍆',d:'Kıymalı patlıcan',i:['patlican','kiyma','sogan','domates','salca','biber','aycicek','tuz'],t:'50 dk',z:'Orta',mood:'rahat',steps:['Patlıcanları kızart.','Kıymalı harç yap.','Tepsiye diz.','Fırında 25 dk pişir.']},
-  {id:'mucver',n:'Mücver',e:'🥒',d:'Kabaklı kızartma',i:['kabak','un','yumurta','sogan','maydanoz','aycicek','tuz'],t:'30 dk',z:'Orta',veg:1,mood:'rahat',steps:['Kabağı rendele, suyunu sık.','Malzemelerle karıştır.','Kaşıkla tavaya dök, her iki tarafı kızart.']},
-  {id:'kabak_dolmasi',n:'Kabak Dolması',e:'🥒',d:'Kıymalı kabak dolması',i:['kabak','kiyma','pirinc','sogan','salca','domates','maydanoz','tuz'],t:'60 dk',z:'Orta',mood:'rahat',steps:['Kabakları oy.','İç harcı hazırla.','Doldur, tencereye diz.','Su ekle, pişir.']},
-  {id:'biber_dolmasi',n:'Biber Dolması',e:'🫑',d:'Kıymalı biber dolması',i:['dolma_biber','kiyma','pirinc','sogan','salca','domates','maydanoz','tuz'],t:'60 dk',z:'Orta',mood:'rahat',steps:['Biberleri temizle.','İç harcı hazırla.','Doldur, tencereye diz.','Su ekle, pişir.']},
-  {id:'yaprak_sarma',n:'Yaprak Sarma',e:'🍃',d:'Zeytinyağlı sarma',i:['sarma_yapragi','pirinc','sogan','salca','kuru_uzum','nane','zeytinyagi','limon','tuz'],t:'90 dk',z:'Zor',veg:1,mood:'rahat',steps:['Yaprakları haşla.','İç harcı hazırla.','Yaprakları sar.','Tencereye diz, su ekle, pişir.']},
-  {id:'etli_sarma',n:'Etli Sarma',e:'🍃',d:'Kıymalı yaprak sarma',i:['sarma_yapragi','kiyma','pirinc','sogan','salca','nane','tereyagi','tuz'],t:'90 dk',z:'Zor',mood:'rahat',steps:['Yaprakları haşla.','Kıymalı harç hazırla.','Yaprakları sar.','Tencereye diz, pişir.']},
-  {id:'kiyma_kofte',n:'Izgara Köfte',e:'🍖',d:'Baharatlı sulu köfte',i:['kiyma','sogan','ekmek','maydanoz','karabiber','tuz'],t:'30 dk',z:'Orta',mood:'rahat',steps:['Soğanı rendele, suyunu sık.','Kıyma ve baharatla karıştır.','Yoğur, şekil ver.','Izgarada pişir.']},
-  {id:'adana_kebap',n:'Adana Kebap',e:'🍢',d:'Acılı kıyma kebabı',i:['kuzu_kiyma','biber','sogan','sarimsak','pulbiber','tuz'],t:'30 dk',z:'Orta',mood:'rahat',steps:['Kıymaya baharat ekle, yoğur.','Şişlere diz.','Izgarada pişir.']},
-  {id:'urfa_kebap',n:'Urfa Kebap',e:'🍢',d:'Acısız kıyma kebabı',i:['kuzu_kiyma','sogan','sarimsak','karabiber','tuz'],t:'30 dk',z:'Orta',mood:'rahat',steps:['Kıymayı yoğur.','Şişlere diz.','Izgarada pişir.']},
-  {id:'kusbasi_sis',n:'Kuşbaşı Şiş',e:'🍢',d:'Marine kuşbaşı şiş',i:['kusbasi','zeytinyagi','sogan','sarimsak','kekik','karabiber','tuz'],t:'40 dk',z:'Kolay',mood:'rahat',steps:['Eti marine et.','30 dk beklet.','Şişlere diz, ızgarada pişir.']},
-  {id:'et_sote',n:'Et Sote',e:'🥩',d:'Sebzelerle pişen et sote',i:['kusbasi','biber','domates','sogan','salca','tereyagi','tuz'],t:'40 dk',z:'Orta',mood:'rahat',steps:['Eti tereyağında kavur.','Soğan ekle, biber domates ekle.','Salça ekle, 15 dk pişir.']},
-  {id:'et_haslama',n:'Et Haşlama',e:'🥩',d:'Sebzelerle haşlanmış et',i:['kusbasi','patates','havuc','sogan','tereyagi','tuz'],t:'70 dk',z:'Kolay',mood:'rahat',steps:['Eti haşla.','Sebzeleri ekle.','1 saat pişir.']},
-  {id:'iskender',n:'İskender',e:'🍽️',d:'Pide üstü döner',i:['dana_doner','pide','domates','salca','tereyagi','yogurt','biber'],t:'20 dk',z:'Kolay',mood:'rahat',steps:['Pideyi küp doğra, tereyağında kızart.','Döneri üstüne koy.','Salçalı sos hazırla.','Yoğurt ve sos ile servis.']},
-  {id:'firin_balik',n:'Fırında Balık',e:'🐟',d:'Limonlu fırın balık',i:['balik','limon','zeytinyagi','sarimsak','kekik','tuz'],t:'35 dk',z:'Kolay',mood:'rahat',steps:['Balığı temizle, marine et.','Tepsiye koy.','200 derece 25 dk pişir.']},
-  {id:'izgara_somon',n:'Izgara Somon',e:'🐟',d:'Izgara somon fileto',i:['somon','limon','zeytinyagi','sarimsak','kekik','tuz'],t:'20 dk',z:'Kolay',mood:'rahat',steps:['Somonu marine et.','Izgarada 4 dk pişir.','Çevir, 4 dk daha, limon sık.']},
-  {id:'nohut_yemegi',n:'Nohut Yemeği',e:'🫘',d:'Salçalı sulu nohut',i:['nohut','sogan','salca','domates','tereyagi','tuz'],t:'50 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Soğanı kavur, salça ekle.','Nohutları ekle.','Su ekle, kaynat, 30 dk pişir.']},
-  {id:'kuru_fasulye',n:'Kuru Fasulye',e:'🫘',d:'Pilavın yanına',i:['fasulye','sogan','salca','tereyagi','tuz'],t:'60 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Fasulyeyi ıslat.','Soğanı kavur, salça ekle.','Fasulyeyi ekle.','1 saat pişir.']},
-  {id:'mercimek_koftesi',n:'Mercimek Köftesi',e:'🥣',d:'Kırmızı mercimek köftesi',i:['mercimek','bulgur','salca','sogan','maydanoz','limon','zeytinyagi','tuz'],t:'45 dk',z:'Orta',veg:1,mood:'rahat',steps:['Mercimeği haşla.','Bulgur ekle, şişir.','Soğan ve salça kavur.','Karıştır, şekil ver.']},
-  {id:'ispanak_yemegi',n:'Ispanak Yemeği',e:'🥬',d:'Yoğurtlu ıspanak',i:['ispanak','sogan','salca','pirinc','tereyagi','tuz'],t:'30 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Soğanı kavur, salça ekle.','Ispanağı ekle.','Pirinç ve su ekle, 20 dk pişir.']},
-  {id:'sebzeli_turlu',n:'Sebzeli Türlü',e:'🥘',d:'Yaz sebzeleri türlüsü',i:['patates','kabak','patlican','domates','biber','sogan','salca','aycicek','tuz'],t:'45 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Sebzeleri doğra.','Soğanı kavur, salça ekle.','Sebzeleri ekle.','Kısık ateşte pişir.']},
-  {id:'patates_kizartmasi',n:'Patates Kızartması',e:'🍟',d:'Çıtır çıtır',i:['patates','aycicek','tuz'],t:'20 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Patatesleri çubuk doğra.','Soğuk suda beklet, kurula.','Kızgın yağda kızart, tuz ekle.']},
-  {id:'coban_salata',n:'Çoban Salata',e:'🥗',d:'Ferah salata',i:['domates','salatalik','biber','sogan','zeytinyagi','limon','tuz'],t:'10 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Sebzeleri küp doğra.','Kaseye al.','Yağ limon tuz ekle.']},
-  {id:'kisir',n:'Kısır',e:'🌿',d:'Klasik Türk mezesi',i:['bulgur','salca','salatalik','domates','maydanoz','limon','zeytinyagi','tuz'],t:'30 dk',z:'Orta',veg:1,mood:'rahat',steps:['Bulguru şişir.','Salça ekle.','Sebzeleri doğra, ekle.','Yağ limon ekle.']},
-  {id:'humus',n:'Humus',e:'🫘',d:'Nohut tahin limon',i:['nohut','limon','sarimsak','zeytinyagi','tuz'],t:'15 dk',z:'Orta',veg:1,mood:'hizli',steps:['Nohutu haşla.','Blenderdan geçir.','Limon sarımsak ekle, yağ gezdir.']},
-  {id:'haydari',n:'Haydari',e:'🥣',d:'Süzme yoğurtlu meze',i:['yogurt','peynir','sarimsak','nane','zeytinyagi','tuz'],t:'15 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Yoğurt peyniri karıştır.','Sarımsak ekle.','Nane ekle, yağ gezdir.']},
-  {id:'yogurtlu_havuc',n:'Yoğurtlu Havuç',e:'🥕',d:'Yoğurt ve havuç',i:['yogurt','havuc','sarimsak','zeytinyagi','tuz'],t:'15 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Havucu rendele, yağda kavur.','Yoğurdu sarımsakla karıştır.','Havucu ekle.']},
-  {id:'patates_salata',n:'Patates Salatası',e:'🥔',d:'Haşlanmış patatesli salata',i:['patates','sogan','maydanoz','limon','zeytinyagi','tuz'],t:'30 dk',z:'Kolay',veg:1,mood:'rahat',steps:['Patatesleri haşla, doğra.','Soğanı doğra.','Maydanoz limon yağ ekle.']},
-  {id:'irmik_helva',n:'İrmik Helvası',e:'🍮',d:'Klasik Türk tatlısı',i:['irmik','sut','seker','tereyagi'],t:'30 dk',z:'Kolay',veg:1,mood:'tatli',steps:['Tereyağını erit.','İrmiği kavur.','Süt ve şekeri kaynat, yavaşça ekle.','10 dk demlendir.']},
-  {id:'muhallebi',n:'Muhallebi',e:'🍮',d:'Hafif sütlü tatlı',i:['sut','un','seker','vanilya'],t:'25 dk',z:'Kolay',veg:1,mood:'tatli',steps:['Sütü kaynat.','Un ve şekeri ekle.','Karıştırarak pişir, vanilya ekle.','Kaselere dök.']},
-  {id:'sutlac',n:'Sütlaç',e:'🍮',d:'Fırında üstü kızarmış sütlaç',i:['sut','pirinc','seker','nisasta','vanilya'],t:'50 dk',z:'Orta',veg:1,mood:'tatli',steps:['Pirinci haşla.','Süt ekle.','Şeker ekle.','Kaselere dök, fırında üstü kızarsın.']},
-  {id:'kek',n:'Sade Kek',e:'🍰',d:'Yumuşak kokulu kek',i:['un','yumurta','seker','sut','aycicek','kabartma','vanilya'],t:'45 dk',z:'Orta',veg:1,mood:'tatli',steps:['Yumurta ve şekeri çırp.','Süt ve yağ ekle.','Kuru malzemeleri ekle.','Kalıba dök, 175 derece 35 dk pişir.']},
-  {id:'kurabiye',n:'Un Kurabiyesi',e:'🍪',d:'Ağızda dağılan kurabiye',i:['un','tereyagi','seker','nisasta','vanilya'],t:'35 dk',z:'Kolay',veg:1,mood:'tatli',steps:['Tereyağı ve şekeri çırp.','Un vanilya ekle.','Hamur yap, şekil ver.','Tepsiye diz, 170 derece 15 dk pişir.']},
-  {id:'browni',n:'Browni',e:'🍫',d:'Yoğun çikolatalı browni',i:['un','yumurta','seker','cikolata','tereyagi','kakao'],t:'45 dk',z:'Orta',veg:1,mood:'tatli',steps:['Çikolata ve tereyağını erit.','Yumurta şeker ekle.','Un kakao ekle.','Kalıba dök, 180 derece 25 dk pişir.']},
-  {id:'muzlu_sut',n:'Muzlu Süt',e:'🥤',d:'Rahatlatıcı içecek',i:['muz','sut','bal'],t:'3 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Muzu doğra.','Süt ile blenderdan geçir.','Bal ekle.']},
-  {id:'meyve_tabagi',n:'Meyve Tabağı',e:'🍓',d:'Sağlıklı atıştırmalık',i:['elma','muz','portakal','cilek'],t:'5 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Meyveleri yıka.','Dilimle.','Tabağa diz.']},
-  {id:'meyveli_yogurt',n:'Meyveli Yoğurt',e:'🍓',d:'Hafif ferahlatıcı',i:['yogurt','bal','cilek','muz'],t:'5 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Yoğurdu kaseye al.','Meyveleri doğra, üzerine ekle.','Bal gezdir.']},
-  {id:'salcali_ekmek',n:'Salçalı Ekmek',e:'🍞',d:'Pratik atıştırmalık',i:['ekmek','salca','zeytinyagi','kekik'],t:'5 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Ekmek dilimle.','Salça ve yağı karıştır.','Ekmeğe sür, kekik serp.']},
-  {id:'patlamis_misir',n:'Patlamış Mısır',e:'🍿',d:'Evde mısır patlat',i:['misir','aycicek','tuz','tereyagi'],t:'10 dk',z:'Kolay',veg:1,mood:'hizli',steps:['Tencereye yağ koy.','Mısır ekle.','Kapağı kapat, patlayana kadar bekle.','Tuz ve tereyağı ekle.']},
-  {id:'kokorec',n:'Kokoreç',e:'🌯',d:'Sokak lezzeti',i:['kusbasi','ekmek','domates','biber','pulbiber','kekik','tuz'],t:'30 dk',z:'Orta',mood:'hizli',steps:['Eti ince doğra.','Baharatlarla kavur.','Ekmeğe koy.','Sebzelerle servis.']},
-  {id:'kumpir',n:'Kumpir',e:'🥔',d:'Fırında patates ne varsa üstüne',i:['patates','kasar','tereyagi','misir','zeytin','sosis','mayonez'],t:'50 dk',z:'Orta',mood:'hizli',steps:['Patatesleri fırında pişir.','Yar ve ez.','Tereyağı kaşar ekle.','Malzemeleri diz.']},
-  {id:'tavuk_kanat',n:'Fırında Tavuk Kanat',e:'🍗',d:'Baharatlı fırın kanat',i:['tavuk','zeytinyagi','salca','sarimsak','kekik','pulbiber','tuz'],t:'50 dk',z:'Kolay',mood:'rahat',steps:['Kanatları marine et.','Tepsiye diz.','Fırında 40 dk pişir.']}
+const ROOM = 14;
+const EYE = 1.65;
+const PLAYER_R = 0.35;
+const MOVE_SPEED = 4.5;
+const INTERACT_DIST = 3.2;
+const DELIVERY_DELAY = 10;
+const COOK_TIME = 6;
+const BURNT_TIME = 11;
+const BILLS = [10, 20, 50, 100, 200];
+const COUNTER_Z = -3.6;
+const REGISTER_POS = new THREE.Vector3(4, 0, COUNTER_Z);
+const REGISTER_SPOT = new THREE.Vector3(4, 0, COUNTER_Z + 1.7);
+const TABLES = [
+  { x:-4, z:2.0, occupied:false, id:0 },
+  { x: 0, z:3.0, occupied:false, id:1 },
+  { x: 4, z:2.0, occupied:false, id:2 },
+];
+const SERVING_SLOTS = [
+  new THREE.Vector3(0.3, 1.2, COUNTER_Z),
+  new THREE.Vector3(0.9, 1.2, COUNTER_Z),
+  new THREE.Vector3(1.5, 1.2, COUNTER_Z),
 ];
 
-// ==== ROZETLER ====
-var BADGES = [
-  {id:'b1',n:'İlk Yemek',e:'🍳',d:'İlk yemeğini pişir'},
-  {id:'b2',n:'Çırak',e:'👨‍🍳',d:'5 yemek pişir'},
-  {id:'b3',n:'Aşçı',e:'🥘',d:'25 yemek pişir'},
-  {id:'b4',n:'Şef',e:'⭐',d:'50 yemek pişir'},
-  {id:'b5',n:'Malzeme Avcısı',e:'🥕',d:'10 malzeme seç'},
-  {id:'b6',n:'Kiler Kralı',e:'📦',d:'30 malzeme seç'},
-  {id:'b7',n:'Bakkal',e:'🏪',d:'60 malzeme seç'},
-  {id:'b8',n:'Favorici',e:'❤️',d:'5 favori tarif'},
-  {id:'b9',n:'Koleksiyoner',e:'⭐',d:'15 favori tarif'},
-  {id:'b10',n:'Seri Başladı',e:'🔥',d:'3 gün üst üste pişir'},
-  {id:'b11',n:'Seri Ustası',e:'⚡',d:'7 gün üst üste pişir'},
-  {id:'b12',n:'Fotoğrafçı',e:'📸',d:'1 yemek fotoğrafı'},
-  {id:'b13',n:'Aile Şefi',e:'👨‍👩‍👧',d:'1 aile üyesi ekle'},
-  {id:'b14',n:'100 Puan',e:'💯',d:'100 puan topla'},
-  {id:'b15',n:'500 Puan',e:'🎯',d:'500 puan topla'}
-];
-
-// ==== EĞİTİM ====
-var TECHNIQUES = [
-  {n:'🔪 Doğrama',d:'Julienne (çubuk), brunoise (küp), chiffonade (şerit). Bıçağı hafif açıyla tut, parmakları kıvır.'},
-  {n:'🍳 Sote',d:'Yüksek ateşte az yağla hızlı karıştırma. Önce soğan, sonra sert, en son yumuşak sebzeler.'},
-  {n:'🔥 Mühürleme',d:'Etin yüzeyini yüksek ateşte kapatma. Etin suyunu içinde tutar, lezzet katar.'},
-  {n:'💧 Haşlama',d:'Bol suda kaynatma. Sebze 3-5 dk, yumurta 6-10 dk, et 1-2 saat.'},
-  {n:'🍞 Yoğurma',d:'Hamuru bastır-katla-çevir. En az 8-10 dk. Kulak memesi kıvamına gelince hazır.'},
-  {n:'🫧 Mayalama',d:'Kuru maya 40 derece suda 10 dk bekler. Hamur 25-30 derece 1-2 saat.'},
-  {n:'🥩 Et Dereceleri',d:'Az pişmiş 52, Orta 60, İyi 70+ derece. Termometre kullan.'},
-  {n:'🎂 Fırın Sırları',d:'Fırını 15 dk önce ısıt. Kek 180, et önce yüksek sonra düşük, bisküvi 170.'},
-  {n:'🧂 Baharat',d:'Tuz en son, karabiber ortada, kekik kimyon başta, nane sonda.'},
-  {n:'🥗 Salata Dengesi',d:'Asit + yağ + tuz + karabiber + tatlı. Oran: 3 yağ, 1 asit.'},
-  {n:'🍲 Çorba Kıvamı',d:'Kıvam için: un+tereyağı (roux), nişasta+su, patates püresi, krema.'},
-  {n:'🧊 Dondurma',d:'Taze malzemeleri porsiyonla. Çözme buzdolabında 24 saat.'}
-];
-
-// ==== DURUM ====
-var KEY = 'mutfak_sef_v2';
-var S = {
-  pantry:{}, locs:{}, fav:[], notes:{}, hist:[], shop:[],
-  servings:2, photos:[], family:[], points:0,
-  streak:{last:null,count:0,best:0}, badges:{}, planner:{},
-  water:0, goals:{cal:2000,prot:50,ch:250,fat:70,water:8},
-  theme:'dark', voiceOn:false, monthSpend:{}, filter:'all'
+/* ═══════ DURUM ═══════ */
+const game = {
+  balance: 1000,
+  stock: { patty:0, bun:0, lettuce:0, tomato:0, cheese:0 },
+  customers: [],
+  customerSpawnTimer: 4,
+  deliveries: [],
+  counterBurgers: [],
+  time: 0,
+  ordersDone: 0,
+  over: false,
+  running: false,
+  role: 'chef',
+  multiplayer: false,
+  isHost: false,
 };
-try {
-  var saved = localStorage.getItem(KEY);
-  if (saved) {
-    var parsed = JSON.parse(saved);
-    for (var k in parsed) S[k] = parsed[k];
-    if (!S.streak) S.streak = {last:null,count:0,best:0};
-    if (!S.goals) S.goals = {cal:2000,prot:50,ch:250,fat:70,water:8};
-    if (!S.pantry) S.pantry = {};
-    if (!S.locs) S.locs = {};
-    if (!S.notes) S.notes = {};
-    if (!S.badges) S.badges = {};
-    if (!S.planner) S.planner = {};
-    if (!S.monthSpend) S.monthSpend = {};
-    if (!S.fav) S.fav = [];
-    if (!S.hist) S.hist = [];
-    if (!S.shop) S.shop = [];
-    if (!S.photos) S.photos = [];
-    if (!S.family) S.family = [];
-  }
-} catch(e) { console.warn(e); }
+let nextCustomerId = 1;
+let nextBurgerId = 1;
 
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
-
-function have() {
-  var a = [];
-  for (var id in S.pantry) {
-    if (S.pantry[id] === 'have' && ING[id]) a.push(id);
-  }
-  return a;
-}
-function dislikes() {
-  var a = [];
-  for (var id in S.pantry) {
-    if (S.pantry[id] === 'dis') a.push(id);
-  }
-  return a;
-}
-
-// ==== TEMA ====
-function applyTheme() {
-  document.body.style.background = S.theme === 'dark' ? '#070b13' : '#f5f7fb';
-  document.body.style.color = S.theme === 'dark' ? '#e9effb' : '#0f172a';
-  $('themeBtn').textContent = S.theme === 'dark' ? '☀️' : '🌙';
-}
-$('themeBtn').onclick = function() {
-  S.theme = S.theme === 'dark' ? 'light' : 'dark';
-  save(); applyTheme();
+const player = {
+  pos: new THREE.Vector3(0, 0, -1.5),
+  yaw: Math.PI, pitch: -0.05,
+  bobPhase: 0, bobAmount: 0,
+  held: null, // {kind:'patty'} | {kind:'burger', type:'plain'}
 };
 
-// ==== PUAN ====
-function addPoints(n) {
-  S.points += n; save(); renderPoints(); checkBadges();
-}
-function levelFrom(p) {
-  var lv = [0,50,150,300,500,800,1200,1800,2500,3500,5000];
-  var l = 1;
-  for (var i=0;i<lv.length;i++) if (p>=lv[i]) l=i+1;
-  return Math.min(l, lv.length);
-}
-function checkBadges() {
-  for (var i=0;i<BADGES.length;i++) {
-    var b = BADGES[i];
-    if (S.badges[b.id]) continue;
-    var earned = false;
-    if (b.id === 'b1') earned = S.hist.length >= 1;
-    else if (b.id === 'b2') earned = S.hist.length >= 5;
-    else if (b.id === 'b3') earned = S.hist.length >= 25;
-    else if (b.id === 'b4') earned = S.hist.length >= 50;
-    else if (b.id === 'b5') earned = have().length >= 10;
-    else if (b.id === 'b6') earned = have().length >= 30;
-    else if (b.id === 'b7') earned = have().length >= 60;
-    else if (b.id === 'b8') earned = S.fav.length >= 5;
-    else if (b.id === 'b9') earned = S.fav.length >= 15;
-    else if (b.id === 'b10') earned = S.streak.count >= 3 || S.streak.best >= 3;
-    else if (b.id === 'b11') earned = S.streak.best >= 7;
-    else if (b.id === 'b12') earned = S.photos.length >= 1;
-    else if (b.id === 'b13') earned = S.family.length >= 1;
-    else if (b.id === 'b14') earned = S.points >= 100;
-    else if (b.id === 'b15') earned = S.points >= 500;
-    if (earned) {
-      S.badges[b.id] = Date.now();
-      save();
-      toast('🏆 Rozet kazandın!', b.e + ' ' + b.n, 'good');
-    }
+const grill = { state:'empty', timer:0, pattyMesh:null };
+const interactables = [];
+const colliders = [];
+
+/* ═══════ RENDERER ═══════ */
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf2d5b8);
+scene.fog = new THREE.Fog(0xf2d5b8, 24, 50);
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.05, 100);
+camera.rotation.order = 'YXZ';
+
+/* ═══════ IŞIK ═══════ */
+scene.add(new THREE.HemisphereLight(0xfff4e0, 0x8a7050, 1.0));
+const sun = new THREE.DirectionalLight(0xfff0c8, 1.6);
+sun.position.set(6, 14, 4);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left:-10, right:10, top:10, bottom:-10, near:1, far:35 });
+sun.shadow.bias = -0.0008;
+scene.add(sun, sun.target);
+scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+
+/* ═══════ DOKULAR ═══════ */
+function floorTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#e8d0b0'; g.fillRect(0,0,256,256);
+  g.strokeStyle = '#c9a87e'; g.lineWidth = 3;
+  for (let i=0;i<=256;i+=64){
+    g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.stroke();
+    g.beginPath(); g.moveTo(0,i); g.lineTo(256,i); g.stroke();
   }
-  renderBadges();
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4,4);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+function textTex(text, bg, fg='#fff'){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0,0,512,128);
+  g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(0,104,512,24);
+  g.fillStyle = fg;
+  g.font = '900 58px system-ui,sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, 256, 62);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
 }
 
-// ==== SESLİ ====
-function speak(t) {
-  if (!S.voiceOn) return;
-  try {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(t);
-      u.lang = 'tr-TR'; u.rate = 0.95;
-      window.speechSynthesis.speak(u);
-    }
-  } catch(e){}
+/* ═══════ ODA ═══════ */
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(ROOM, ROOM),
+  new THREE.MeshStandardMaterial({ map: floorTex(), roughness:0.85 })
+);
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+
+const WALL_H = 4.2;
+const wallMat = new THREE.MeshStandardMaterial({ color:0xf5ead8, roughness:0.95 });
+function addWall(w,h,d,x,y,z){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat);
+  m.position.set(x,y,z); m.receiveShadow = true; scene.add(m);
+}
+addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2, -ROOM/2);
+addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2,  ROOM/2);
+addWall(0.3, WALL_H, ROOM, -ROOM/2, WALL_H/2, 0);
+addWall(0.3, WALL_H, ROOM,  ROOM/2, WALL_H/2, 0);
+
+const ceiling = new THREE.Mesh(
+  new THREE.PlaneGeometry(ROOM, ROOM),
+  new THREE.MeshStandardMaterial({ color:0xfff8f0, roughness:1, side:THREE.DoubleSide })
+);
+ceiling.rotation.x = Math.PI/2; ceiling.position.y = WALL_H; scene.add(ceiling);
+
+for (let i=-1;i<=1;i++) for (let j=-1;j<=1;j++){
+  const panel = new THREE.Mesh(
+    new THREE.BoxGeometry(1.6, 0.06, 1.6),
+    new THREE.MeshBasicMaterial({ color:0xfff9e8 })
+  );
+  panel.position.set(i*4.5, WALL_H-0.04, j*4.5); scene.add(panel);
+  const pl = new THREE.PointLight(0xfff0d0, 8, 12, 2);
+  pl.position.set(i*4.5, WALL_H-0.5, j*4.5); scene.add(pl);
 }
 
-// ==== PORSİYON ====
-function scale(id, f) {
-  var def = AMT[id];
-  if (!def) return '';
-  var m = def.match(/^([\d.,]+)\s*(.*)$/);
-  if (!m) return def;
-  var num = parseFloat(m[1].replace(',', '.'));
-  if (isNaN(num)) return def;
-  var sc = num * f;
-  var d;
-  if (Math.abs(sc - Math.round(sc)) < 0.01) d = Math.round(sc).toString();
-  else d = sc.toFixed(1).replace('.', ',');
-  return d + ' ' + m[2];
-}
+const shopSign = new THREE.Mesh(
+  new THREE.PlaneGeometry(6, 1.4),
+  new THREE.MeshBasicMaterial({ map: textTex('🍔 BURGER HOUSE', '#7a2a1a') })
+);
+shopSign.position.set(0, 3.2, -ROOM/2 + 0.2); scene.add(shopSign);
 
-// ==== MALZEME GRID ====
-function renderIngs() {
-  var q = norm($('search').value || '');
-  var grid = $('ingGrid');
-  var list = [];
-  for (var i=0;i<INGS.length;i++) {
-    if (!q || norm(INGS[i][1]).indexOf(q) !== -1) list.push(INGS[i]);
+/* ═══════ TEZGAH ═══════ */
+const counter = new THREE.Group();
+counter.position.set(0, 0, COUNTER_Z);
+const counterBody = new THREE.Mesh(
+  new THREE.BoxGeometry(11, 1.05, 0.9),
+  new THREE.MeshStandardMaterial({ color:0x6b3a1a, roughness:0.7 })
+);
+counterBody.position.y = 0.525; counterBody.castShadow = true; counterBody.receiveShadow = true;
+counter.add(counterBody);
+const counterTop = new THREE.Mesh(
+  new THREE.BoxGeometry(11.2, 0.1, 1.0),
+  new THREE.MeshStandardMaterial({ color:0xf4f0e8, roughness:0.35 })
+);
+counterTop.position.y = 1.1; counterTop.castShadow = true; counter.add(counterTop);
+scene.add(counter);
+colliders.push({ minX:-5.6, maxX:5.6, minZ:COUNTER_Z-0.5, maxZ:COUNTER_Z+0.5 });
+
+/* ═══════ IZGARA ═══════ */
+const grillGroup = new THREE.Group();
+grillGroup.position.set(-2.8, 1.15, COUNTER_Z);
+{
+  const surf = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2, 0.08, 0.75),
+    new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.5, metalness:0.7 })
+  );
+  grillGroup.add(surf);
+  for (let i=0;i<6;i++){
+    const grate = new THREE.Mesh(
+      new THREE.BoxGeometry(1.15, 0.03, 0.04),
+      new THREE.MeshStandardMaterial({ color:0x4a4a4a, metalness:0.9 })
+    );
+    grate.position.set(0, 0.055, -0.3 + i*0.12); grillGroup.add(grate);
   }
-  if (!list.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><span class="ico">🔍</span>Bulunamadı</div>';
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.9, 0.22),
+    new THREE.MeshBasicMaterial({ map: textTex('IZGARA', '#7a2a1a') })
+  );
+  label.position.set(0, 0.42, 0.36); grillGroup.add(label);
+  grill.pattyMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.17, 0.17, 0.07, 18),
+    new THREE.MeshStandardMaterial({ color:0xe8a0a0, roughness:0.75 })
+  );
+  grill.pattyMesh.position.y = 0.14;
+  grill.pattyMesh.visible = false;
+  grill.pattyMesh.castShadow = true;
+  grillGroup.add(grill.pattyMesh);
+}
+grillGroup.userData.interactType = 'grill';
+scene.add(grillGroup);
+interactables.push(grillGroup);
+
+/* ═══════ MONTAJ ═══════ */
+const assemblyGroup = new THREE.Group();
+assemblyGroup.position.set(-1.2, 1.15, COUNTER_Z);
+{
+  const board = new THREE.Mesh(
+    new THREE.BoxGeometry(1.3, 0.05, 0.8),
+    new THREE.MeshStandardMaterial({ color:0xd9b88a, roughness:0.85 })
+  );
+  board.position.y = 0.02; board.castShadow = true; assemblyGroup.add(board);
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.0, 0.22),
+    new THREE.MeshBasicMaterial({ map: textTex('MONTAJ', '#3a5a2a') })
+  );
+  label.position.set(0, 0.42, 0.36); assemblyGroup.add(label);
+}
+assemblyGroup.userData.interactType = 'assembly';
+scene.add(assemblyGroup);
+interactables.push(assemblyGroup);
+
+/* ═══════ SERVİS TEPSİSİ ═══════ */
+const servingGroup = new THREE.Group();
+servingGroup.position.set(0.9, 1.15, COUNTER_Z);
+{
+  const tray = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 0.04, 0.6),
+    new THREE.MeshStandardMaterial({ color:0xcfd6e8, roughness:0.3, metalness:0.7 })
+  );
+  tray.position.y = 0.02; tray.castShadow = true; servingGroup.add(tray);
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.9, 0.22),
+    new THREE.MeshBasicMaterial({ map: textTex('SERVİS', '#5a3a8a') })
+  );
+  label.position.set(0, 0.42, 0.36); servingGroup.add(label);
+}
+servingGroup.userData.interactType = 'serving';
+scene.add(servingGroup);
+interactables.push(servingGroup);
+
+/* ═══════ KASA (REGISTER) ═══════ */
+const registerGroup = new THREE.Group();
+registerGroup.position.set(4, 1.15, COUNTER_Z);
+{
+  const base = new THREE.Mesh(
+    new THREE.BoxGeometry(0.5, 0.35, 0.4),
+    new THREE.MeshStandardMaterial({ color:0x2a2f3d, roughness:0.4, metalness:0.5 })
+  );
+  base.position.y = 0.2; base.castShadow = true; registerGroup.add(base);
+  const screen = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 0.3, 0.04),
+    new THREE.MeshBasicMaterial({ color:0x7dffb0 })
+  );
+  screen.position.set(0, 0.42, 0.18); screen.rotation.x = -0.35;
+  registerGroup.add(screen);
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.7, 0.2),
+    new THREE.MeshBasicMaterial({ map: textTex('KASA', '#1a5a3a') })
+  );
+  label.position.set(0, 0.65, 0.06); registerGroup.add(label);
+}
+registerGroup.userData.interactType = 'register';
+scene.add(registerGroup);
+interactables.push(registerGroup);
+
+/* ═══════ BİLGİSAYAR ═══════ */
+const pcGroup = new THREE.Group();
+pcGroup.position.set(-4, 1.15, COUNTER_Z);
+{
+  const stand = new THREE.Mesh(
+    new THREE.BoxGeometry(0.4, 0.05, 0.25),
+    new THREE.MeshStandardMaterial({ color:0x1a1d28 })
+  );
+  pcGroup.add(stand);
+  const neck = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.035, 0.035, 0.18, 8),
+    new THREE.MeshStandardMaterial({ color:0x2a2f3d, metalness:0.5 })
+  );
+  neck.position.y = 0.11; pcGroup.add(neck);
+  const monitor = new THREE.Mesh(
+    new THREE.BoxGeometry(0.55, 0.38, 0.05),
+    new THREE.MeshStandardMaterial({ color:0x14171f, metalness:0.3 })
+  );
+  monitor.position.y = 0.35; pcGroup.add(monitor);
+  const screen = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.48, 0.32),
+    new THREE.MeshBasicMaterial({ color:0x4aa8ff })
+  );
+  screen.position.set(0, 0.35, 0.03); pcGroup.add(screen);
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.8, 0.2),
+    new THREE.MeshBasicMaterial({ map: textTex('SİPARİŞ', '#2a4a8a') })
+  );
+  label.position.set(0, 0.68, 0.03); pcGroup.add(label);
+}
+pcGroup.userData.interactType = 'computer';
+scene.add(pcGroup);
+interactables.push(pcGroup);
+
+/* ═══════ MASALAR ═══════ */
+TABLES.forEach(makeTable);
+
+function makeTable(t){
+  const g = new THREE.Group();
+  g.position.set(t.x, 0, t.z);
+  const top = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.75, 0.75, 0.08, 24),
+    new THREE.MeshStandardMaterial({ color:0x8b4a2a, roughness:0.6 })
+  );
+  top.position.y = 0.85; top.castShadow = true; top.receiveShadow = true;
+  g.add(top);
+  const leg = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.09, 0.13, 0.85, 12),
+    new THREE.MeshStandardMaterial({ color:0x3a2a1a, roughness:0.7 })
+  );
+  leg.position.y = 0.425; leg.castShadow = true; g.add(leg);
+  const chairs = [{dx:1.15,dz:0},{dx:-1.15,dz:0},{dx:0,dz:1.15},{dx:0,dz:-1.15}];
+  for (const cd of chairs){
+    const ch = new THREE.Group();
+    ch.position.set(cd.dx, 0, cd.dz);
+    const seat = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.06, 0.42),
+      new THREE.MeshStandardMaterial({ color:0x8b4a2a, roughness:0.7 })
+    );
+    seat.position.y = 0.45; seat.castShadow = true; ch.add(seat);
+    const dir = Math.atan2(cd.dx, cd.dz);
+    const back = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.55, 0.06),
+      new THREE.MeshStandardMaterial({ color:0x6a3a1a, roughness:0.7 })
+    );
+    back.position.set(Math.sin(dir)*0.18, 0.72, Math.cos(dir)*0.18);
+    back.rotation.y = dir; back.castShadow = true; ch.add(back);
+    for (const lx of [-0.15, 0.15]) for (const lz of [-0.15, 0.15]){
+      const l = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.025, 0.45, 6),
+        new THREE.MeshStandardMaterial({ color:0x2a1a0a })
+      );
+      l.position.set(lx, 0.225, lz); ch.add(l);
+    }
+    g.add(ch);
+  }
+  scene.add(g);
+  colliders.push({ minX:t.x-0.8, maxX:t.x+0.8, minZ:t.z-0.8, maxZ:t.z+0.8 });
+}
+
+/* ═══════ MÜŞTERİ MODELİ ═══════ */
+const SKINS  = [0xffd9b3, 0xf0b98a, 0xc98b5e, 0xffe0bd];
+const SHIRTS = [0xff6b9d, 0x6ba8ff, 0x7ed957, 0xffb347, 0xb07cff, 0xff7b7b];
+
+function makeHumanoid(shirtCol, skinCol, isPlayer, role){
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.28, 0.36, 1.0, 14),
+    new THREE.MeshStandardMaterial({ color: shirtCol, roughness:0.75 })
+  );
+  body.position.y = 0.72; body.castShadow = true; g.add(body);
+  for (const s of [-1,1]){
+    const arm = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.09, 0.55, 4, 8),
+      new THREE.MeshStandardMaterial({ color: shirtCol, roughness:0.75 })
+    );
+    arm.position.set(s*0.34, 0.78, 0); arm.rotation.z = s*0.14;
+    arm.castShadow = true; g.add(arm);
+  }
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.28, 18, 14),
+    new THREE.MeshStandardMaterial({ color: skinCol, roughness:0.8 })
+  );
+  head.position.y = 1.46; head.castShadow = true; g.add(head);
+  const eyeMat = new THREE.MeshBasicMaterial({ color:0x1b1b1b });
+  for (const s of [-1,1]){
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), eyeMat);
+    eye.position.set(s*0.095, 1.49, 0.255); g.add(eye);
+  }
+  for (const s of [-1,1]){
+    const leg = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 0.42, 8),
+      new THREE.MeshStandardMaterial({ color:0x3a4a6b, roughness:0.85 })
+    );
+    leg.position.set(s*0.15, 0.2, 0); leg.castShadow = true; g.add(leg);
+  }
+  if (isPlayer && role === 'chef'){
+    // şef şapkası
+    const hat = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.18, 0.28, 12),
+      new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 })
+    );
+    hat.position.y = 1.82; g.add(hat);
+    const puff = new THREE.Mesh(
+      new THREE.SphereGeometry(0.26, 12, 8),
+      new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 })
+    );
+    puff.position.y = 2.0; g.add(puff);
+  } else if (isPlayer && role === 'waiter'){
+    // garson önlüğü
+    const apron = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.55, 0.05),
+      new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.8 })
+    );
+    apron.position.set(0, 0.7, 0.32); g.add(apron);
+  } else {
+    const hair = new THREE.Mesh(
+      new THREE.SphereGeometry(0.29, 18, 14, 0, Math.PI*2, 0, Math.PI*0.55),
+      new THREE.MeshStandardMaterial({ color:0x2a2018, roughness:0.9 })
+    );
+    hair.position.y = 1.5; g.add(hair);
+  }
+  return g;
+}
+
+function makeCustomer(){
+  const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
+  const skinCol = SKINS[(Math.random()*SKINS.length)|0];
+  return makeHumanoid(shirtCol, skinCol, false, null);
+}
+
+/* ═══════ BURGER MESH ═══════ */
+function makeBurgerMesh(type){
+  const g = new THREE.Group();
+  const bun = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.16, 0.05, 16),
+    new THREE.MeshStandardMaterial({ color:0xe8b866, roughness:0.8 })
+  );
+  bun.position.y = 0.03; bun.castShadow = true; g.add(bun);
+  const patty = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.14, 0.05, 16),
+    new THREE.MeshStandardMaterial({ color:0x6b3a1a, roughness:0.9 })
+  );
+  patty.position.y = 0.08; g.add(patty);
+  if (type !== 'plain'){
+    const let_ = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.16, 0.02, 16),
+      new THREE.MeshStandardMaterial({ color:0x7ed957, roughness:0.9 })
+    );
+    let_.position.y = 0.11; g.add(let_);
+  }
+  if (type === 'deluxe'){
+    const tom = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.14, 0.14, 0.02, 16),
+      new THREE.MeshStandardMaterial({ color:0xff5a5f, roughness:0.9 })
+    );
+    tom.position.y = 0.13; g.add(tom);
+    const cheese = new THREE.Mesh(
+      new THREE.BoxGeometry(0.28, 0.015, 0.28),
+      new THREE.MeshStandardMaterial({ color:0xffd84d, roughness:0.7 })
+    );
+    cheese.position.y = 0.15; g.add(cheese);
+  }
+  const topBun = new THREE.Mesh(
+    new THREE.SphereGeometry(0.16, 16, 8, 0, Math.PI*2, 0, Math.PI/2),
+    new THREE.MeshStandardMaterial({ color:0xe8b866, roughness:0.8 })
+  );
+  topBun.position.y = 0.17; topBun.castShadow = true; g.add(topBun);
+  return g;
+}
+
+/* ═══════ KUTU ═══════ */
+function makeBox(){
+  const g = new THREE.Group();
+  const size = 0.7;
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(size, size, size),
+    new THREE.MeshStandardMaterial({ color:0xc99a5a, roughness:0.9 })
+  );
+  body.position.y = size/2; body.castShadow = true; body.receiveShadow = true; g.add(body);
+  return g;
+}
+
+/* ═══════ UI HELPERS ═══════ */
+const $ = id => document.getElementById(id);
+
+function updateBalanceUI(){ $('balance').textContent = game.balance; }
+function updateStockUI(){
+  for (const ING of INGREDIENTS){
+    const el = $('st-' + ING.id);
+    if (!el) continue;
+    const c = game.stock[ING.id];
+    el.querySelector('b').textContent = c;
+    el.classList.toggle('low', c > 0 && c <= 3);
+    el.classList.toggle('empty', c === 0);
+  }
+}
+function updateHeldUI(){
+  const p = $('heldPanel');
+  if (!player.held){ p.classList.add('hidden'); return; }
+  p.classList.remove('hidden');
+  if (player.held.kind === 'patty'){
+    $('heldEmoji').textContent = '🥩';
+    $('heldName').textContent = 'Pişmiş Köfte';
+  } else if (player.held.kind === 'burger'){
+    $('heldEmoji').textContent = '🍔';
+    $('heldName').textContent = BURGERS[player.held.type].name;
+  }
+}
+function updateRolePill(){
+  const p = $('rolePill');
+  p.className = '';
+  if (game.multiplayer){
+    p.classList.add(game.role);
+    p.textContent = game.role === 'chef' ? '👨‍🍳 ŞEF' : '🧑‍🍳 GARSON';
+  } else {
+    p.classList.add('chef');
+    p.textContent = '👤 TEK OYUNCU';
+  }
+}
+function updateOrdersPanel(){
+  const list = $('ordersList');
+  list.innerHTML = '';
+  if (game.customers.length === 0){
+    list.innerHTML = '<div style="color:#66708a;font-size:11px;text-align:center;padding:6px">Boş</div>';
     return;
   }
-  var html = '';
-  for (var j=0;j<list.length;j++) {
-    var a = list[j];
-    var id = a[0];
-    var s = S.pantry[id];
-    var cls = s === 'have' ? 'have' : (s === 'dis' ? 'dis' : '');
-    var loc = S.locs[id] ? ({fridge:'🧊',freezer:'❄️',pantry:'📦',counter:'🍽️'})[S.locs[id]] : '';
-    html += '<button class="ing ' + cls + '" data-id="' + id + '">';
-    if (loc) html += '<span class="ing-loc">' + loc + '</span>';
-    html += '<span class="ing-emoji">' + a[2] + '</span>';
-    html += '<div class="ing-name">' + esc(a[1]) + '</div>';
-    html += '</button>';
+  for (const c of game.customers){
+    if (c.state === 'entering' || c.state === 'leaving') continue;
+    const B = BURGERS[c.order];
+    const row = document.createElement('div');
+    row.className = 'order-row ' + c.state;
+    const stateLabel = c.state === 'waiting' ? '⏳' : c.state === 'eating' ? '🍴' : c.state === 'paying' ? '💳' : '';
+    row.innerHTML = `<span class="em">${stateLabel}</span><span class="nm">${B.name}</span>`;
+    list.appendChild(row);
   }
-  grid.innerHTML = html;
-  $('ingCount').textContent = have().length + ' seçili';
 }
 
-$('ingGrid').onclick = function(e) {
-  var c = e.target.closest ? e.target.closest('.ing') : null;
-  if (!c) return;
-  var id = c.getAttribute('data-id');
-  if (S.pantry[id] === 'have') delete S.pantry[id];
-  else S.pantry[id] = 'have';
-  save(); renderIngs(); updateCookBtn();
-};
-
-$('ingGrid').oncontextmenu = function(e) {
-  var c = e.target.closest ? e.target.closest('.ing') : null;
-  if (!c) return;
-  e.preventDefault();
-  var id = c.getAttribute('data-id');
-  var cur = S.locs[id] || '';
-  var msg = 'Konum seç:\n1) Buzdolabı\n2) Dondurucu\n3) Kiler\n4) Tezgah\n5) Konum sil';
-  var choice = prompt(msg, '');
-  if (choice === null) return;
-  var n = parseInt(choice);
-  if (n === 1) S.locs[id] = 'fridge';
-  else if (n === 2) S.locs[id] = 'freezer';
-  else if (n === 3) S.locs[id] = 'pantry';
-  else if (n === 4) S.locs[id] = 'counter';
-  else if (n === 5) delete S.locs[id];
-  save(); renderIngs();
-};
-
-$('search').oninput = renderIngs;
-
-$('clearBtn').onclick = function() {
-  if (!confirm('Sıfırlansın mı?')) return;
-  S.pantry = {}; S.locs = {};
-  save(); renderIngs(); updateCookBtn();
-};
-
-// ==== SKOR ====
-function score(r) {
-  var h = {}, d = {};
-  var hv = have(); for (var i=0;i<hv.length;i++) h[hv[i]] = 1;
-  var dv = dislikes(); for (var j=0;j<dv.length;j++) d[dv[j]] = 1;
-  for (var k=0;k<r.i.length;k++) {
-    if (d[r.i[k]]) return null;
-  }
-  var miss = [], match = [];
-  for (var m=0;m<r.i.length;m++) {
-    if (h[r.i[m]]) match.push(r.i[m]);
-    else miss.push(r.i[m]);
-  }
-  return { r: r, match: match, miss: miss, can: miss.length === 0, ratio: match.length / r.i.length };
+let hintTimer = 0;
+function hint(text){
+  $('hint').textContent = text;
+  $('hint').classList.add('show');
+  hintTimer = 2.2;
+}
+function toast(text, gold){
+  const d = document.createElement('div');
+  d.className = 'toast' + (gold ? ' gold' : '');
+  d.textContent = text;
+  $('toasts').appendChild(d);
+  requestAnimationFrame(() => { d.style.transform = 'translateY(-30px)'; d.style.opacity = '0'; });
+  setTimeout(() => d.remove(), 1200);
 }
 
-function updateCookBtn() {
-  var h = have();
-  var can = 0, alm = 0;
-  for (var i=0;i<RECIPES.length;i++) {
-    var sc = score(RECIPES[i]);
-    if (!sc || sc.match.length === 0) continue;
-    if (sc.can) can++;
-    else if (sc.miss.length <= 2) alm++;
-  }
-  var sub = $('cookSub');
-  if (h.length === 0) sub.textContent = 'Önce malzeme seç 👆';
-  else if (can) sub.textContent = h.length + ' malzeme • ' + can + ' tarif hazır!';
-  else if (alm) sub.textContent = h.length + ' malzeme • ' + alm + ' tarif için 1-2 eksik';
-  else sub.textContent = h.length + ' malzeme seçili';
+/* ═══════ SES ═══════ */
+let actx = null;
+function initAudio(){
+  if (actx) return;
+  try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+}
+function beep(freq, dur=0.1, type='sine', vol=0.07){
+  if (!actx) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  o.connect(g); g.connect(actx.destination);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+function errorBeep(){ beep(180, 0.18, 'sawtooth', 0.09); }
+function successChime(){
+  beep(660, 0.08, 'triangle', 0.08);
+  setTimeout(()=>beep(880, 0.1, 'triangle', 0.08), 70);
+  setTimeout(()=>beep(1180, 0.14, 'triangle', 0.07), 150);
 }
 
-// ==== TARİF ====
-var recipesOpen = false;
-$('cookBtn').onclick = function() {
-  if (have().length === 0) {
-    toast('Önce malzeme seç 🥕','','warn');
-    return;
-  }
-  recipesOpen = true;
-  $('recipeArea').style.display = 'block';
-  renderRecipes();
-  setTimeout(function() {
-    $('recipeArea').scrollIntoView({behavior:'smooth'});
-  }, 100);
-};
+/* ═══════ GİRDİ ═══════ */
+const joy = { active:false, id:null, ox:0, oy:0, x:0, y:0 };
+const look = { active:false, id:null, lx:0, ly:0 };
+const keys = {};
+const joyBase = $('joyBase'), joyKnob = $('joyKnob');
 
-// Filtre butonları
-var filterBtns = document.querySelectorAll('[data-mf]');
-for (var fb=0;fb<filterBtns.length;fb++) {
-  (function(btn){
-    btn.onclick = function() {
-      S.filter = btn.getAttribute('data-mf');
-      for (var i=0;i<filterBtns.length;i++) {
-        filterBtns[i].style.background = '';
-        filterBtns[i].style.color = '';
-      }
-      btn.style.background = 'linear-gradient(135deg,#f97316,#fbbf24)';
-      btn.style.color = '#1a0a02';
-      renderRecipes();
-    };
-  })(filterBtns[fb]);
+function onDown(e){
+  if (!game.running || game.over) return;
+  if (document.querySelector('.modal:not(.hidden)')) return;
+  if (e.target.closest('.screen')) return;
+  const x = e.clientX, y = e.clientY;
+  if (e.pointerType === 'touch' && x < innerWidth * 0.5){
+    if (joy.active) return;
+    joy.active = true; joy.id = e.pointerId;
+    joy.ox = x; joy.oy = y; joy.x = 0; joy.y = 0;
+    joyBase.style.left = x + 'px'; joyBase.style.top = y + 'px';
+    joyBase.classList.add('on');
+    joyKnob.style.transform = 'translate(-50%,-50%)';
+  } else {
+    if (look.active) return;
+    look.active = true; look.id = e.pointerId;
+    look.lx = x; look.ly = y;
+  }
 }
-
-function renderRecipes() {
-  if (!recipesOpen) return;
-  var h = {}; var hv = have();
-  for (var i=0;i<hv.length;i++) h[hv[i]] = 1;
-  var list = [];
-  for (var j=0;j<RECIPES.length;j++) {
-    var sc = score(RECIPES[j]);
-    if (!sc || sc.match.length === 0) continue;
-    var r = RECIPES[j];
-    if (S.filter === 'fav' && S.fav.indexOf(r.id) === -1) continue;
-    if (S.filter === 'veg' && !r.veg) continue;
-    if (S.filter === 'vegan' && !r.vegan) continue;
-    if (S.filter === 'hizli' && r.mood !== 'hizli') continue;
-    if (S.filter === 'tatli' && r.mood !== 'tatli') continue;
-    list.push(sc);
+function onMove(e){
+  if (e.pointerId === joy.id && joy.active){
+    const dx = e.clientX - joy.ox, dy = e.clientY - joy.oy;
+    const max = 55; let len = Math.hypot(dx, dy);
+    let nx = dx, ny = dy;
+    if (len > max){ nx = dx/len*max; ny = dy/len*max; }
+    joy.x = nx/max; joy.y = ny/max;
+    joyKnob.style.transform = `translate(calc(-50% + ${nx}px), calc(-50% + ${ny}px))`;
+  } else if (e.pointerId === look.id && look.active){
+    const dx = e.clientX - look.lx, dy = e.clientY - look.ly;
+    look.lx = e.clientX; look.ly = e.clientY;
+    player.yaw -= dx * 0.0038;
+    player.pitch -= dy * 0.0038;
+    player.pitch = Math.max(-1.15, Math.min(1.15, player.pitch));
   }
-  list.sort(function(a,b) {
-    if (a.can && !b.can) return -1;
-    if (!a.can && b.can) return 1;
-    return a.miss.length - b.miss.length;
-  });
-  var canCount = 0, almCount = 0;
-  for (var c=0;c<list.length;c++) {
-    if (list[c].can) canCount++;
-    else if (list[c].miss.length <= 2) almCount++;
-  }
-  $('recipeSub').textContent = canCount + ' hazır • ' + almCount + ' için 1-2 eksik';
-  if (!list.length) {
-    $('recipeGrid').innerHTML = '<div class="empty" style="grid-column:1/-1"><span class="ico">🥲</span><b>Bu malzemelerle tarif bulunamadı</b><br>Farklı malzemeler seç.</div>';
-    return;
-  }
-  var html = '';
-  for (var k=0;k<list.length;k++) {
-    var x = list[k];
-    var r = x.r;
-    var hSet = {};
-    for (var mi=0;mi<x.match.length;mi++) hSet[x.match[mi]] = 1;
-    var pills = '';
-    for (var ii=0;ii<r.i.length;ii++) {
-      var info = ING[r.i[ii]];
-      var nm = info ? info.n : r.i[ii];
-      if (hSet[r.i[ii]]) pills += '<span class="pill ok">✓ ' + esc(nm) + '</span>';
-      else pills += '<span class="pill miss">' + esc(nm) + '</span>';
-    }
-    var cls = x.can ? 'can' : (x.miss.length <= 2 ? 'almost' : 'no');
-    var badge = x.can ? '✓ Hazır' : x.miss.length + ' eksik';
-    var isFav = S.fav.indexOf(r.id) !== -1;
-    html += '<div class="recipe ' + cls + '">';
-    html += '<span class="badge">' + badge + '</span>';
-    html += '<div class="emoji">' + r.e + '</div>';
-    html += '<h3>' + esc(r.n) + '</h3>';
-    html += '<div class="desc">' + esc(r.d) + '</div>';
-    html += '<div class="pills">' + pills + '</div>';
-    html += '<div class="meta">⏱️ ' + r.t + ' • 🎯 ' + r.z + '</div>';
-    html += '<div class="acts">';
-    html += '<button data-act="show" data-rid="' + r.id + '">📖 Tarif</button>';
-    html += '<button data-act="fav" data-rid="' + r.id + '" class="' + (isFav ? 'fav-on' : '') + '">' + (isFav ? '★' : '☆') + ' Favori</button>';
-    html += '</div>';
-    html += '</div>';
-  }
-  $('recipeGrid').innerHTML = html;
 }
-
-$('recipeGrid').onclick = function(e) {
-  var btn = e.target.closest ? e.target.closest('[data-act]') : null;
-  if (!btn) return;
-  var rid = btn.getAttribute('data-rid');
-  var r = null;
-  for (var i=0;i<RECIPES.length;i++) if (RECIPES[i].id === rid) r = RECIPES[i];
-  if (!r) return;
-  var act = btn.getAttribute('data-act');
-  if (act === 'show') showDetail(r);
-  else if (act === 'fav') {
-    var idx = S.fav.indexOf(rid);
-    if (idx > -1) S.fav.splice(idx, 1);
-    else S.fav.push(rid);
-    save(); renderRecipes(); addPoints(2);
-  }
-};
-
-// ==== TARİF DETAY ====
-var curRecipe = null, curServ = 2;
-
-function showDetail(r) {
-  curRecipe = r;
-  curServ = S.servings || 2;
-  renderDetail();
-  $('detailModal').classList.add('show');
+function onUp(e){
+  if (e.pointerId === joy.id){ joy.active=false; joy.id=null; joy.x=0; joy.y=0; joyBase.classList.remove('on'); }
+  if (e.pointerId === look.id){ look.active=false; look.id=null; }
 }
+addEventListener('pointerdown', onDown, { passive:false });
+addEventListener('pointermove', onMove, { passive:false });
+addEventListener('pointerup', onUp);
+addEventListener('pointercancel', onUp);
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'KeyE') tryInteract();
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
 
-function renderDetail() {
-  var r = curRecipe; if (!r) return;
-  var h = {}; var hv = have();
-  for (var i=0;i<hv.length;i++) h[hv[i]] = 1;
-  var factor = curServ / 2;
-  var note = S.notes[r.id] || '';
-  var ingHtml = '';
-  var miss = [];
-  for (var j=0;j<r.i.length;j++) {
-    var id = r.i[j];
-    var info = ING[id]; if (!info) continue;
-    var isH = !!h[id];
-    var amt = scale(id, factor);
-    if (!isH) miss.push(id);
-    ingHtml += '<li class="' + (isH ? 'has' : 'miss') + '">';
-    ingHtml += '<span class="amt">' + esc(amt || '') + '</span>';
-    ingHtml += '<span class="nm">' + info.e + ' ' + esc(info.n) + '</span>';
-    ingHtml += '<span>' + (isH ? '✓' : '✗') + '</span></li>';
-  }
-  var stepsHtml = '';
-  if (r.steps) {
-    stepsHtml = '<ol class="steps">';
-    for (var s=0;s<r.steps.length;s++) stepsHtml += '<li>' + esc(r.steps[s]) + '</li>';
-    stepsHtml += '</ol>';
-  }
-  var missNames = '';
-  for (var m=0;m<miss.length;m++) {
-    missNames += (m > 0 ? ', ' : '') + (ING[miss[m]] ? ING[miss[m]].n : miss[m]);
-  }
-  $('dTitle').textContent = r.e + ' ' + r.n;
-  $('dBody').innerHTML =
-    '<div style="font-size:12.5px;color:#8ba0c2;line-height:1.5;margin-bottom:10px">' + esc(r.d) + '</div>' +
-    '<div style="font-size:11.5px;color:#647790;font-weight:700;margin-bottom:10px">⏱️ ' + r.t + ' • 🎯 ' + r.z + '</div>' +
-    '<div class="serv">' +
-      '<span class="lbl">👥 Kişi</span>' +
-      '<div class="ctrl">' +
-        '<button id="sM">−</button>' +
-        '<input type="number" id="sIn" value="' + curServ + '" min="1" max="20">' +
-        '<button id="sP">+</button>' +
-      '</div>' +
-    '</div>' +
-    '<div style="font-size:11px;font-weight:800;color:#647790;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">🧂 Malzemeler (' + curServ + ' kişilik)</div>' +
-    '<ul class="ing-list">' + ingHtml + '</ul>' +
-    (miss.length
-      ? '<div style="padding:9px;border-radius:9px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);font-size:12px;margin:8px 0">🛒 <b style="color:#fbbf24">Eksik:</b> ' + esc(missNames) + '</div>'
-      : '<div style="padding:9px;border-radius:9px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);font-size:12px;margin:8px 0">✅ <b style="color:#34d399">Her şey elinde!</b></div>') +
-    '<div style="margin-top:12px"><b style="color:#e9effb;font-size:13px">📋 Yapılışı:</b>' + stepsHtml + '</div>' +
-    '<div class="note-box"><label>📝 Kendi Notun</label><textarea id="noteIn" placeholder="Örn: tuzunu az koy...">' + esc(note) + '</textarea></div>' +
-    '<div class="row" style="margin-top:12px">' +
-      (miss.length ? '<button class="btn orange sm" id="aMiss" style="flex:1">🛒 Eksikleri Alışverişe Ekle</button>' : '') +
-      '<button class="btn green sm" id="mCooked" style="flex:1">✓ Pişirdim</button>' +
-      '<button class="btn sm" id="closeD">Kapat</button>' +
-    '</div>';
+/* ═══════ KİŞİLER ═══════ */
+function canCook(){ return !game.multiplayer || game.role === 'chef'; }
+function canServe(){ return !game.multiplayer || game.role === 'waiter'; }
 
-  $('sIn').oninput = function() {
-    var v = parseInt(this.value);
-    if (isNaN(v) || v < 1) v = 1;
-    if (v > 20) v = 20;
-    curServ = v; S.servings = v; save(); renderDetail();
+/* ═══════ MÜŞTERİ SPAWN ═══════ */
+function trySpawnCustomer(){
+  if (game.over) return;
+  const free = TABLES.find(t => !t.occupied);
+  if (!free) return;
+
+  const orderKey = BURGER_KEYS[(Math.random()*BURGER_KEYS.length)|0];
+  const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
+  const skinCol = SKINS[(Math.random()*SKINS.length)|0];
+  const group = makeHumanoid(shirtCol, skinCol, false, null);
+  group.position.set(0, 0, ROOM/2 - 0.5);
+  scene.add(group);
+
+  const seatZ = free.z - 1.0;
+  const cust = {
+    id: nextCustomerId++,
+    group, table: free, order: orderKey,
+    state: 'entering',
+    target: new THREE.Vector3(free.x, 0, seatZ),
+    bob: 0, eatTimer: 0,
+    sprite: null, cash: null,
   };
-  $('sM').onclick = function() { if (curServ > 1) { curServ--; S.servings = curServ; save(); renderDetail(); } };
-  $('sP').onclick = function() { if (curServ < 20) { curServ++; S.servings = curServ; save(); renderDetail(); } };
-  $('closeD').onclick = function() { $('detailModal').classList.remove('show'); };
-  $('noteIn').oninput = function() { S.notes[r.id] = this.value; save(); };
+  group.add(makeOrderSprite(cust));
+  free.occupied = true;
 
-  var amb = $('aMiss');
-  if (amb) amb.onclick = function() {
-    var f = curServ / 2;
-    var added = 0;
-    for (var i=0;i<miss.length;i++) {
-      var id = miss[i];
-      var info = ING[id]; if (!info) continue;
-      var amt = scale(id, f);
-      var name = (amt ? amt + ' ' : '') + info.n;
-      var exists = false;
-      for (var j=0;j<S.shop.length;j++) if (S.shop[j].name.toLowerCase() === name.toLowerCase()) exists = true;
-      if (exists) continue;
-      S.shop.push({id:'s' + Date.now() + Math.random(), name: name, src: r.n, done: false});
-      added++;
-    }
-    save(); renderShop(); updateShopBadge();
-    toast('🛒 Eklendi', added + ' malzeme alışveriş listesine', 'good');
-    $('detailModal').classList.remove('show');
-  };
-
-  $('mCooked').onclick = function() {
-    S.hist.unshift({
-      id: 'h' + Date.now(),
-      rid: r.id, name: r.n, e: r.e,
-      date: new Date().toISOString(),
-      servings: curServ
-    });
-    if (S.hist.length > 100) S.hist = S.hist.slice(0, 100);
-    var today = new Date().toDateString();
-    if (S.streak.last !== today) {
-      var y = new Date(Date.now() - 86400000).toDateString();
-      if (S.streak.last === y) S.streak.count++;
-      else S.streak.count = 1;
-      S.streak.last = today;
-      if (S.streak.count > S.streak.best) S.streak.best = S.streak.count;
-    }
-    var month = new Date().toISOString().slice(0, 7);
-    var cost = 0;
-    for (var i=0;i<r.i.length;i++) cost += (PRICE[r.i[i]] || 30) * (curServ / 4);
-    S.monthSpend[month] = (S.monthSpend[month] || 0) + cost;
-    save();
-    renderHistory(); addPoints(10); checkBadges(); renderStats();
-    toast('Aferin şef! 🎉', r.e + ' ' + r.n + ' geçmişe eklendi', 'good');
-    $('detailModal').classList.remove('show');
-  };
+  group.userData.interactType = 'customer';
+  group.userData.customer = cust;
+  interactables.push(group);
+  game.customers.push(cust);
+  beep(500, 0.06, 'sine', 0.04);
+  updateOrdersPanel();
 }
 
-$('dClose').onclick = function() { $('detailModal').classList.remove('show'); };
-$('detailModal').onclick = function(e) { if (e.target.id === 'detailModal') $('detailModal').classList.remove('show'); };
-
-// ==== GEÇMİŞ ====
-function renderHistory() {
-  var l = $('histList');
-  $('histCount').textContent = S.hist.length ? S.hist.length + ' kayıt' : 'Henüz yok';
-  if (!S.hist.length) {
-    l.innerHTML = '<div class="empty"><span class="ico">📖</span>Henüz pişirmediğin bir şey yok.<br>Tarif aç, "Pişirdim" butonuna bas.</div>';
-    return;
-  }
-  var df = new Intl.DateTimeFormat('tr-TR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-  var html = '';
-  var lim = Math.min(S.hist.length, 10);
-  for (var i=0;i<lim;i++) {
-    var h = S.hist[i];
-    html += '<div class="list-item"><span style="font-size:22px">' + h.e + '</span>';
-    html += '<div class="info"><div class="name">' + esc(h.name) + '</div>';
-    html += '<div class="sub">' + h.servings + ' kişilik • ' + df.format(new Date(h.date)) + '</div></div>';
-    html += '<button class="del" data-hdel="' + h.id + '">🗑️</button></div>';
-  }
-  l.innerHTML = html;
-}
-$('histList').onclick = function(e) {
-  var d = e.target.closest ? e.target.closest('[data-hdel]') : null;
-  if (!d) return;
-  var id = d.getAttribute('data-hdel');
-  for (var i=0;i<S.hist.length;i++) {
-    if (S.hist[i].id === id) { S.hist.splice(i, 1); break; }
-  }
-  save(); renderHistory();
-};
-
-// ==== ALIŞVERİŞ ====
-function renderShop() {
-  var l = $('sList');
-  if (!S.shop.length) {
-    l.innerHTML = '<div class="empty" style="padding:20px 12px"><span class="ico">🛒</span>Liste boş.<br>Tariflerden "Eksikleri Ekle" ya da elle ekle.</div>';
-    return;
-  }
-  var html = '';
-  for (var i=0;i<S.shop.length;i++) {
-    var s = S.shop[i];
-    html += '<div class="list-item">';
-    html += '<button class="chk ' + (s.done ? 'on' : '') + '" data-shchk="' + s.id + '">✓</button>';
-    html += '<div class="info"><div class="name"' + (s.done ? ' style="text-decoration:line-through;opacity:.6"' : '') + '>' + esc(s.name) + '</div>';
-    if (s.src) html += '<div class="sub">📖 ' + esc(s.src) + '</div>';
-    html += '</div><button class="del" data-shdel="' + s.id + '">🗑️</button></div>';
-  }
-  l.innerHTML = html;
-}
-$('sList').onclick = function(e) {
-  var c = e.target.closest ? e.target.closest('[data-shchk]') : null;
-  var d = e.target.closest ? e.target.closest('[data-shdel]') : null;
-  if (c) {
-    var id = c.getAttribute('data-shchk');
-    for (var i=0;i<S.shop.length;i++) if (S.shop[i].id === id) { S.shop[i].done = !S.shop[i].done; break; }
-    save(); renderShop(); updateShopBadge();
-  }
-  if (d) {
-    var id2 = d.getAttribute('data-shdel');
-    for (var j=0;j<S.shop.length;j++) if (S.shop[j].id === id2) { S.shop.splice(j, 1); break; }
-    save(); renderShop(); updateShopBadge();
-  }
-};
-$('sAdd').onclick = function() {
-  var n = $('sInput').value.trim(); if (!n) return;
-  S.shop.push({id:'s' + Date.now() + Math.random(), name: n, src: '', done: false});
-  save(); $('sInput').value = ''; renderShop(); updateShopBadge();
-};
-$('sInput').onkeydown = function(e) { if (e.key === 'Enter') $('sAdd').onclick(); };
-$('sClear').onclick = function() {
-  var nw = [];
-  for (var i=0;i<S.shop.length;i++) if (!S.shop[i].done) nw.push(S.shop[i]);
-  S.shop = nw;
-  save(); renderShop(); updateShopBadge();
-};
-$('sCopy').onclick = function() {
-  var t = '🛒 Alışveriş Listem:\n\n';
-  for (var i=0;i<S.shop.length;i++) if (!S.shop[i].done) t += '☐ ' + S.shop[i].name + '\n';
-  try { navigator.clipboard.writeText(t).then(function() { toast('Kopyalandı 📋','','good'); }); } catch(e) {}
-};
-function updateShopBadge() {
-  var p = 0;
-  for (var i=0;i<S.shop.length;i++) if (!S.shop[i].done) p++;
-  var b = $('shopBadge');
-  b.textContent = p > 0 ? '(' + p + ')' : '';
-  if (p > 0) b.style.color = '#fbbf24';
-}
-$('shopBtn').onclick = function() { renderShop(); $('shopModal').classList.add('show'); };
-$('sClose').onclick = function() { $('shopModal').classList.remove('show'); };
-$('shopModal').onclick = function(e) { if (e.target.id === 'shopModal') $('shopModal').classList.remove('show'); };
-
-// ==== KAMERA ====
-var aiModel = null, camStream = null;
-
-var LABEL_MAP = {
-  'banana':'muz','apple':'elma','granny smith':'elma','orange':'portakal',
-  'lemon':'limon','tangerine':'mandalina','strawberry':'cilek',
-  'pineapple':'ananas','fig':'incir','pomegranate':'nar','grapes':'uzum',
-  'peach':'seftali','apricot':'kayisi','pear':'armut','kiwi':'kivi',
-  'watermelon':'karpuz','cantaloup':'kavun','cherry':'kiraz','plum':'erik',
-  'avocado':'avokado','coconut':'hindistan','broccoli':'brokoli',
-  'cauliflower':'karnabahar','cucumber':'salatalik','bell pepper':'biber',
-  'mushroom':'mantar','corn':'misir','cabbage':'lahana','zucchini':'kabak',
-  'eggplant':'patlican','aubergine':'patlican','carrot':'havuc',
-  'potato':'patates','onion':'sogan','garlic':'sarimsak','lettuce':'marul',
-  'spinach':'ispanak','radish':'turp','French loaf':'ekmek','bagel':'ekmek',
-  'pretzel':'ekmek','bread':'ekmek','pizza':'pizza_hamuru',
-  'spaghetti':'spagetti','cheeseburger':'hamburger_ekmek',
-  'hamburger':'hamburger_ekmek','meat loaf':'kofte','hot dog':'sosis',
-  'eggnog':'yumurta','ice cream':'dondurma','chocolate sauce':'cikolata',
-  'guacamole':'avokado','mashed potato':'patates','french fries':'patates',
-  'coffee mug':'kahve','espresso':'kahve','cup':'kahve','teapot':'cay',
-  'chicken':'tavuk','hen':'tavuk','fish':'balik','salmon':'somon',
-  'bacon':'salam','ham':'pastirma','cheese':'peynir','milk can':'sut',
-  'chocolate':'cikolata','cookie':'biskuvi','cake':'kek','donut':'kek',
-  'waffle':'krep','pancake':'krep'
-};
-
-function getModel() {
-  return new Promise(function(res, rej) {
-    if (aiModel) { res(aiModel); return; }
-    var tries = 0;
-    var check = setInterval(function() {
-      tries++;
-      if (typeof mobilenet !== 'undefined') {
-        clearInterval(check);
-        mobilenet.load({version:2, alpha:1.0}).then(function(m) {
-          aiModel = m;
-          res(m);
-        }).catch(rej);
-      } else if (tries > 40) {
-        clearInterval(check);
-        rej(new Error('Model yüklenemedi'));
-      }
-    }, 250);
-  });
+function makeOrderSprite(c){
+  const B = BURGERS[c.order];
+  const canvas = document.createElement('canvas');
+  canvas.width = 320; canvas.height = 140;
+  const g = canvas.getContext('2d');
+  g.fillStyle = 'rgba(20,25,45,0.9)'; g.fillRect(0,0,320,140);
+  g.strokeStyle = '#7dffb0'; g.lineWidth = 4; g.strokeRect(4,4,312,132);
+  g.font = 'bold 72px sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+  g.fillText('🍔', 20, 70);
+  g.fillStyle = '#fff'; g.font = 'bold 40px sans-serif';
+  g.fillText(B.name, 110, 55);
+  g.fillStyle = '#7dffb0'; g.font = 'bold 30px sans-serif';
+  g.fillText(B.price + ' TL', 110, 95);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, depthTest: false, transparent: true
+  }));
+  sprite.scale.set(1.6, 0.7, 1);
+  sprite.position.y = 2.5;
+  c.sprite = sprite;
+  return sprite;
 }
 
-$('camBtn').onclick = function() {
-  $('camModal').classList.add('show');
-  var body = $('cBody');
-  body.innerHTML = '<div class="loading"><div class="sp"></div><p>📷 Kamera ve AI hazırlanıyor...<br>İlk seferde 10-15 sn sürebilir.</p></div>';
-  getModel().then(function() {
-    startCamera();
-  }).catch(function() {
-    body.innerHTML = '<div class="loading"><div style="font-size:36px">⚠️</div><p style="color:#fca5a5">Model yüklenemedi.<br>İnternet bağlantını kontrol et.</p><button class="btn orange" style="margin-top:14px" id="camRetry">🔄 Tekrar Dene</button></div>';
-    $('camRetry').onclick = function() { $('camBtn').onclick(); };
-  });
-};
+function updateCustomers(dt){
+  for (let i = game.customers.length - 1; i >= 0; i--){
+    const c = game.customers[i];
+    const g = c.group;
 
-function startCamera() {
-  var body = $('cBody');
-  body.innerHTML =
-    '<video id="vid" autoplay playsinline muted></video>' +
-    '<div class="hint">📸 Kamerayı dolabına doğrult, sonra butona bas</div>' +
-    '<div class="row" style="margin-top:10px">' +
-      '<button class="btn orange" id="capBtn" style="flex:1">📷 Çek</button>' +
-      '<button class="btn" id="swBtn">🔄</button>' +
-      '<button class="btn" id="galBtn">🖼️</button>' +
-    '</div>' +
-    '<canvas id="cv" style="display:none"></canvas>' +
-    '<input type="file" accept="image/*" id="fileIn" style="display:none">';
-
-  var facing = 'environment';
-  var vid = $('vid');
-
-  function start() {
-    if (camStream) camStream.getTracks().forEach(function(t) { t.stop(); });
-    navigator.mediaDevices.getUserMedia({
-      video: {facingMode: facing, width: {ideal:1280}, height: {ideal:960}},
-      audio: false
-    }).then(function(s) {
-      camStream = s;
-      vid.srcObject = s;
-      vid.play();
-    }).catch(function() {
-      body.innerHTML = '<div class="loading"><div style="font-size:36px">📷</div><p style="color:#fca5a5">Kamera açılamadı.<br>İzin ver ya da galeriden yükle.</p><button class="btn orange" style="margin-top:14px" id="galBtn2">🖼️ Galeriden Yükle</button></div>';
-      $('galBtn2').onclick = function() { $('fileIn').click(); };
-    });
-  }
-  start();
-
-  $('swBtn').onclick = function() { facing = facing === 'environment' ? 'user' : 'environment'; start(); };
-  $('galBtn').onclick = function() { $('fileIn').click(); };
-  $('fileIn').onchange = function(e) {
-    var f = e.target.files[0]; if (!f) return;
-    var r = new FileReader();
-    r.onload = function(ev) {
-      var img = new Image();
-      img.onload = function() {
-        var cv = $('cv');
-        cv.width = img.width; cv.height = img.height;
-        cv.getContext('2d').drawImage(img, 0, 0);
-        classify(cv, ev.target.result);
-      };
-      img.src = ev.target.result;
-    };
-    r.readAsDataURL(f);
-  };
-  $('capBtn').onclick = function() {
-    if (!vid.videoWidth) { toast('Kamera hazır değil','','warn'); return; }
-    var cv = $('cv');
-    cv.width = vid.videoWidth; cv.height = vid.videoHeight;
-    cv.getContext('2d').drawImage(vid, 0, 0);
-    classify(cv, cv.toDataURL('image/jpeg', 0.85));
-  };
-}
-
-function classify(cv, imgUrl) {
-  var body = $('cBody');
-  body.innerHTML = '<div class="loading"><div class="sp"></div><p>🔬 Analiz ediliyor...</p></div>';
-  getModel().then(function(m) {
-    return m.classify(cv, 12);
-  }).then(function(preds) {
-    var seen = {}, results = [];
-    for (var i=0;i<preds.length;i++) {
-      var p = preds[i];
-      var lbl = String(p.className || '').toLowerCase().trim();
-      var id = null;
-      if (LABEL_MAP[lbl]) id = LABEL_MAP[lbl];
-      else {
-        for (var key in LABEL_MAP) {
-          if (lbl.indexOf(key) !== -1) { id = LABEL_MAP[key]; break; }
+    if (c.state === 'entering' || c.state === 'toRegister' || c.state === 'leaving'){
+      const dx = c.target.x - g.position.x;
+      const dz = c.target.z - g.position.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist > 0.1){
+        const spd = c.state === 'leaving' ? 3.5 : 3.2;
+        const step = Math.min(dist, spd * dt);
+        g.position.x += dx/dist * step;
+        g.position.z += dz/dist * step;
+        g.rotation.y = Math.atan2(dx, dz);
+        c.bob += dt * 9;
+        g.position.y = Math.abs(Math.sin(c.bob)) * 0.06;
+      } else {
+        g.position.y = 0;
+        if (c.state === 'entering') c.state = 'waiting';
+        else if (c.state === 'toRegister') c.state = 'paying';
+        else if (c.state === 'leaving'){
+          scene.remove(g);
+          const idx = interactables.indexOf(g);
+          if (idx >= 0) interactables.splice(idx, 1);
+          c.table.occupied = false;
+          game.customers.splice(i, 1);
         }
-      }
-      if (id && !seen[id] && ING[id]) {
-        seen[id] = 1;
-        results.push({id: id, label: p.className, conf: p.probability});
+        updateOrdersPanel();
       }
     }
-    if (!results.length) {
-      body.innerHTML = '<div class="loading"><div style="font-size:40px">🤔</div><p>Malzeme tanıyamadım.<br>Daha net fotoğraf dene.</p><button class="btn orange" style="margin-top:14px" id="camRetry2">📷 Tekrar</button></div>';
-      $('camRetry2').onclick = function() { $('camBtn').onclick(); };
+    else if (c.state === 'waiting' || c.state === 'paying'){
+      // oyuncuya bak
+      const pdx = player.pos.x - g.position.x;
+      const pdz = player.pos.z - g.position.z;
+      const targetRot = Math.atan2(pdx, pdz);
+      let diff = targetRot - g.rotation.y;
+      while (diff > Math.PI) diff -= Math.PI*2;
+      while (diff < -Math.PI) diff += Math.PI*2;
+      g.rotation.y += diff * Math.min(1, dt*4);
+    }
+    else if (c.state === 'eating'){
+      c.eatTimer -= dt;
+      g.position.y = Math.abs(Math.sin(c.eatTimer * 8)) * 0.04;
+      if (c.eatTimer <= 0){
+        g.position.y = 0;
+        c.state = 'toRegister';
+        c.target = new THREE.Vector3(REGISTER_SPOT.x + (Math.random()-0.5)*0.8, 0, REGISTER_SPOT.z + (Math.random()-0.5)*0.4);
+        c.cash = (() => {
+          const B = BURGERS[c.order];
+          const paid = BILLS.find(b => b >= B.price) || 200;
+          return { price: B.price, paid, changeNeeded: paid - B.price, changeGiven: 0 };
+        })();
+        if (c.sprite) { g.remove(c.sprite); c.sprite = null; }
+        updateOrdersPanel();
+        toast('💳 Müşteri kasaya gidiyor');
+      }
+    }
+  }
+}
+
+/* ═══════ IZGARA ═══════ */
+function updateGrill(dt){
+  if (grill.state === 'empty') return;
+  grill.timer += dt;
+  if (grill.timer < 3){
+    grill.pattyMesh.material.color.setHex(0xe8a0a0);
+  } else if (grill.timer < COOK_TIME){
+    const t = (grill.timer - 3) / (COOK_TIME - 3);
+    const col = new THREE.Color(0xe8a0a0).lerp(new THREE.Color(0x8b4513), t);
+    grill.pattyMesh.material.color.copy(col);
+  } else if (grill.timer < BURNT_TIME){
+    if (grill.state === 'cooking'){
+      grill.state = 'ready';
+      beep(900, 0.1, 'triangle', 0.06);
+      if (canCook()) toast('🥩 Köfte hazır!');
+    }
+    grill.pattyMesh.material.color.setHex(0x8b4513);
+  } else {
+    if (grill.state !== 'burnt'){
+      grill.state = 'burnt';
+      errorBeep();
+      if (canCook()) toast('🔥 Yanmış!');
+    }
+    grill.pattyMesh.material.color.setHex(0x1a1a1a);
+  }
+}
+
+function handleGrill(){
+  if (grill.state === 'empty'){
+    if (player.held){ hint('Elinde bir şey var'); return; }
+    if (game.stock.patty <= 0){ hint('Köfte yok!'); errorBeep(); return; }
+    game.stock.patty--;
+    updateStockUI();
+    grill.state = 'cooking'; grill.timer = 0;
+    grill.pattyMesh.visible = true;
+    grill.pattyMesh.material.color.setHex(0xe8a0a0);
+    beep(400, 0.1, 'sine', 0.06);
+    hint('Köfte pişiyor...');
+    sendAction({ action: 'useIngredient', id:'patty' });
+  } else if (grill.state === 'cooking'){
+    hint(`Henüz pişmedi (${Math.ceil(COOK_TIME - grill.timer)}s)`);
+    errorBeep();
+  } else if (grill.state === 'ready'){
+    if (player.held){ hint('Elinde bir şey var'); return; }
+    grill.state = 'empty'; grill.pattyMesh.visible = false;
+    player.held = { kind: 'patty' };
+    updateHeldUI();
+    beep(800, 0.08, 'triangle', 0.07);
+    toast('🥩 Köfte elinde');
+  } else if (grill.state === 'burnt'){
+    grill.state = 'empty'; grill.pattyMesh.visible = false;
+    errorBeep(); toast('Yanmış köfte atıldı');
+  }
+}
+
+/* ═══════ MONTAJ ═══════ */
+function handleAssembly(){
+  if (!player.held || player.held.kind !== 'patty'){
+    hint('Önce köfteyi pişir');
+    return;
+  }
+  openAssembly();
+}
+
+function openAssembly(){
+  $('assemblyModal').classList.remove('hidden');
+  $('interactBtn').classList.add('hidden');
+  joyBase.classList.remove('on');
+  renderAssembly();
+}
+
+function renderAssembly(){
+  const body = $('assemblyBody');
+  body.innerHTML = '';
+  for (const key of BURGER_KEYS){
+    const B = BURGERS[key];
+    let canMake = true;
+    const needsHtml = Object.entries(B.needs).map(([id, qty]) => {
+      const ING = INGREDIENTS.find(i => i.id === id);
+      const have = game.stock[id] >= qty;
+      if (!have) canMake = false;
+      return `<span class="${have?'ok':'missing'}">${ING.emoji} ${ING.name} ×${qty}</span>`;
+    }).join('');
+    const item = document.createElement('div');
+    item.className = 'burger-option';
+    item.innerHTML = `
+      <div class="bo-header">
+        <span class="bo-emoji">🍔</span>
+        <div>
+          <div class="bo-name">${B.name} Burger</div>
+          <div class="bo-price">${B.price} TL</div>
+        </div>
+      </div>
+      <div class="bo-needs">${needsHtml}</div>
+      <button class="bo-btn" ${canMake?'':'disabled'}>${canMake?'YAP':'MALZEME EKSİK'}</button>
+    `;
+    body.appendChild(item);
+    if (canMake){
+      item.querySelector('.bo-btn').addEventListener('click', () => makeBurger(key));
+    }
+  }
+}
+
+function makeBurger(key){
+  const B = BURGERS[key];
+  for (const [id, qty] of Object.entries(B.needs)){
+    if (game.stock[id] < qty) return;
+  }
+  for (const [id, qty] of Object.entries(B.needs)){
+    game.stock[id] -= qty;
+  }
+  player.held = null;
+  updateHeldUI();
+  updateStockUI();
+  addCounterBurger(key);
+  beep(700, 0.08, 'triangle', 0.07);
+  setTimeout(()=>beep(900, 0.08, 'triangle', 0.07), 80);
+  toast(`🍔 ${B.name} tezgahta!`, true);
+  $('assemblyModal').classList.add('hidden');
+  $('interactBtn').classList.remove('hidden');
+}
+
+/* ═══════ SERVİS TEPSİSİ ═══════ */
+function addCounterBurger(type){
+  if (game.counterBurgers.length >= 3){
+    hint('Tezgah dolu!');
+    return;
+  }
+  const b = { id: nextBurgerId++, type };
+  game.counterBurgers.push(b);
+  renderCounterBurgers();
+  sendAction({ action: 'addBurger', burger: b });
+}
+
+function renderCounterBurgers(){
+  // Mevcut burger mesh'lerini kaldır
+  for (const obj of [...servingGroup.children]){
+    if (obj.userData.isBurger) servingGroup.remove(obj);
+  }
+  // Yeniden çiz
+  for (let i = 0; i < game.counterBurgers.length; i++){
+    const b = game.counterBurgers[i];
+    const mesh = makeBurgerMesh(b.type);
+    const slot = SERVING_SLOTS[i];
+    mesh.position.set(slot.x - servingGroup.position.x, 0.05, slot.z - servingGroup.position.z);
+    mesh.userData.isBurger = true;
+    mesh.userData.burgerId = b.id;
+    servingGroup.add(mesh);
+  }
+}
+
+function takeBurgerFromCounter(){
+  if (player.held){ hint('Elinde bir şey var'); return; }
+  if (game.counterBurgers.length === 0){ hint('Tezgah boş'); errorBeep(); return; }
+  const b = game.counterBurgers[0];
+  player.held = { kind: 'burger', type: b.type, id: b.id };
+  game.counterBurgers.shift();
+  updateHeldUI();
+  renderCounterBurgers();
+  beep(600, 0.06, 'triangle', 0.06);
+  toast(`🍔 ${BURGERS[b.type].name} elinde`);
+  sendAction({ action: 'takeBurger', burgerId: b.id });
+}
+
+/* ═══════ MÜŞTERİ ETKİLEŞİM ═══════ */
+function serveCustomer(cust){
+  if (!canServe()){ hint('Bu iş garsona ait'); return; }
+  if (cust.state !== 'waiting'){
+    hint('Müşteri beklenmiyor');
+    return;
+  }
+  if (!player.held || player.held.kind !== 'burger'){
+    hint('Burger taşımıyorsun');
+    return;
+  }
+  if (player.held.type !== cust.order){
+    hint('Yanlış sipariş! ' + BURGERS[cust.order].name + ' istiyor');
+    errorBeep();
+    return;
+  }
+  player.held = null;
+  updateHeldUI();
+  cust.state = 'eating';
+  cust.eatTimer = 3;
+  if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; }
+  beep(700, 0.08, 'triangle', 0.06);
+  toast('😋 Afiyet olsun!');
+  updateOrdersPanel();
+  sendAction({ action: 'serve', customerId: cust.id });
+}
+
+/* ═══════ KASA (PARA ÜSTÜ) ═══════ */
+function handleRegister(){
+  if (!canServe()){ hint('Bu iş garsona ait'); return; }
+  const payingCust = game.customers.find(c => c.state === 'paying' && c.cash);
+  if (!payingCust){ hint('Ödeme bekleyen müşteri yok'); return; }
+  $('cashModal').classList.remove('hidden');
+  $('interactBtn').classList.add('hidden');
+  joyBase.classList.remove('on');
+  renderCash(payingCust);
+}
+
+function renderCash(cust){
+  const c = cust.cash;
+  const body = $('cashBody');
+  const exact = c.changeGiven === c.changeNeeded;
+  const over = c.changeGiven > c.changeNeeded;
+  body.innerHTML = `
+    <div class="cash-display">
+      <div class="cash-row"><span>Sipariş</span><b>${BURGERS[cust.order].name}</b></div>
+      <div class="cash-row"><span>Fiyat</span><b>${c.price} TL</b></div>
+      <div class="cash-row"><span>Müşteri Verdi</span><b>${c.paid} TL</b></div>
+      <div class="cash-row highlight"><span>Para Üstü</span><b>${c.changeNeeded} TL</b></div>
+      <div class="cash-row given"><span>Verilen</span><b>${c.changeGiven} TL</b></div>
+      ${over?'<div class="cash-row over"><span>⚠️ Fazla verdin!</span><b></b></div>':''}
+    </div>
+    <div class="denom-grid">
+      ${[1,5,10,20,50].map(v=>`<button class="denom-btn" data-val="${v}">${v} TL</button>`).join('')}
+    </div>
+    <div class="cash-actions">
+      <button id="cashClear">TEMİZLE</button>
+      <button id="cashConfirm" ${exact?'':'disabled'}>ONAYLA</button>
+    </div>
+  `;
+  body.querySelectorAll('.denom-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      c.changeGiven += parseInt(btn.dataset.val);
+      beep(400 + parseInt(btn.dataset.val)*2, 0.04, 'sine', 0.05);
+      renderCash(cust);
+    });
+  });
+  $('cashClear').addEventListener('click', () => {
+    c.changeGiven = 0; beep(300, 0.06, 'sine', 0.05); renderCash(cust);
+  });
+  $('cashConfirm').addEventListener('click', () => {
+    if (c.changeGiven === c.changeNeeded) completePayment(cust);
+  });
+}
+
+function completePayment(cust){
+  game.balance += cust.cash.price;
+  game.ordersDone++;
+  updateBalanceUI();
+  successChime();
+  toast(`+${cust.cash.price} TL`, true);
+  $('cashModal').classList.add('hidden');
+  $('interactBtn').classList.remove('hidden');
+  cust.state = 'leaving';
+  cust.target = new THREE.Vector3(0, 0, ROOM/2 + 1);
+  if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; }
+  updateOrdersPanel();
+  sendAction({ action: 'pay', customerId: cust.id, amount: cust.cash.price });
+}
+
+/* ═══════ SHOP ═══════ */
+function openShop(){
+  $('shopModal').classList.remove('hidden');
+  $('interactBtn').classList.add('hidden');
+  joyBase.classList.remove('on');
+  renderShop();
+}
+
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $(btn.dataset.close).classList.add('hidden');
+    if (game.running && !game.over) $('interactBtn').classList.remove('hidden');
+  });
+});
+
+function renderShop(){
+  const body = $('shopBody');
+  body.innerHTML = `
+    <div class="shop-balance">Bakiye: <b>${game.balance} TL</b></div>
+    <div class="shop-grid" id="shopGrid"></div>
+  `;
+  const grid = $('shopGrid');
+  for (const ING of INGREDIENTS){
+    const have = game.stock[ING.id];
+    const canAfford = game.balance >= ING.cost;
+    const item = document.createElement('div');
+    item.className = 'shop-item';
+    item.innerHTML = `
+      <div class="si-emoji">${ING.emoji}</div>
+      <div class="si-info">
+        <div class="si-name">${ING.name}</div>
+        <div class="si-stock">Stok: ${have}</div>
+      </div>
+      <button class="buy-btn" data-id="${ING.id}" ${canAfford?'':'disabled'}>
+        +${ING.pack} Adet<small>${ING.cost} TL</small>
+      </button>
+    `;
+    grid.appendChild(item);
+  }
+  grid.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', () => buyIngredient(btn.dataset.id));
+  });
+}
+
+function buyIngredient(id){
+  const ING = INGREDIENTS.find(i => i.id === id);
+  if (game.balance < ING.cost){ errorBeep(); return; }
+  game.balance -= ING.cost;
+  updateBalanceUI();
+  beep(700, 0.06, 'triangle', 0.06);
+  game.deliveries.push({
+    id, quantity: ING.pack,
+    arriveTime: game.time + DELIVERY_DELAY,
+    box: null,
+  });
+  toast(`${ING.emoji} Sipariş verildi`);
+  hint(`${DELIVERY_DELAY}s sonra kapıda`);
+  renderShop();
+  sendAction({ action: 'orderIngredient', id, cost: ING.cost });
+}
+
+function spawnDeliveryBox(delivery){
+  const ING = INGREDIENTS.find(i => i.id === delivery.id);
+  const box = makeBox();
+  const offsetX = (Math.random()-0.5)*3;
+  box.position.set(offsetX, 0, ROOM/2 - 1.0);
+  box.userData.interactType = 'box';
+  box.userData.delivery = delivery;
+  box.userData.ingredient = ING;
+  scene.add(box);
+  interactables.push(box);
+  delivery.box = box;
+  beep(500, 0.1, 'square', 0.06);
+  if (game.multiplayer){
+    toast(`📦 ${ING.emoji} kargo geldi`);
+  } else {
+    toast(`📦 ${ING.emoji} kargo geldi`);
+  }
+}
+
+function pickupBox(box){
+  const d = box.userData.delivery;
+  const ING = box.userData.ingredient;
+  if (!d || !ING) return;
+  game.stock[ING.id] += d.quantity;
+  updateStockUI();
+  scene.remove(box);
+  const idx = interactables.indexOf(box);
+  if (idx >= 0) interactables.splice(idx, 1);
+  const di = game.deliveries.indexOf(d);
+  if (di >= 0) game.deliveries.splice(di, 1);
+  beep(600, 0.08, 'triangle', 0.07);
+  setTimeout(()=>beep(800, 0.08, 'triangle', 0.06), 80);
+  toast(`+${d.quantity} ${ING.emoji}`, true);
+}
+
+/* ═══════ ETKİLEŞİM ═══════ */
+let currentTarget = null;
+function findInteractable(){
+  const camPos = camera.position;
+  const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  forward.y = 0;
+  if (forward.lengthSq() < 0.001) return null;
+  forward.normalize();
+  let best = null, bestScore = 0;
+  for (const obj of interactables){
+    if (!obj.parent) continue;
+    const wp = obj.getWorldPosition(new THREE.Vector3());
+    const dx = wp.x - camPos.x, dz = wp.z - camPos.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > INTERACT_DIST) continue;
+    if (dist < 0.5) return obj;
+    const tx = dx/dist, tz = dz/dist;
+    const dot = forward.x*tx + forward.z*tz;
+    if (dot < 0.2) continue;
+    const score = dot * (1 - dist/INTERACT_DIST);
+    if (score > bestScore){ bestScore = score; best = obj; }
+  }
+  return best;
+}
+
+function tryInteract(){
+  if (!game.running || game.over) return;
+  if (document.querySelector('.modal:not(.hidden)')) return;
+  const target = findInteractable();
+  if (!target) return;
+  currentTarget = target;
+  const type = target.userData.interactType;
+  if (type === 'grill'){ if (!canCook()){ hint('Bu iş şefe ait'); return; } handleGrill(); }
+  else if (type === 'assembly'){ if (!canCook()){ hint('Bu iş şefe ait'); return; } handleAssembly(); }
+  else if (type === 'computer'){ if (!canCook()){ hint('Bu iş şefe ait'); return; } openShop(); }
+  else if (type === 'serving'){ if (!canServe()){ hint('Bu iş garsona ait'); return; } takeBurgerFromCounter(); }
+  else if (type === 'register'){ handleRegister(); }
+  else if (type === 'box') pickupBox(target);
+  else if (type === 'customer') serveCustomer(target.userData.customer);
+}
+$('interactBtn').addEventListener('click', tryInteract);
+
+function updatePrompt(){
+  const target = findInteractable();
+  currentTarget = target;
+  const prompt = $('prompt'), crosshair = $('crosshair'), btn = $('interactBtn');
+  if (target && !document.querySelector('.modal:not(.hidden)')){
+    let text = '';
+    const type = target.userData.interactType;
+    if (type === 'grill'){
+      if (grill.state === 'empty') text = '🔥 IZGARA';
+      else if (grill.state === 'cooking') text = `⏱️ ${Math.ceil(COOK_TIME - grill.timer)}s`;
+      else if (grill.state === 'ready') text = '🥩 HAZIR — Al';
+      else text = '🔥 Yanmış';
+    }
+    else if (type === 'assembly') text = player.held?.kind==='patty' ? '🍔 MONTAJ' : '🍔 Köfte gerek';
+    else if (type === 'computer') text = '🖥️ SİPARİŞ';
+    else if (type === 'serving'){
+      const n = game.counterBurgers.length;
+      text = n === 0 ? '🍽️ Servis (boş)' : `🍽️ Servis (${n})`;
+    }
+    else if (type === 'register') text = '💵 KASA';
+    else if (type === 'box'){
+      const d = target.userData.delivery, ING = target.userData.ingredient;
+      if (d && ING) text = `📦 ${ING.emoji} ×${d.quantity}`;
+    }
+    else if (type === 'customer'){
+      const c = target.userData.customer;
+      if (c){
+        if (c.state === 'waiting') text = player.held?.kind==='burger' ? '🍔 SERVİS ET' : `👤 ${BURGERS[c.order].name} istiyor`;
+        else if (c.state === 'eating') text = '😋 Yiyor...';
+        else if (c.state === 'paying') text = '💳 Kasada bekliyor';
+      }
+    }
+    if (text){
+      prompt.textContent = text;
+      prompt.classList.remove('hidden');
+      crosshair.classList.add('active');
+      btn.classList.remove('hidden');
+      btn.classList.add('pulse');
+    }
+  } else {
+    prompt.classList.add('hidden');
+    crosshair.classList.remove('active');
+    if (!document.querySelector('.modal:not(.hidden)') && game.running && !game.over){
+      btn.classList.add('hidden');
+    }
+    btn.classList.remove('pulse');
+  }
+}
+
+/* ═══════ OYUNCU HAREKETİ ═══════ */
+function resolveCollisions(pos){
+  const lim = ROOM/2 - 0.45;
+  pos.x = Math.max(-lim, Math.min(lim, pos.x));
+  pos.z = Math.max(-lim, Math.min(lim, pos.z));
+  for (const b of colliders){
+    const cx = Math.max(b.minX, Math.min(pos.x, b.maxX));
+    const cz = Math.max(b.minZ, Math.min(pos.z, b.maxZ));
+    let dx = pos.x - cx, dz = pos.z - cz;
+    let d2 = dx*dx + dz*dz;
+    if (d2 < PLAYER_R*PLAYER_R){
+      if (d2 > 1e-8){
+        const d = Math.sqrt(d2);
+        pos.x = cx + dx/d*PLAYER_R;
+        pos.z = cz + dz/d*PLAYER_R;
+      } else {
+        const toL = pos.x - b.minX, toR = b.maxX - pos.x;
+        const toB = pos.z - b.minZ, toT = b.maxZ - pos.z;
+        const m = Math.min(toL, toR, toB, toT);
+        if (m === toL) pos.x = b.minX - PLAYER_R;
+        else if (m === toR) pos.x = b.maxX + PLAYER_R;
+        else if (m === toB) pos.z = b.minZ - PLAYER_R;
+        else pos.z = b.maxZ + PLAYER_R;
+      }
+    }
+  }
+}
+
+function updatePlayer(dt){
+  let mx = joy.x, my = joy.y;
+  if (keys['KeyW'] || keys['ArrowUp'])    my -= 1;
+  if (keys['KeyS'] || keys['ArrowDown'])  my += 1;
+  if (keys['KeyA'] || keys['ArrowLeft'])  mx -= 1;
+  if (keys['KeyD'] || keys['ArrowRight']) mx += 1;
+  const mag = Math.hypot(mx, my);
+  if (mag > 1){ mx /= mag; my /= mag; }
+  const fwd   = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
+  const right = new THREE.Vector3( Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  const move = new THREE.Vector3().addScaledVector(right, mx).addScaledVector(fwd, -my);
+  const len = move.length();
+  if (len > 0.02){
+    move.multiplyScalar(1 / Math.max(1, len));
+    player.pos.x += move.x * MOVE_SPEED * dt;
+    player.pos.z += move.z * MOVE_SPEED * dt;
+    player.bobPhase += dt * 10;
+    player.bobAmount += (1 - player.bobAmount) * Math.min(1, dt*8);
+  } else {
+    player.bobAmount += (0 - player.bobAmount) * Math.min(1, dt*8);
+  }
+  resolveCollisions(player.pos);
+  const bob = Math.sin(player.bobPhase) * 0.04 * player.bobAmount;
+  camera.position.set(player.pos.x, EYE + bob, player.pos.z);
+  camera.rotation.set(player.pitch, player.yaw, 0);
+  sun.position.set(player.pos.x + 6, 14, player.pos.z + 4);
+  sun.target.position.set(player.pos.x, 0, player.pos.z);
+}
+
+/* ═══════ ÇOK OYUNCULU ═══════ */
+let peer = null;
+let conn = null;
+let peerRole = null;
+let remotePlayerMesh = null;
+let lastSyncTime = 0;
+const SYNC_INTERVAL = 100;
+
+function generateCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+function createRoom(code){
+  return new Promise((resolve, reject) => {
+    peer = new Peer('hamburger-sim-' + code, { debug: 0 });
+    peer.on('open', () => resolve());
+    peer.on('error', (err) => reject(err));
+    peer.on('connection', (c) => {
+      conn = c;
+      setupConnection();
+      startMultiplayerGame();
+    });
+    setTimeout(() => reject(new Error('timeout')), 15000);
+  });
+}
+
+function joinRoom(code){
+  return new Promise((resolve, reject) => {
+    peer = new Peer({ debug: 0 });
+    peer.on('open', () => {
+      const c = peer.connect('hamburger-sim-' + code, { reliable: true });
+      c.on('open', () => { conn = c; resolve(); setupConnection(); });
+      c.on('error', (err) => reject(err));
+    });
+    peer.on('error', (err) => reject(err));
+    setTimeout(() => reject(new Error('timeout')), 15000);
+  });
+}
+
+function setupConnection(){
+  if (!conn) return;
+  conn.on('data', (data) => handlePeerData(data));
+  conn.on('close', () => {
+    if (game.running && !game.over){
+      hint('Rakip ayrıldı');
+      if (game.isHost){
+        // Tek başına oynamaya devam
+        game.multiplayer = false;
+      } else {
+        endGame();
+      }
+    }
+  });
+}
+
+function handlePeerData(data){
+  if (!data) return;
+  
+  if (data.type === 'hello'){
+    peerRole = data.role;
+    // Rolleri kontrol et - aynı olamaz
+    if (game.isHost && peerRole === game.role){
+      conn.send({ type: 'roleConflict' });
+      setTimeout(() => { conn.close(); }, 500);
+      hint('Rol çakışması! Farklı rol seç');
       return;
     }
-    showDetect(imgUrl, results);
-  }).catch(function() {
-    body.innerHTML = '<div class="loading"><p style="color:#fca5a5">Analiz hatası</p><button class="btn orange" style="margin-top:12px" id="camRetry3">📷 Tekrar</button></div>';
-    $('camRetry3').onclick = function() { $('camBtn').onclick(); };
-  });
+    if (game.isHost){
+      conn.send({ type: 'hello', role: game.role });
+      startMultiplayerGame();
+    }
+    createRemotePlayerMesh();
+  }
+  else if (data.type === 'roleConflict'){
+    hint('Rol çakışması!');
+    conn.close();
+    backToMenu();
+  }
+  else if (data.type === 'state'){
+    // Host'tan gelen durum
+    if (!game.isHost){
+      applyState(data.state);
+    }
+  }
+  else if (data.type === 'action'){
+    // Guest'ten gelen aksiyon
+    if (game.isHost){
+      applyRemoteAction(data.action);
+    }
+  }
+  else if (data.type === 'playerPos'){
+    updateRemotePlayer(data.pos, data.yaw);
+  }
+  else if (data.type === 'start'){
+    startMultiplayerGame();
+  }
 }
 
-function showDetect(imgUrl, results) {
-  var body = $('cBody');
-  var selected = {};
-  for (var i=0;i<results.length;i++) if (results[i].conf >= 0.3) selected[results[i].id] = 1;
-  var html = '<img src="' + imgUrl + '" style="width:100%;border-radius:10px;max-height:200px;object-fit:cover">';
-  html += '<div class="hint">🔍 <b>' + results.length + ' malzeme</b> tanıdım. Doğru olanları işaretle:</div>';
-  html += '<div class="detect">';
-  for (var j=0;j<results.length;j++) {
-    var r = results[j];
-    var info = ING[r.id];
-    var c = Math.round(r.conf * 100);
-    var cls = c >= 50 ? 'ok' : '';
-    var on = selected[r.id] ? 'on' : '';
-    html += '<div class="detect-item ' + cls + '">';
-    html += '<span style="font-size:18px">' + info.e + '</span>';
-    html += '<div style="flex:1;min-width:0"><b style="font-size:12px">' + esc(info.n) + '</b><div style="font-size:10px;color:#647790">%' + c + '</div></div>';
-    html += '<button class="chk ' + on + '" data-det="' + r.id + '">' + (on ? '✓' : '') + '</button>';
-    html += '</div>';
+function sendAction(action){
+  if (!conn || !conn.open) return;
+  if (game.isHost){
+    // Host kendisi uygular, sonra gönderir
+    // (Aslında host zaten uyguladı, sadece senkronize etmek için gönder)
+    conn.send({ type: 'action', action });
+  } else {
+    conn.send({ type: 'action', action });
   }
-  html += '</div>';
-  html += '<div class="row" style="margin-top:12px"><button class="btn green" id="applyBtn" style="flex:1">✓ Seçilenleri Ekle</button><button class="btn" id="backBtn" style="flex:1">📷 Tekrar</button></div>';
-  body.innerHTML = html;
-  var detBtns = body.querySelectorAll('[data-det]');
-  for (var k=0;k<detBtns.length;k++) {
-    (function(b) {
-      b.onclick = function() {
-        var id = b.getAttribute('data-det');
-        if (selected[id]) {
-          delete selected[id];
-          b.classList.remove('on');
-          b.textContent = '';
-        } else {
-          selected[id] = 1;
-          b.classList.add('on');
-          b.textContent = '✓';
-        }
+}
+
+function applyRemoteAction(action){
+  if (!action) return;
+  if (action.action === 'orderIngredient'){
+    const ING = INGREDIENTS.find(i => i.id === action.id);
+    if (ING && game.balance >= action.cost){
+      game.balance -= action.cost;
+      updateBalanceUI();
+      game.deliveries.push({
+        id: action.id, quantity: ING.pack,
+        arriveTime: game.time + DELIVERY_DELAY, box: null,
+      });
+    }
+  }
+  else if (action.action === 'useIngredient'){
+    game.stock[action.id] = Math.max(0, game.stock[action.id] - 1);
+    updateStockUI();
+  }
+  else if (action.action === 'addBurger'){
+    // Burger zaten host tarafından eklendi, guest'e sync edilecek
+  }
+  else if (action.action === 'takeBurger'){
+    const idx = game.counterBurgers.findIndex(b => b.id === action.burgerId);
+    if (idx >= 0) game.counterBurgers.splice(idx, 1);
+    renderCounterBurgers();
+  }
+  else if (action.action === 'serve'){
+    const c = game.customers.find(cc => cc.id === action.customerId);
+    if (c && c.state === 'waiting'){
+      c.state = 'eating';
+      c.eatTimer = 3;
+      if (c.sprite){ c.group.remove(c.sprite); c.sprite = null; }
+      updateOrdersPanel();
+    }
+  }
+  else if (action.action === 'pay'){
+    const c = game.customers.find(cc => cc.id === action.customerId);
+    if (c){
+      game.balance += action.amount;
+      game.ordersDone++;
+      updateBalanceUI();
+      c.state = 'leaving';
+      c.target = new THREE.Vector3(0, 0, ROOM/2 + 1);
+      if (c.sprite){ c.group.remove(c.sprite); c.sprite = null; }
+      updateOrdersPanel();
+    }
+  }
+}
+
+function buildState(){
+  return {
+    balance: game.balance,
+    stock: { ...game.stock },
+    counterBurgers: game.counterBurgers.map(b => ({ id: b.id, type: b.type })),
+    customers: game.customers.map(c => ({
+      id: c.id, order: c.order, state: c.state,
+      x: c.group.position.x, z: c.group.position.z, yaw: c.group.rotation.y,
+      cash: c.cash,
+    })),
+  };
+}
+
+function applyState(s){
+  if (!s) return;
+  game.balance = s.balance;
+  game.stock = { ...s.stock };
+  game.counterBurgers = s.counterBurgers;
+  updateBalanceUI();
+  updateStockUI();
+  renderCounterBurgers();
+
+  // Müşterileri güncelle
+  // Kaldırılacaklar
+  for (let i = game.customers.length - 1; i >= 0; i--){
+    const c = game.customers[i];
+    if (!s.customers.find(sc => sc.id === c.id)){
+      scene.remove(c.group);
+      const idx = interactables.indexOf(c.group);
+      if (idx >= 0) interactables.splice(idx, 1);
+      c.table.occupied = false;
+      game.customers.splice(i, 1);
+    }
+  }
+  // Ekle veya güncelle
+  for (const sc of s.customers){
+    let c = game.customers.find(cc => cc.id === sc.id);
+    if (!c){
+      // Yeni müşteri
+      const free = TABLES.find(t => !t.occupied);
+      if (!free) continue;
+      const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
+      const skinCol = SKINS[(Math.random()*SKINS.length)|0];
+      const group = makeHumanoid(shirtCol, skinCol, false, null);
+      group.position.set(sc.x, 0, sc.z);
+      scene.add(group);
+      c = {
+        id: sc.id, group, table: free, order: sc.order,
+        state: sc.state, target: new THREE.Vector3(sc.x, 0, sc.z),
+        bob: 0, eatTimer: 0, sprite: null, cash: sc.cash,
       };
-    })(detBtns[k]);
-  }
-  $('backBtn').onclick = function() { $('camBtn').onclick(); };
-  $('applyBtn').onclick = function() {
-    var ids = [];
-    for (var key in selected) if (selected[key]) ids.push(key);
-    if (!ids.length) { toast('Hiçbiri seçilmedi','','warn'); return; }
-    var added = 0;
-    for (var i=0;i<ids.length;i++) {
-      if (S.pantry[ids[i]] !== 'have') { S.pantry[ids[i]] = 'have'; added++; }
-    }
-    save(); renderIngs(); updateCookBtn(); closeCam(); checkBadges();
-    toast('🎉 ' + added + ' malzeme eklendi','','good');
-  };
-}
-function closeCam() {
-  $('camModal').classList.remove('show');
-  if (camStream) {
-    camStream.getTracks().forEach(function(t) { t.stop(); });
-    camStream = null;
-  }
-}
-$('cClose').onclick = closeCam;
-$('camModal').onclick = function(e) { if (e.target.id === 'camModal') closeCam(); };
-
-// ==== DİYET ====
-function renderDiet() {
-  var today = new Date().toDateString();
-  var todayMeals = [];
-  for (var i=0;i<S.hist.length;i++) {
-    if (new Date(S.hist[i].date).toDateString() === today) todayMeals.push(S.hist[i]);
-  }
-  var t = {c:0,p:0,f:0,ch:0};
-  // Basit kalori hesabı
-  for (var j=0;j<todayMeals.length;j++) {
-    var h = todayMeals[j];
-    var r = null;
-    for (var k=0;k<RECIPES.length;k++) if (RECIPES[k].id === h.rid) r = RECIPES[k];
-    if (!r) continue;
-    t.c += 400 * (h.servings / 2);
-    t.p += 20 * (h.servings / 2);
-    t.f += 15 * (h.servings / 2);
-    t.ch += 40 * (h.servings / 2);
-  }
-  var g = S.goals;
-  function pct(a, b) { return Math.min(100, Math.round(a / b * 100)); }
-  var html = '';
-  html += '<div class="stat" style="text-align:center;background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(251,191,36,.1))"><div style="font-size:28px">🔥</div><b style="font-size:24px;color:#fbbf24">' + S.streak.count + ' gün</b><div style="font-size:11px;color:#647790;font-weight:700;text-transform:uppercase;margin-top:2px">Seri • En iyi: ' + S.streak.best + '</div></div>';
-  html += '<div class="macro-grid">';
-  html += '<div class="macro"><b>' + Math.round(t.c) + '</b><span>kcal</span></div>';
-  html += '<div class="macro"><b>' + Math.round(t.p) + 'g</b><span>Prot</span></div>';
-  html += '<div class="macro"><b>' + Math.round(t.ch) + 'g</b><span>Karb</span></div>';
-  html += '<div class="macro"><b>' + Math.round(t.f) + 'g</b><span>Yağ</span></div>';
-  html += '</div>';
-  html += '<div class="stat c3"><span>Günlük Hedef</span><b>' + g.cal + ' kcal</b></div>';
-  html += '<h2 style="margin-top:14px">💧 Su Takibi</h2>';
-  html += '<div class="stat c1"><span>Bugün</span><b>' + S.water + ' / ' + g.water + ' bardak</b></div>';
-  html += '<div class="row" style="margin-top:8px"><button class="btn green sm" id="wAdd">+ 1 Bardak</button><button class="btn sm" id="wReset">Sıfırla</button><button class="btn sm" id="goalEdit">⚙️ Hedef</button></div>';
-  $('dietArea').innerHTML = html;
-  $('wAdd').onclick = function() { S.water++; save(); checkBadges(); renderDiet(); };
-  $('wReset').onclick = function() { S.water = 0; save(); renderDiet(); };
-  $('goalEdit').onclick = function() {
-    var c = prompt('Günlük kalori:', g.cal); if (c) g.cal = parseInt(c) || 2000;
-    var p = prompt('Protein (g):', g.prot); if (p) g.prot = parseInt(p) || 50;
-    var ch = prompt('Karbonhidrat (g):', g.ch); if (ch) g.ch = parseInt(ch) || 250;
-    var f = prompt('Yağ (g):', g.fat); if (f) g.fat = parseInt(f) || 70;
-    var w = prompt('Su (bardak):', g.water); if (w) g.water = parseInt(w) || 8;
-    save(); renderDiet(); toast('Hedefler güncellendi ✅','','good');
-  };
-}
-
-// ==== İSTATİSTİK ====
-function renderStats() {
-  var days = {};
-  for (var i=13;i>=0;i--) {
-    var d = new Date(Date.now() - i * 86400000).toDateString();
-    days[d] = 0;
-  }
-  for (var j=0;j<S.hist.length;j++) {
-    var dh = new Date(S.hist[j].date).toDateString();
-    if (days[dh] !== undefined) days[dh]++;
-  }
-  var maxDay = 1;
-  for (var key in days) if (days[key] > maxDay) maxDay = days[key];
-  var html = '';
-  html += '<div class="stat cy"><span>Toplam Pişirme</span><b>' + S.hist.length + '</b></div>';
-  html += '<div class="stat c3"><span>En Uzun Seri</span><b>' + S.streak.best + ' 🔥</b></div>';
-  html += '<div class="stat c4"><span>Şu Anki Seri</span><b>' + S.streak.count + '</b></div>';
-  html += '<div class="stat c1"><span>Rozet</span><b>' + Object.keys(S.badges).length + '/' + BADGES.length + '</b></div>';
-  html += '<h2 style="margin-top:14px">📊 Son 14 Gün</h2>';
-  html += '<div style="display:flex;align-items:flex-end;gap:3px;height:100px;padding:8px;background:#16213a;border-radius:11px;border:1px solid #22304d">';
-  var keys = Object.keys(days);
-  for (var k=0;k<keys.length;k++) {
-    var cnt = days[keys[k]];
-    var pct = (cnt / maxDay) * 100;
-    html += '<div style="flex:1;background:linear-gradient(180deg,#22d3ee,#0e7490);border-radius:4px 4px 0 0;height:' + Math.max(pct, 4) + '%;min-height:4px" title="' + new Date(keys[k]).toLocaleDateString('tr-TR') + ': ' + cnt + '"></div>';
-  }
-  html += '</div>';
-  $('statsArea').innerHTML = html;
-}
-
-// ==== ROZETLER ====
-function renderBadges() {
-  $('badgeCount').textContent = Object.keys(S.badges).length + '/' + BADGES.length;
-  var html = '';
-  for (var i=0;i<BADGES.length;i++) {
-    var b = BADGES[i];
-    var earned = !!S.badges[b.id];
-    html += '<div class="badge-card ' + (earned ? 'earned' : '') + '">';
-    html += '<div class="be">' + b.e + '</div>';
-    html += '<div class="bn">' + esc(b.n) + '</div>';
-    html += '</div>';
-  }
-  $('badgesGrid').innerHTML = html;
-}
-
-// ==== PUAN ====
-function renderPoints() {
-  var lv = levelFrom(S.points);
-  var lvNames = ['Yeni','Meraklı','Çırak','Aşçı','Şef Yrd','Şef','Baş Şef','Usta','Efsane','Efsanevi'];
-  var html = '';
-  html += '<div class="stat" style="text-align:center;background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(236,72,153,.1));border-color:rgba(168,85,247,.3)">';
-  html += '<b style="font-size:32px;background:linear-gradient(100deg,#a855f7,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent">' + S.points + '</b>';
-  html += '<div style="font-size:11px;color:#647790;font-weight:700;text-transform:uppercase;margin-top:2px">Toplam Puan</div>';
-  html += '<div style="font-size:11.5px;color:#8ba0c2;margin-top:4px">Seviye ' + lv + ' — ' + lvNames[lv-1] + '</div>';
-  html += '</div>';
-  html += '<div class="stat cy"><span>Pişir</span><b>+10 puan</b></div>';
-  html += '<div class="stat c3"><span>Favori</span><b>+2 puan</b></div>';
-  html += '<div class="stat c4"><span>Su İç</span><b>+1 puan</b></div>';
-  $('pointsArea').innerHTML = html;
-}
-
-// ==== AİLE ====
-function renderFamily() {
-  var l = $('famList');
-  if (!S.family.length) {
-    l.innerHTML = '<div class="empty" style="padding:20px 12px"><span class="ico">👨‍👩‍👧</span>Henüz aile üyesi eklenmemiş.</div>';
-    return;
-  }
-  var html = '';
-  for (var i=0;i<S.family.length;i++) {
-    var f = S.family[i];
-    html += '<div class="list-item"><span style="font-size:22px">' + f.e + '</span>';
-    html += '<div class="info"><div class="name">' + esc(f.n) + '</div></div>';
-    html += '<button class="del" data-fd="' + f.id + '">🗑️</button></div>';
-  }
-  l.innerHTML = html;
-}
-$('famAdd').onclick = function() {
-  var n = $('famName').value.trim(); if (!n) return;
-  var e = $('famEmoji').value.trim() || '😀';
-  S.family.push({id: 'f' + Date.now(), n: n, e: e});
-  save(); checkBadges(); renderFamily();
-  $('famName').value = ''; $('famEmoji').value = '';
-  toast('Eklendi 👨‍👩‍👧', n, 'good');
-};
-$('famList').onclick = function(e) {
-  var d = e.target.closest ? e.target.closest('[data-fd]') : null;
-  if (!d) return;
-  var id = d.getAttribute('data-fd');
-  for (var i=0;i<S.family.length;i++) if (S.family[i].id === id) { S.family.splice(i, 1); break; }
-  save(); renderFamily();
-};
-
-// ==== FOTOĞRAF ====
-$('photoBtn').onclick = function() { renderPhotos(); $('photoModal').classList.add('show'); };
-$('phClose').onclick = function() { $('photoModal').classList.remove('show'); };
-$('photoModal').onclick = function(e) { if (e.target.id === 'photoModal') $('photoModal').classList.remove('show'); };
-$('phAdd').onclick = function() { $('phFile').click(); };
-$('phFile').onchange = function(e) {
-  var f = e.target.files[0]; if (!f) return;
-  var r = new FileReader();
-  r.onload = function(ev) {
-    var img = new Image();
-    img.onload = function() {
-      var cv = document.createElement('canvas');
-      var mx = 500;
-      var w = img.width, h = img.height;
-      if (w > h && w > mx) { h = h * mx / w; w = mx; }
-      else if (h > mx) { w = w * mx / h; h = mx; }
-      cv.width = w; cv.height = h;
-      cv.getContext('2d').drawImage(img, 0, 0, w, h);
-      var data = cv.toDataURL('image/jpeg', 0.7);
-      var n = prompt('Bu yemek neydi?', 'Yemek') || 'Yemek';
-      S.photos.unshift({id: 'p' + Date.now(), data: data, n: n, date: new Date().toISOString()});
-      if (S.photos.length > 30) S.photos = S.photos.slice(0, 30);
-      save(); checkBadges(); addPoints(3); renderPhotos();
-      toast('📸 Eklendi', '', 'good');
-    };
-    img.src = ev.target.result;
-  };
-  r.readAsDataURL(f);
-  e.target.value = '';
-};
-function renderPhotos() {
-  var g = $('photoGrid');
-  g.style.display = 'grid';
-  g.style.gridTemplateColumns = 'repeat(auto-fill,minmax(110px,1fr))';
-  g.style.gap = '6px';
-  if (!S.photos.length) {
-    g.innerHTML = '<div class="empty" style="grid-column:1/-1"><span class="ico">📸</span>Henüz fotoğraf yok.</div>';
-    return;
-  }
-  var html = '';
-  for (var i=0;i<S.photos.length;i++) {
-    var p = S.photos[i];
-    html += '<div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#16213a;border:1px solid #22304d">';
-    html += '<img src="' + p.data + '" style="width:100%;height:100%;object-fit:cover;display:block">';
-    html += '<div style="position:absolute;bottom:0;left:0;right:0;padding:4px 7px;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);font-size:10px;font-weight:700;color:#fff">' + esc(p.n) + '</div>';
-    html += '<button data-pd="' + p.id + '" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:5px;background:rgba(0,0,0,.75);color:#fff;border:none;cursor:pointer;font-size:10px;font-family:inherit">✕</button>';
-    html += '</div>';
-  }
-  g.innerHTML = html;
-}
-$('photoGrid').onclick = function(e) {
-  var d = e.target.closest ? e.target.closest('[data-pd]') : null;
-  if (!d) return;
-  if (!confirm('Silinsin mi?')) return;
-  var id = d.getAttribute('data-pd');
-  for (var i=0;i<S.photos.length;i++) if (S.photos[i].id === id) { S.photos.splice(i, 1); break; }
-  save(); renderPhotos();
-};
-
-// ==== MARKET FİYAT ====
-$('marketBtn').onclick = function() {
-  var sel = $('mkIng');
-  var opts = '<option value="">Malzeme seç...</option>';
-  for (var i=0;i<INGS.length;i++) {
-    if (PRICE[INGS[i][0]]) opts += '<option value="' + INGS[i][0] + '">' + INGS[i][2] + ' ' + INGS[i][1] + '</option>';
-  }
-  sel.innerHTML = opts;
-  renderMarket('');
-  $('marketModal').classList.add('show');
-};
-$('mkClose').onclick = function() { $('marketModal').classList.remove('show'); };
-$('marketModal').onclick = function(e) { if (e.target.id === 'marketModal') $('marketModal').classList.remove('show'); };
-$('mkIng').onchange = function(e) { renderMarket(e.target.value); };
-function renderMarket(id) {
-  var box = $('mkResult');
-  if (!id) {
-    box.innerHTML = '<div class="hint">Bir malzeme seç, marketlere göre tahmini fiyatı gör.</div>';
-    return;
-  }
-  var base = PRICE[id] || 30;
-  var markets = [
-    {n:'🛒 A101', m:0.92}, {n:'🟠 BİM', m:0.90}, {n:'🟡 ŞOK', m:0.95},
-    {n:'🔵 Migros', m:1.15}, {n:'🟢 Carrefour', m:1.08}, {n:'🔴 Hakmar', m:0.88}
-  ];
-  markets.sort(function(a, b) { return (base * a.m) - (base * b.m); });
-  var min = base * markets[0].m;
-  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-top:8px">';
-  for (var i=0;i<markets.length;i++) {
-    var mk = markets[i];
-    var p = base * mk.m;
-    var cls = i === 0 ? 'best' : '';
-    html += '<div class="stat ' + (i === 0 ? 'c3' : '') + '">';
-    html += '<span>' + mk.n + '</span>';
-    html += '<b>' + p.toFixed(0) + ' ₺</b>';
-    if (i === 0) html += '<div style="font-size:10px;color:#34d399;font-weight:700">🏆 En Ucuz</div>';
-    else html += '<div style="font-size:10px;color:#647790">+' + ((p / min - 1) * 100).toFixed(0) + '%</div>';
-    html += '</div>';
-  }
-  html += '</div><div style="font-size:10.5px;color:#647790;margin-top:8px;text-align:center">* Tahmini fiyatlar</div>';
-  box.innerHTML = html;
-}
-
-// ==== PLAN ====
-var DAYS = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
-$('planBtn').onclick = function() { renderPlanner(); $('planModal').classList.add('show'); };
-$('plClose').onclick = function() { $('planModal').classList.remove('show'); };
-$('planModal').onclick = function(e) { if (e.target.id === 'planModal') $('planModal').classList.remove('show'); };
-function renderPlanner() {
-  var html = '';
-  for (var i=0;i<DAYS.length;i++) {
-    var meals = S.planner[i] || [];
-    html += '<div style="background:#16213a;border:1px solid #22304d;border-radius:9px;padding:6px;min-height:80px">';
-    html += '<div style="font-size:10px;font-weight:800;color:#22d3ee;text-align:center;margin-bottom:4px">' + DAYS[i] + '</div>';
-    for (var j=0;j<meals.length;j++) {
-      var r = null;
-      for (var k=0;k<RECIPES.length;k++) if (RECIPES[k].id === meals[j]) r = RECIPES[k];
-      if (r) html += '<div data-pd="' + i + '" data-pi="' + j + '" style="font-size:10px;padding:3px 4px;border-radius:5px;background:rgba(255,255,255,.05);margin-bottom:2px;cursor:pointer;line-height:1.2">' + r.e + ' ' + esc(r.n) + '</div>';
-    }
-    html += '<div data-padd="' + i + '" style="font-size:9.5px;color:#647790;text-align:center;cursor:pointer;padding:3px;border:1px dashed #22304d;border-radius:5px">+ Ekle</div>';
-    html += '</div>';
-  }
-  $('plannerGrid').innerHTML = html;
-}
-$('plannerGrid').onclick = function(e) {
-  var a = e.target.closest ? e.target.closest('[data-padd]') : null;
-  if (a) { openPick(parseInt(a.getAttribute('data-padd'))); return; }
-  var m = e.target.closest ? e.target.closest('[data-pd]') : null;
-  if (m) {
-    var d = parseInt(m.getAttribute('data-pd'));
-    var i = parseInt(m.getAttribute('data-pi'));
-    if (confirm('Kaldırılsın mı?')) {
-      S.planner[d].splice(i, 1);
-      if (!S.planner[d].length) delete S.planner[d];
-      save(); renderPlanner();
+      group.add(makeOrderSprite(c));
+      free.occupied = true;
+      group.userData.interactType = 'customer';
+      group.userData.customer = c;
+      interactables.push(group);
+      game.customers.push(c);
+    } else {
+      // Güncelle
+      if (c.state !== sc.state){
+        if (c.state === 'waiting' && sc.state === 'eating'){
+          c.eatTimer = 3;
+          if (c.sprite){ c.group.remove(c.sprite); c.sprite = null; }
+        }
+        c.state = sc.state;
+        if (c.sprite && (sc.state === 'eating' || sc.state === 'paying' || sc.state === 'toRegister')){
+          c.group.remove(c.sprite); c.sprite = null;
+        }
+      }
+      c.cash = sc.cash;
+      c.group.position.x = sc.x;
+      c.group.position.z = sc.z;
+      c.group.rotation.y = sc.yaw;
+      if (sc.state === 'toRegister' || sc.state === 'leaving'){
+        c.target.set(sc.x, 0, sc.z);
+      }
     }
   }
-};
-function openPick(day) {
-  $('pickModal').classList.add('show');
-  function render(q) {
-    var html = '';
-    var cnt = 0;
-    for (var i=0;i<RECIPES.length;i++) {
-      var r = RECIPES[i];
-      if (q && norm(r.n).indexOf(norm(q)) === -1) continue;
-      if (cnt >= 60) break;
-      html += '<div class="list-item" data-pk="' + r.id + '" style="cursor:pointer">';
-      html += '<span style="font-size:20px">' + r.e + '</span>';
-      html += '<div class="info"><div class="name">' + esc(r.n) + '</div><div class="sub">' + r.t + ' • ' + r.z + '</div></div>';
-      html += '</div>';
-      cnt++;
-    }
-    $('pkList').innerHTML = html;
-  }
-  render('');
-  $('pkSearch').value = '';
-  $('pkSearch').oninput = function(e) { render(e.target.value); };
-  $('pkList').onclick = function(e) {
-    var it = e.target.closest ? e.target.closest('[data-pk]') : null;
-    if (!it) return;
-    var id = it.getAttribute('data-pk');
-    if (!S.planner[day]) S.planner[day] = [];
-    S.planner[day].push(id);
-    save(); $('pickModal').classList.remove('show'); renderPlanner();
-    toast('Plana eklendi 📅','','good');
-  };
+  updateOrdersPanel();
 }
-$('pkClose').onclick = function() { $('pickModal').classList.remove('show'); };
-$('pickModal').onclick = function(e) { if (e.target.id === 'pickModal') $('pickModal').classList.remove('show'); };
-$('plShop').onclick = function() {
-  var h = {}; var hv = have();
-  for (var i=0;i<hv.length;i++) h[hv[i]] = 1;
-  var needed = {};
-  for (var d in S.planner) {
-    var arr = S.planner[d];
-    for (var j=0;j<arr.length;j++) {
-      var r = null;
-      for (var k=0;k<RECIPES.length;k++) if (RECIPES[k].id === arr[j]) r = RECIPES[k];
-      if (!r) continue;
-      for (var m=0;m<r.i.length;m++) if (!h[r.i[m]]) needed[r.i[m]] = 1;
-    }
-  }
-  var keys = Object.keys(needed);
-  if (!keys.length) { toast('Eksik yok','','good'); return; }
-  var added = 0;
-  for (var n=0;n<keys.length;n++) {
-    var id = keys[n];
-    var info = ING[id]; if (!info) continue;
-    var amt = AMT[id] || '';
-    var name = (amt ? amt + ' ' : '') + info.n;
-    var exists = false;
-    for (var p=0;p<S.shop.length;p++) if (S.shop[p].name.toLowerCase() === name.toLowerCase()) exists = true;
-    if (exists) continue;
-    S.shop.push({id: 's' + Date.now() + Math.random(), name: name, src: 'Plan', done: false});
-    added++;
-  }
-  save(); renderShop(); updateShopBadge();
-  toast('🛒 Eklendi', added + ' malzeme', 'good');
-};
-$('plClear').onclick = function() {
-  if (!confirm('Plan silinsin mi?')) return;
-  S.planner = {}; save(); renderPlanner();
-};
 
-// ==== EĞİTİM ====
-$('eduBtn').onclick = function() {
-  var html = '';
-  for (var i=0;i<TECHNIQUES.length;i++) {
-    var t = TECHNIQUES[i];
-    html += '<div class="stat"><b style="font-size:13px">' + t.n + '</b><div style="font-size:11.5px;color:#8ba0c2;line-height:1.5;margin-top:4px">' + t.d + '</div></div>';
-  }
-  $('eduBody').innerHTML = html;
-  $('eduModal').classList.add('show');
-};
-$('edClose').onclick = function() { $('eduModal').classList.remove('show'); };
-$('eduModal').onclick = function(e) { if (e.target.id === 'eduModal') $('eduModal').classList.remove('show'); };
+function createRemotePlayerMesh(){
+  if (remotePlayerMesh) return;
+  const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
+  const skinCol = SKINS[(Math.random()*SKINS.length)|0];
+  remotePlayerMesh = makeHumanoid(shirtCol, skinCol, true, peerRole);
+  remotePlayerMesh.position.set(0, 0, -1.5);
+  scene.add(remotePlayerMesh);
+}
 
-// ==== AYARLAR ====
-$('setBtn').onclick = function() { $('setModal').classList.add('show'); };
-$('stClose').onclick = function() { $('setModal').classList.remove('show'); };
-$('setModal').onclick = function(e) { if (e.target.id === 'setModal') $('setModal').classList.remove('show'); };
-$('notifBtn').onclick = function() {
-  if (!('Notification' in window)) { toast('Desteklenmiyor','','warn'); return; }
-  if (Notification.permission === 'granted') { toast('Zaten açık ✅','','good'); return; }
-  Notification.requestPermission().then(function(p) {
-    if (p === 'granted') {
-      toast('Açık ✅','','good');
-      try { new Notification('🎉 Mutfak Şefi','Bildirimler çalışıyor!'); } catch(e) {}
-    }
+function updateRemotePlayer(pos, yaw){
+  if (!remotePlayerMesh) return;
+  remotePlayerMesh.position.x = pos.x;
+  remotePlayerMesh.position.z = pos.z;
+  remotePlayerMesh.rotation.y = yaw;
+}
+
+/* ═══════ MENÜ / BAŞLAT ═══════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  if (id) $(id).classList.remove('hidden');
+}
+
+let selectedRole = null;
+document.querySelectorAll('.role-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedRole = card.dataset.role;
+    $('roleNextBtn').disabled = false;
   });
-};
-$('voiceBtn').onclick = function() {
-  S.voiceOn = !S.voiceOn;
-  save();
-  toast('Sesli okuma ' + (S.voiceOn ? 'açık 🔊' : 'kapalı 🔇'), '', S.voiceOn ? 'good' : 'warn');
-  if (S.voiceOn) speak('Sesli okuma açık');
-};
-$('expBtn').onclick = function() {
-  var b = new Blob([JSON.stringify(S)], {type:'application/json'});
-  var u = URL.createObjectURL(b);
-  var a = document.createElement('a');
-  a.href = u;
-  a.download = 'mutfak-yedek-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.click();
-  URL.revokeObjectURL(u);
-  toast('💾 Yedek alındı','','good');
-};
-$('impBtn').onclick = function() { $('impFile').click(); };
-$('impFile').onchange = function(e) {
-  var f = e.target.files[0]; if (!f) return;
-  var r = new FileReader();
-  r.onload = function(ev) {
-    try {
-      var d = JSON.parse(ev.target.result);
-      for (var k in d) S[k] = d[k];
-      save(); renderAll();
-      toast('✅ Yedek yüklendi','','good');
-    } catch(err) {
-      toast('❌ Hatalı dosya','','bad');
+});
+
+$('soloBtn').addEventListener('click', () => {
+  selectedRole = null;
+  $('roleNextBtn').disabled = true;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  showScreen('roleScreen');
+});
+
+$('multiBtn').addEventListener('click', () => {
+  selectedRole = null;
+  $('roleNextBtn').disabled = true;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  showScreen('roleScreen');
+});
+
+$('roleBackBtn').addEventListener('click', () => showScreen('menuScreen'));
+
+$('roleNextBtn').addEventListener('click', () => {
+  if (!selectedRole) return;
+  game.role = selectedRole;
+  // Eğer solo ise direkt başla
+  if ($('soloBtn').offsetParent !== null || !document.querySelector('.screen:not(.hidden)')?.id?.includes('role')) {
+    // Bu karışık, daha basit yol
+  }
+  // Solo mu multi mi kontrolü için state tutalım
+  if (game._mode === 'multi'){
+    showScreen('roomChoiceScreen');
+  } else {
+    // Solo
+    game.multiplayer = false;
+    startGame();
+  }
+});
+
+// Menü butonlarına mode ekle
+$('soloBtn').addEventListener('click', () => { game._mode = 'solo'; });
+$('multiBtn').addEventListener('click', () => { game._mode = 'multi'; });
+
+$('roomBackBtn').addEventListener('click', () => showScreen('roleScreen'));
+
+$('createRoomBtn').addEventListener('click', async () => {
+  const code = generateCode();
+  $('roomCode').textContent = code;
+  showScreen('hostScreen');
+  game.isHost = true;
+  game.multiplayer = true;
+  try {
+    await createRoom(code);
+  } catch (err) {
+    hint('Oda oluşturulamadı, tekrar dene');
+    showScreen('roomChoiceScreen');
+  }
+});
+
+$('hostCancelBtn').addEventListener('click', () => {
+  if (peer){ peer.destroy(); peer = null; }
+  conn = null;
+  showScreen('roomChoiceScreen');
+});
+
+$('joinRoomBtn').addEventListener('click', () => {
+  showScreen('joinScreen');
+  $('codeInput').value = '';
+  $('joinError').textContent = '';
+  setTimeout(() => $('codeInput').focus(), 200);
+});
+
+$('joinBackBtn').addEventListener('click', () => {
+  if (peer){ peer.destroy(); peer = null; }
+  conn = null;
+  showScreen('roomChoiceScreen');
+});
+
+$('codeInput').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+$('joinConfirmBtn').addEventListener('click', async () => {
+  const code = $('codeInput').value.trim().toUpperCase();
+  if (code.length !== 6){
+    $('joinError').textContent = 'Kod 6 karakter olmalı';
+    return;
+  }
+  $('joinError').textContent = 'Bağlanılıyor...';
+  game.isHost = false;
+  game.multiplayer = true;
+  try {
+    await joinRoom(code);
+    conn.send({ type: 'hello', role: game.role });
+    createRemotePlayerMesh();
+    // Host'tan start bekle
+  } catch (err) {
+    $('joinError').textContent = 'Bağlanılamadı. Kodu kontrol et.';
+    if (peer){ peer.destroy(); peer = null; }
+    conn = null;
+  }
+});
+
+function startMultiplayerGame(){
+  if (game.running) return;
+  startGame();
+}
+
+function backToMenu(){
+  if (peer){ peer.destroy(); peer = null; }
+  conn = null;
+  if (remotePlayerMesh){ scene.remove(remotePlayerMesh); remotePlayerMesh = null; }
+  game.multiplayer = false;
+  game.isHost = false;
+  showScreen('menuScreen');
+}
+
+/* ═══════ OYUN BAŞLAT ═══════ */
+function startGame(){
+  initAudio();
+  if (actx && actx.state === 'suspended') actx.resume();
+
+  game.balance = 1000;
+  game.stock = { patty:0, bun:0, lettuce:0, tomato:0, cheese:0 };
+  game.customers = [];
+  game.customerSpawnTimer = 4;
+  game.deliveries = [];
+  game.counterBurgers = [];
+  game.time = 0;
+  game.ordersDone = 0;
+  game.over = false;
+  game.running = true;
+  nextCustomerId = 1;
+  nextBurgerId = 1;
+
+  for (const obj of [...interactables]){
+    const t = obj.userData.interactType;
+    if (t === 'box' || t === 'customer'){
+      scene.remove(obj);
+      const i = interactables.indexOf(obj);
+      if (i >= 0) interactables.splice(i, 1);
     }
-  };
-  r.readAsText(f);
-};
-$('resetBtn').onclick = function() {
-  if (!confirm('TÜM veriler silinsin mi?')) return;
-  if (!confirm('Emin misin? Geri alınamaz!')) return;
-  localStorage.removeItem(KEY);
-  location.reload();
-};
+  }
+  TABLES.forEach(t => t.occupied = false);
+  grill.state = 'empty'; grill.pattyMesh.visible = false; grill.timer = 0;
+  player.held = null;
+  renderCounterBurgers();
 
-// ==== TABS ====
-var tabs = document.querySelectorAll('.tab');
-for (var ti=0;ti<tabs.length;ti++) {
-  (function(t) {
-    t.onclick = function() {
-      for (var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
-      t.classList.add('active');
-      var name = t.getAttribute('data-t');
-      var panels = document.querySelectorAll('.panel');
-      for (var j=0;j<panels.length;j++) panels[j].classList.remove('active');
-      var p = $('p-' + name);
-      if (p) p.classList.add('active');
-      if (name === 'diyet') renderDiet();
-      else if (name === 'istat') renderStats();
-      else if (name === 'sosyal') { renderBadges(); renderFamily(); renderPoints(); }
-    };
-  })(tabs[ti]);
+  player.pos.set(game.role === 'chef' ? -1.5 : 2, 0, -1.5);
+  player.yaw = Math.PI;
+  player.pitch = -0.05;
+  player.bobPhase = 0; player.bobAmount = 0;
+
+  showScreen(null);
+  ['shopModal','assemblyModal','cashModal'].forEach(id => $(id).classList.add('hidden'));
+  $('toasts').innerHTML = '';
+  $('heldPanel').classList.add('hidden');
+
+  updateBalanceUI();
+  updateStockUI();
+  updateRolePill();
+  updateOrdersPanel();
+  updateHeldUI();
+
+  if (game.multiplayer){
+    hint(`${game.role === 'chef' ? 'Şef' : 'Garson'} olarak oynuyorsun`);
+    if (game.isHost && conn && conn.open){
+      conn.send({ type: 'start' });
+    }
+  } else {
+    hint('Bilgisayardan malzeme sipariş et!');
+  }
 }
 
-// ==== BAŞLAT ====
-function renderAll() {
-  applyTheme();
-  renderIngs();
-  renderHistory();
-  renderShop();
-  updateShopBadge();
-  updateCookBtn();
-  renderBadges();
-  renderFamily();
-  renderPoints();
+function endGame(){
+  game.running = false;
+  game.over = true;
+  ['shopModal','assemblyModal','cashModal'].forEach(id => $(id).classList.add('hidden'));
+  $('prompt').classList.add('hidden');
+  $('interactBtn').classList.add('hidden');
+  $('finalMoney').textContent = game.balance + ' TL';
+  let msg = 'Fena değil!';
+  if (game.balance >= 3500) msg = 'Efsanevi ekip! 🏆';
+  else if (game.balance >= 2200) msg = 'Harika iş! ⭐';
+  else if (game.balance >= 1400) msg = 'İyi iş! 👍';
+  $('finalMsg').textContent = msg + ` (${game.ordersDone} sipariş)`;
+  $('endScreen').classList.remove('hidden');
+  beep(880, 0.15, 'triangle', 0.08);
+  setTimeout(()=>beep(660, 0.15, 'triangle', 0.08), 160);
+  setTimeout(()=>beep(440, 0.3, 'triangle', 0.08), 320);
 }
 
-renderAll();
-setTimeout(function() { getModel().catch(function() {}); }, 2500);
+$('againBtn').addEventListener('click', () => {
+  $('endScreen').classList.add('hidden');
+  if (game.multiplayer && !conn){
+    backToMenu();
+  } else {
+    startGame();
+  }
+});
+$('quitBtn').addEventListener('click', () => { if (game.running) endGame(); });
 
-})();
+/* ═══════ ANA DÖNGÜ ═══════ */
+let lastT = performance.now();
+let clockT = 0;
+
+function animate(now){
+  requestAnimationFrame(animate);
+  const dt = Math.min(0.05, (now - lastT) / 1000);
+  lastT = now;
+  clockT += dt;
+
+  const modalOpen = !!document.querySelector('.modal:not(.hidden)');
+
+  if (game.running && !game.over){
+    game.time += dt;
+
+    if (!modalOpen){
+      updatePlayer(dt);
+      updateCustomers(dt);
+      updateGrill(dt);
+      updatePrompt();
+
+      // Sadece host müşteri spawn etsin
+      if (game.isHost || !game.multiplayer){
+        if (game.customers.length < TABLES.length){
+          game.customerSpawnTimer -= dt;
+          if (game.customerSpawnTimer <= 0){
+            trySpawnCustomer();
+            game.customerSpawnTimer = 4 + Math.random()*3;
+          }
+        }
+        // Kargo
+        for (const d of game.deliveries){
+          if (!d.box && game.time >= d.arriveTime){
+            spawnDeliveryBox(d);
+          }
+        }
+      }
+
+      // State sync (host → guest)
+      if (game.multiplayer && game.isHost && conn && conn.open){
+        if (now - lastSyncTime > SYNC_INTERVAL){
+          conn.send({ type: 'state', state: buildState() });
+          lastSyncTime = now;
+        }
+      }
+
+      // Player pos sync
+      if (game.multiplayer && conn && conn.open){
+        if (now - (game._lastPosSync || 0) > SYNC_INTERVAL){
+          conn.send({ type: 'playerPos', pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw });
+          game._lastPosSync = now;
+        }
+      }
+    }
+
+    if (hintTimer > 0){
+      hintTimer -= dt;
+      if (hintTimer <= 0) $('hint').classList.remove('show');
+    }
+  } else if (!game.running && !game.over){
+    camera.position.set(Math.sin(clockT*0.25)*3.5, 1.9, 2 + Math.cos(clockT*0.2)*2.5);
+    camera.lookAt(0, 1.2, COUNTER_Z);
+  }
+
+  renderer.render(scene, camera);
+}
+
+/* ═══════ RESIZE ═══════ */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+}
+addEventListener('resize', onResize);
+addEventListener('orientationchange', () => setTimeout(onResize, 150));
+
+/* ═══════ BAŞLAT ═══════ */
+updateBalanceUI();
+updateStockUI();
+requestAnimationFrame(animate);
 </script>
 </body>
   </html>
