@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Burger House 3D v6.5 — Telefon & Kurye</title>
+<title>Burger House 3D v6.5 — Multiplayer Fix</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{width:100%;height:100%;overflow:hidden;background:#0f1020;font-family:system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -579,7 +579,7 @@ let hintTimer = 0;
 function hint(text){ $('hint').innerHTML = text; $('hint').classList.add('show'); hintTimer = 2.2; }
 function toast(text, gold){ const d = document.createElement('div'); d.className = 'toast' + (gold ? ' gold' : ''); d.innerHTML = text; $('toasts').appendChild(d); requestAnimationFrame(() => { d.style.transform = 'translateY(-30px)'; d.style.opacity = '0'; }); setTimeout(() => d.remove(), 1200); }
 
-// --- SES SİSTEMİ (GÜNCELLENDİ) ---
+// --- SES SİSTEMİ ---
 let actx = null; function initAudio(){ if (actx) return; try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
 function beep(freq, dur=0.1, type='sine', vol=0.07){
   if (!actx || game.volume <= 0) return;
@@ -964,7 +964,7 @@ function pickupBox(box){
 function feedCat(cat){ if (!player.held) { hint('Elinde yemek yok'); return; } player.held = null; updateHeldUI(); cat.position.y = 0.3; setTimeout(() => cat.position.y = 0, 200); toast('Kedi mutlu!'); }
 function handleStorage(){ if (game.storageUnlocked) { hint('Depo açık'); return; } if (game.balance < STORAGE_COST) { hint('Para yetmiyor'); errorBeep(); return; } game.balance -= STORAGE_COST; game.storageUnlocked = true; updateBalanceUI(); successChime(); storageGroup.remove(storageGroup.userData.lockMesh); sendAction({action:'storage'}); }
 
-// --- TELEFON VE KURYE SİSTEMİ (YENİ) ---
+// --- TELEFON VE KURYE SİSTEMİ ---
 $('courierBtn').onclick = () => { $('courierModal').classList.remove('hidden'); renderCourier(); };
 $('settingsBtn').onclick = () => {
   $('settingsModal').classList.remove('hidden');
@@ -1175,7 +1175,7 @@ function updatePlayer(dt){
   sun.position.set(player.pos.x + 6, 14, player.pos.z + 4); sun.target.position.set(player.pos.x, 0, player.pos.z);
 }
 
-/* MULTIPLAYER LOGIC */
+/* MULTIPLAYER LOGIC (DÜZELTİLDİ) */
 let peer = null, conn = null, remoteMesh = null;
 let lastSync = 0;
 function genCode(){ let c = ''; const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let i=0;i<6;i++) c += chars[Math.floor(Math.random()*chars.length)]; return c; }
@@ -1212,7 +1212,10 @@ function renderLobbyChoice(){
           if (data.type === 'role'){ const p = game.players.find(x => x.id === 'guest'); if (p) p.role = data.role; broadcastLobby(); showLobby(); }
           if (data.type === 'ready'){ const p = game.players.find(x => x.id === 'guest'); if (p) p.ready = true; broadcastLobby(); showLobby(); if (game.players.length === 2 && game.players.every(x => x.ready && x.role)) startMultiplayerGame(); }
           if (data.type === 'action') applyRemoteAction(data.action);
-          if (data.type === 'pos') updateRemotePlayer(data.pos, data.yaw);
+          if (data.type === 'pos') { 
+            if (!remoteMesh) createRemotePlayerMesh();
+            updateRemotePlayer(data.pos, data.yaw); 
+          }
         });
       });
     });
@@ -1231,7 +1234,11 @@ $('joinConfirmBtn').onclick = () => {
       conn.send({ type: 'join' });
       conn.on('data', data => {
         if (data.type === 'lobby'){ game.players = data.players; showLobby(); }
-        if (data.type === 'start'){ game.players = data.players; const me = game.players.find(x => x.id === 'guest'); if (me) game.role = me.role; startGame(); }
+        if (data.type === 'start'){ 
+          game.players = data.players; 
+          const me = game.players.find(x => x.id === 'guest'); if (me) game.role = me.role; 
+          startGame(); 
+        }
         if (data.type === 'state') applyState(data.state);
       });
     });
@@ -1260,6 +1267,15 @@ function showLobby(){
       else { conn.send({ type: 'ready' }); }
     };
   } else $('lobbyReadyBtn').classList.add('hidden');
+}
+
+function createRemotePlayerMesh() {
+  if (remoteMesh) return;
+  const otherPlayer = game.players.find(p => p.id !== (game.isHost ? 'host' : 'guest'));
+  const otherRole = otherPlayer && otherPlayer.role ? otherPlayer.role : 'waiter';
+  remoteMesh = makeHumanoid(0x6ba8ff, 0xffd9b3, otherRole);
+  remoteMesh.position.set(0, 0, -1.5);
+  scene.add(remoteMesh);
 }
 
 function applyRemoteAction(act){
@@ -1301,6 +1317,7 @@ function startGame(){
   
   if (chefNPC) { scene.remove(chefNPC); chefNPC = null; }
   if (waiterNPC) { scene.remove(waiterNPC); waiterNPC = null; }
+  if (remoteMesh) { scene.remove(remoteMesh); remoteMesh = null; }
   for (const p of grill.patties) scene.remove(p.mesh);
   grill.patties = [];
   
@@ -1309,7 +1326,10 @@ function startGame(){
   player.pos.set(game.role === 'waiter' ? 2 : -1.5, 0, -1.5); player.yaw = Math.PI;
   showScreen(null); ['shopModal','cashModal','customModal','staffModal','phoneModal','courierModal','settingsModal'].forEach(id => $(id).classList.add('hidden')); updateBalanceUI(); updateStockUI(); updateRolePill(); updateOrdersPanel(); updateHeldUI();
   
-  if (game.multiplayer && game.role){ hint(`${ROLES[game.role].name} olarak oynuyorsun`); if (game.isHost && conn) remoteMesh = makeHumanoid(0x6ba8ff, 0xffd9b3, game.players.find(x=>x.id!=='host').role); if (remoteMesh) scene.add(remoteMesh); }
+  if (game.multiplayer && game.role){ 
+    hint(`${ROLES[game.role].name} olarak oynuyorsun`); 
+    createRemotePlayerMesh();
+  }
   if (!game.multiplayer) $('staffBtn').classList.remove('hidden'); else $('staffBtn').classList.add('hidden');
 }
 
@@ -1330,7 +1350,10 @@ function animate(now){
         for (const d of game.deliveries) if (!d.box && game.time >= d.arriveTime) spawnDeliveryBox(d);
       }
       if (game.multiplayer && game.isHost && conn && conn.open && now - lastSync > 100){ conn.send({ type: 'state', state: buildState() }); lastSync = now; }
-      if (game.multiplayer && conn && conn.open && now - (game._lastPos || 0) > 100){ conn.send({ type: 'pos', pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw }); game._lastPos = now; }
+      if (game.multiplayer && conn && conn.open && now - (game._lastPos || 0) > 100){ 
+        conn.send({ type: 'pos', pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw }); 
+        game._lastPos = now; 
+      }
     }
     if (hintTimer > 0){ hintTimer -= dt; if (hintTimer <= 0) $('hint').classList.remove('show'); }
   }
