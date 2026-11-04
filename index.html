@@ -3,309 +3,344 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0f1020">
-<title>Hamburger Simülatörü 3D — Multiplayer</title>
+<title>Burger House 3D v6.5 — Telefon & Kurye</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{width:100%;height:100%;overflow:hidden;background:#0f1020;
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    user-select:none;-webkit-user-select:none;touch-action:none}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0f1020;font-family:system-ui,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
   canvas{display:block;position:fixed;inset:0}
   .hidden{display:none!important}
-  #hud{position:fixed;inset:0;pointer-events:none;z-index:10;
-       padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px)}
+  .svg-ico{width:1.2em;height:1.2em;vertical-align:middle;display:inline-block}
+  .svg-ico.xl{width:52px;height:52px}
+  
+  /* HUD */
+  #hud{position:fixed;inset:0;pointer-events:none;z-index:10;padding:calc(env(safe-area-inset-top) + 10px) 12px}
   #topBar{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;flex-wrap:wrap}
-  .pill{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
-        background:rgba(12,14,28,.65);backdrop-filter:blur(10px);
-        border:1px solid rgba(255,255,255,.15);color:#fff;font-size:14px}
+  .pill{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:rgba(12,14,28,.68);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:14px}
   .pill b{font-size:17px;font-weight:800;color:#7dffb0}
-  #rolePill{padding:8px 14px;border-radius:999px;color:#fff;font-size:13px;font-weight:800;
-    border:1px solid rgba(255,255,255,.2);background:rgba(40,60,120,.7)}
-  #rolePill.chef{background:rgba(180,60,40,.75);border-color:rgba(255,180,120,.5)}
-  #rolePill.waiter{background:rgba(40,120,180,.75);border-color:rgba(120,200,255,.5)}
-  #quitBtn{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,120,120,.4);
-    background:rgba(120,20,30,.6);color:#fff;font-size:12px;font-weight:700;cursor:pointer;pointer-events:auto}
-  #stockBar{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 55px);
-    display:flex;gap:4px;background:rgba(12,14,28,.72);backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:6px 8px}
-  .stock-item{display:flex;flex-direction:column;align-items:center;padding:3px 5px;
-    border-radius:8px;background:rgba(255,255,255,.06);min-width:32px}
-  .stock-item span{font-size:15px}
+  #rolePill{padding:8px 14px;border-radius:999px;color:#fff;font-size:13px;font-weight:800;border:1px solid rgba(255,255,255,.2);background:rgba(40,60,120,.7);display:flex;align-items:center;gap:6px}
+  #rolePill.chef{background:rgba(180,60,40,.75)}
+  #rolePill.waiter{background:rgba(40,120,180,.75)}
+  #rolePill.courier{background:rgba(140,40,180,.75)}
+  #quitBtn{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,120,120,.4);background:rgba(120,20,30,.6);color:#fff;font-size:12px;font-weight:700;cursor:pointer;pointer-events:auto}
+  #stockBar{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 55px);display:flex;gap:4px;background:rgba(12,14,28,.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:6px 8px;flex-wrap:wrap;max-width:220px}
+  .stock-item{display:flex;flex-direction:column;align-items:center;padding:3px 5px;border-radius:8px;background:rgba(255,255,255,.06);min-width:34px}
+  .stock-item svg{width:20px;height:20px}
   .stock-item b{font-size:11px;color:#fff;font-weight:800}
   .stock-item.low b{color:#ff9f4d}
   .stock-item.empty b{color:#ff5a5f}
-  #ordersPanel{position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 55px);
-    width:min(170px,42vw);background:rgba(12,14,28,.7);backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:8px;
-    max-height:50vh;overflow-y:auto}
-  #ordersPanel .ptitle{font-size:10px;letter-spacing:2px;color:#9fb0d0;
-    font-weight:800;text-align:center;margin-bottom:6px}
-  .order-row{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:8px;
-    background:rgba(255,255,255,.08);margin-bottom:4px;font-size:12px;color:#fff}
-  .order-row .em{font-size:15px}
-  .order-row .nm{flex:1;font-weight:700}
+  
+  /* Sol Menü */
+  #sideMenu{position:fixed;left:12px;top:calc(env(safe-area-inset-top) + 200px);display:flex;flex-direction:column;gap:8px;pointer-events:auto;z-index:12}
+  .side-btn{padding:12px 16px;border-radius:12px;background:linear-gradient(180deg,#4aa8ff,#1a5a9a);color:#fff;border:2px solid rgba(255,255,255,.3);font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.4);transition:transform .1s}
+  .side-btn:active{transform:scale(.95)}
+  .side-btn.courier{background:linear-gradient(180deg,#b07cff,#6a3a9a)}
+  .side-btn.settings{background:linear-gradient(180deg,#888,#444)}
+  .side-btn.upgrade{background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400}
+
+  #ordersPanel{position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 55px);width:min(170px,42vw);background:rgba(12,14,28,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:8px;max-height:50vh;overflow-y:auto}
+  #ordersPanel .ptitle{font-size:10px;letter-spacing:2px;color:#9fb0d0;font-weight:800;text-align:center;margin-bottom:6px}
+  .order-row{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.08);margin-bottom:4px;font-size:11px;color:#fff}
   .order-row.waiting{background:rgba(255,200,80,.2)}
   .order-row.eating{background:rgba(80,200,120,.2)}
   .order-row.paying{background:rgba(255,100,100,.25)}
-  #heldPanel{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 100px);
-    display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:14px;
-    background:rgba(12,14,28,.85);border:2px solid rgba(255,215,100,.6);
-    backdrop-filter:blur(10px);z-index:13}
-  .held-emoji{font-size:28px}
-  .held-name{font-size:14px;font-weight:800;color:#ffd84d}
-  #crosshair{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
-    border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 8px rgba(0,0,0,.6)}
-  #crosshair.active{background:#7dffb0;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
-    box-shadow:0 0 14px #7dffb0}
-  #prompt{position:absolute;left:50%;top:56%;transform:translateX(-50%);
-    padding:6px 16px;border-radius:10px;background:rgba(12,14,28,.85);
-    border:1px solid rgba(125,255,176,.5);color:#7dffb0;font-size:13px;font-weight:800;
-    letter-spacing:1px;white-space:nowrap;backdrop-filter:blur(6px)}
-  #hint{position:absolute;left:50%;transform:translateX(-50%);
-    bottom:calc(env(safe-area-inset-bottom) + 180px);
-    color:#fff;font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;
-    background:rgba(12,14,28,.75);backdrop-filter:blur(8px);
-    border:1px solid rgba(255,255,255,.12);opacity:0;transition:opacity .25s;white-space:nowrap}
+  .order-row.angry{background:rgba(200,40,40,.35)}
+  #heldPanel{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 100px);display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:14px;background:rgba(12,14,28,.85);border:2px solid rgba(255,215,100,.6);backdrop-filter:blur(10px);z-index:13}
+  .held-name{font-size:13px;font-weight:800;color:#ffd84d}
+  #crosshair{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 8px rgba(0,0,0,.6)}
+  #crosshair.active{background:#7dffb0;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;box-shadow:0 0 14px #7dffb0}
+  #prompt{position:absolute;left:50%;top:56%;transform:translateX(-50%);padding:6px 16px;border-radius:10px;background:rgba(12,14,28,.85);border:1px solid rgba(125,255,176,.5);color:#7dffb0;font-size:13px;font-weight:800;white-space:nowrap;backdrop-filter:blur(6px);display:flex;align-items:center;gap:6px}
+  #hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 180px);color:#fff;font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;background:rgba(12,14,28,.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);opacity:0;transition:opacity .25s;white-space:nowrap;z-index:20}
   #hint.show{opacity:1}
-  #toasts{position:absolute;left:50%;top:30%;transform:translateX(-50%);
-    display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}
-  .toast{font-size:18px;font-weight:800;color:#7dffb0;
-    text-shadow:0 2px 10px rgba(0,0,0,.8);transition:all .5s ease;white-space:nowrap}
+  #toasts{position:absolute;left:50%;top:30%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}
+  .toast{font-size:16px;font-weight:800;color:#7dffb0;text-shadow:0 2px 10px rgba(0,0,0,.8);transition:all .5s ease;white-space:nowrap}
   .toast.gold{color:#ffd84d}
-  #interactBtn{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);
-    width:72px;height:72px;border-radius:50%;z-index:12;
-    background:radial-gradient(circle at 35% 30%,#8fe6ff,#4aa8ff);
-    display:flex;align-items:center;justify-content:center;font-size:30px;
-    box-shadow:0 6px 24px rgba(74,168,255,.55),inset 0 -4px 0 rgba(0,0,0,.2);
-    border:2px solid rgba(255,255,255,.4);cursor:pointer;transition:transform .1s}
+  
+  /* Telefon Çalıyor */
+  #phoneRing{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:40;display:flex;gap:20px;background:rgba(12,14,28,.95);padding:16px 24px;border-radius:20px;border:2px solid #ff5a5f;box-shadow:0 10px 40px rgba(255,90,95,.4);animation:ring 0.5s infinite alternate}
+  @keyframes ring { from { transform: translateX(-50%) rotate(-2deg); } to { transform: translateX(-50%) rotate(2deg); } }
+  .phone-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+  .phone-btn.accept{background:#5ad98a}
+  .phone-btn.reject{background:#ff5a5f}
+  
+  /* Interact Button */
+  #interactBtn{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);width:72px;height:72px;border-radius:50%;z-index:12;background:radial-gradient(circle at 35% 30%,#8fe6ff,#4aa8ff);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(74,168,255,.55),inset 0 -4px 0 rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.4);cursor:pointer;transition:transform .1s}
   #interactBtn:active{transform:scale(.92)}
   #interactBtn.pulse{animation:ipulse .8s infinite alternate}
   @keyframes ipulse{to{box-shadow:0 6px 30px rgba(74,255,170,.8),inset 0 -4px 0 rgba(0,0,0,.2)}}
-  #joyBase{position:fixed;width:130px;height:130px;border-radius:50%;
-    border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);
-    transform:translate(-50%,-50%);pointer-events:none;z-index:11;
-    backdrop-filter:blur(4px);opacity:0;transition:opacity .12s}
+  #interactBtn svg{width:38px;height:38px}
+  #joyBase{position:fixed;width:130px;height:130px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);transform:translate(-50%,-50%);pointer-events:none;z-index:11;backdrop-filter:blur(4px);opacity:0;transition:opacity .12s}
   #joyBase.on{opacity:1}
-  #joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;
-    transform:translate(-50%,-50%);
-    background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(150,180,255,.8));
-    box-shadow:0 4px 16px rgba(0,0,0,.4)}
-  .modal{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;
-    padding:16px;background:rgba(5,8,18,.7);backdrop-filter:blur(8px);pointer-events:auto}
-  .modal-content{width:100%;max-width:520px;max-height:85vh;overflow-y:auto;
-    background:linear-gradient(180deg,#1a2240,#0e1428);
-    border:1px solid rgba(125,170,255,.25);border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,.6)}
-  .modal-header{display:flex;align-items:center;justify-content:space-between;
-    padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;
-    background:linear-gradient(180deg,#1a2240,#161e3a);z-index:1;border-radius:20px 20px 0 0}
-  .modal-header h2{font-size:16px;color:#fff;font-weight:800;letter-spacing:.5px}
-  .close-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
-    background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-weight:700}
-  .close-btn:active{background:rgba(255,255,255,.25)}
-  #shopBody,#assemblyBody{padding:14px 16px 20px}
-  .shop-balance{text-align:center;font-size:14px;color:#a9b6d6;margin-bottom:14px}
-  .shop-balance b{color:#7dffb0;font-size:20px;font-weight:900}
-  .shop-grid{display:flex;flex-direction:column;gap:8px}
-  .shop-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
-    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px}
-  .si-emoji{font-size:26px;width:36px;text-align:center}
+  #joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),rgba(150,180,255,.8));box-shadow:0 4px 16px rgba(0,0,0,.4)}
+  
+  /* Modallar */
+  .modal{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,18,.75);backdrop-filter:blur(8px);pointer-events:auto}
+  .modal-content{width:100%;max-width:520px;max-height:85vh;overflow-y:auto;background:linear-gradient(180deg,#1a2240,#0e1428);border:1px solid rgba(125,170,255,.25);border-radius:20px}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;background:linear-gradient(180deg,#1a2240,#161e3a);z-index:1;border-radius:20px 20px 0 0}
+  .modal-header h2{font-size:15px;color:#fff;font-weight:800;display:flex;align-items:center;gap:8px}
+  .close-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;font-size:15px;font-weight:700}
+  #shopBody,#customBody,#cashBody,#staffBody,#phoneBody,#courierBody,#settingsBody{padding:12px 14px 18px}
+  
+  .shop-balance{text-align:center;font-size:13px;color:#a9b6d6;margin-bottom:12px}
+  .shop-balance b{color:#7dffb0;font-size:18px;font-weight:900}
+  .shop-grid{display:flex;flex-direction:column;gap:6px}
+  .shop-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px}
+  .si-ico{width:32px;height:32px;flex-shrink:0}
   .si-info{flex:1;min-width:0}
-  .si-name{font-size:14px;font-weight:700;color:#fff}
-  .si-stock{font-size:11px;color:#8fa2c8;margin-top:2px}
-  .buy-btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;
-    background:linear-gradient(180deg,#5ad98a,#33a85b);color:#08200f;
-    font-size:12px;font-weight:800;white-space:nowrap;line-height:1.2;flex-shrink:0}
-  .buy-btn:active{transform:scale(.95)}
+  .si-name{font-size:13px;font-weight:700;color:#fff}
+  .si-stock{font-size:10px;color:#8fa2c8}
+  .buy-btn{padding:8px 10px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(180deg,#5ad98a,#33a85b);color:#08200f;font-size:11px;font-weight:800;flex-shrink:0}
   .buy-btn:disabled{background:#333a4d;color:#66708a}
-  .buy-btn small{display:block;font-size:10px;opacity:.85;font-weight:700}
-  .burger-option{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-    border-radius:14px;padding:12px;margin-bottom:10px}
-  .bo-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-  .bo-emoji{font-size:32px}
-  .bo-name{font-size:15px;font-weight:800;color:#fff}
-  .bo-price{font-size:13px;color:#7dffb0;font-weight:700}
-  .bo-needs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-  .bo-needs span{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
-  .bo-needs .ok{background:rgba(60,200,110,.25);color:#a8ffce}
-  .bo-needs .missing{background:rgba(255,90,95,.25);color:#ff9da3}
-  .bo-btn{width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;
-    font-size:13px;font-weight:800;background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400}
-  .bo-btn:disabled{background:#333a4d;color:#66708a;cursor:default}
-  .cash-content{max-width:400px}
-  #cashBody{padding:16px 18px 20px}
-  .cash-display{background:rgba(0,0,0,.3);border-radius:14px;padding:14px;margin-bottom:14px;
-    border:1px solid rgba(255,255,255,.08)}
-  .cash-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;
-    font-size:13px;color:#a9b6d6}
-  .cash-row b{font-size:16px;color:#fff;font-weight:800}
-  .cash-row.highlight b{color:#ffd84d;font-size:22px}
+  .buy-btn small{display:block;font-size:9px;opacity:.85}
+  
+  /* Telefon Görüşmesi */
+  .phone-chat{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .chat-bubble{padding:10px 14px;border-radius:14px;font-size:13px;max-width:85%;line-height:1.4}
+  .chat-bubble.cust{background:rgba(255,255,255,.1);color:#fff;align-self:flex-start;border-bottom-left-radius:2px}
+  .chat-bubble.you{background:#4aa8ff;color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
+  .phone-actions{display:flex;flex-direction:column;gap:8px}
+  
+  /* Kurye */
+  .courier-item{background:rgba(255,255,255,.05);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,.1)}
+  .courier-item.pending{border-color:#ffd84d}
+  .courier-item.delivering{border-color:#5ad98a}
+  .address-input{width:100%;padding:12px;border-radius:10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;margin-top:8px;margin-bottom:8px;outline:none}
+  .address-input:focus{border-color:#7dffb0}
+  
+  /* PREP UI (Sadece Menü) */
+  #prepUI{position:fixed;inset:0;z-index:20;pointer-events:none;background:rgba(5,8,18,.6);backdrop-filter:blur(4px)}
+  #prepUI > div{pointer-events:auto}
+  #recipePanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,400px);max-height:80vh;overflow-y:auto;background:rgba(12,14,28,.98);border:2px solid rgba(255,140,80,.6);border-radius:16px;padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.8)}
+  #recipePanel .rp-title{font-size:12px;letter-spacing:2px;color:#ffb060;font-weight:900;margin-bottom:10px;text-align:center}
+  .recipe-card{background:rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:2px solid rgba(255,255,255,.1);transition:all .15s;cursor:pointer}
+  .recipe-card:hover{background:rgba(255,180,80,.15);border-color:rgba(255,180,80,.5)}
+  .recipe-card.disabled{opacity:.4;cursor:not-allowed}
+  .recipe-card.disabled:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+  .rc-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:2px}
+  .rc-price{font-size:12px;color:#7dffb0;font-weight:700;margin-bottom:6px}
+  .rc-layers{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px}
+  .rc-layers svg{width:20px;height:20px}
+  .rc-missing{font-size:10px;color:#ff5a5f;font-weight:700}
+  .rc-ready{font-size:10px;color:#7dffb0;font-weight:700}
+  
+  /* Kasa */
+  .cash-display{background:rgba(0,0,0,.3);border-radius:12px;padding:12px;margin-bottom:12px}
+  .cash-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;color:#a9b6d6}
+  .cash-row b{font-size:15px;color:#fff;font-weight:800}
+  .cash-row.highlight b{color:#ffd84d;font-size:20px}
   .cash-row.given b{color:#7dffb0}
-  .cash-row.over b{color:#ff5a5f}
-  .denom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-  .denom-btn{padding:14px 4px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
-    background:linear-gradient(180deg,#2a3a5c,#1a2440);color:#fff;font-size:15px;font-weight:800;cursor:pointer}
-  .denom-btn:active{transform:scale(.94)}
-  .cash-actions{display:flex;gap:10px}
-  .cash-actions button{flex:1;padding:14px;border-radius:12px;border:none;cursor:pointer;
-    font-size:15px;font-weight:800}
+  .cash-drawer{height:50px;background:linear-gradient(180deg,#8b4a2a,#5a2a1a);border-radius:8px;margin:10px 0;position:relative;overflow:hidden;border:2px solid rgba(0,0,0,.3)}
+  .cash-drawer.open .cash-drawer-inner{transform:translateY(0);opacity:1}
+  .cash-drawer-inner{position:absolute;inset:0;padding:8px;display:flex;justify-content:space-around;align-items:center;transform:translateY(100%);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);background:linear-gradient(180deg,#a86a3a,#8b4a2a)}
+  .cash-bill{width:26px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#1a1400}
+  .b1{background:#a8e6a8}.b5{background:#a8c8f0}.b10{background:#ffd84d}.b20{background:#ff9f4d}.b50{background:#ff6b6b}
+  .cash-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:7px;background:linear-gradient(180deg,#d4d4d4,#8a8a8a);border-radius:4px}
+  .denom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+  .denom-btn{padding:12px 4px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:linear-gradient(180deg,#2a3a5c,#1a2440);color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+  .cash-actions{display:flex;gap:8px}
+  .cash-actions button{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:800}
   #cashClear{background:rgba(255,255,255,.12);color:#fff}
   #cashConfirm{background:linear-gradient(180deg,#5ad98a,#33a85b);color:#08200f}
   #cashConfirm:disabled{background:#333a4d;color:#66708a}
-  .screen{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;
-    background:radial-gradient(circle at 50% 35%,rgba(60,80,160,.5),rgba(8,10,22,.97) 70%);
-    backdrop-filter:blur(6px);color:#fff;overflow-y:auto}
-  .screen h1{font-size:clamp(26px,7vw,38px);font-weight:900;letter-spacing:-1px;
-    background:linear-gradient(180deg,#fff,#8fb4ff);-webkit-background-clip:text;
-    background-clip:text;color:transparent}
-  .screen p{font-size:14px;line-height:1.7;color:#a9b6d6;max-width:400px}
-  .screen p b{color:#7dffb0}
-  .btn{padding:14px 34px;border-radius:999px;border:none;cursor:pointer;
-    font-size:16px;font-weight:800;color:#08101f;
-    background:linear-gradient(180deg,#8fe6ff,#4aa8ff);
-    box-shadow:0 8px 30px rgba(74,168,255,.5);transition:transform .12s;margin:4px}
+  
+  .custom-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .custom-row label{flex-shrink:0;font-size:12px;color:#a9b6d6;width:90px;font-weight:700}
+  .custom-input{flex:1;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:700;outline:none}
+  
+  /* Ayarlar Slider */
+  .slider-container {width:100%; margin-top: 10px;}
+  input[type=range] {-webkit-appearance: none; width: 100%; background: transparent;}
+  input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #7dffb0; cursor: pointer; margin-top: -8px;}
+  input[type=range]::-webkit-slider-runnable-track {width: 100%; height: 8px; cursor: pointer; background: rgba(255,255,255,.2); border-radius: 4px;}
+  
+  /* Ekranlar */
+  .screen{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,rgba(60,80,160,.5),rgba(8,10,22,.97) 70%);color:#fff;overflow-y:auto}
+  .screen h1{font-size:clamp(24px,7vw,36px);font-weight:900;background:linear-gradient(180deg,#fff,#8fb4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{padding:13px 30px;border-radius:999px;border:none;cursor:pointer;font-size:15px;font-weight:800;color:#08101f;background:linear-gradient(180deg,#8fe6ff,#4aa8ff);box-shadow:0 8px 30px rgba(74,168,255,.5);margin:4px;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%}
   .btn:active{transform:scale(.95)}
-  .btn.secondary{background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400;
-    box-shadow:0 8px 30px rgba(212,168,0,.5)}
+  .btn.secondary{background:linear-gradient(180deg,#ffd84d,#d4a800);color:#1a1400}
   .btn.ghost{background:rgba(255,255,255,.1);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.2)}
-  .btn:disabled{opacity:.4;cursor:default}
-  .code-box{font-size:36px;font-weight:900;letter-spacing:8px;padding:20px 28px;
-    border-radius:16px;background:rgba(125,255,176,.15);color:#7dffb0;
-    border:3px solid #7dffb0;font-family:monospace;margin:14px 0;
-    text-shadow:0 0 20px rgba(125,255,176,.6)}
-  .code-input{font-size:32px;font-weight:900;letter-spacing:8px;padding:14px 20px;
-    border-radius:14px;background:rgba(0,0,0,.4);color:#fff;
-    border:2px solid rgba(125,170,255,.5);text-align:center;width:min(280px,80vw);
-    font-family:monospace;text-transform:uppercase;outline:none}
-  .code-input:focus{border-color:#7dffb0}
-  .role-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:10px 0}
-  .role-card{padding:20px 24px;border-radius:16px;cursor:pointer;
-    background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);
-    transition:all .2s;min-width:130px}
-  .role-card:hover{background:rgba(255,255,255,.1)}
-  .role-card.selected{border-color:#7dffb0;background:rgba(125,255,176,.15);
-    box-shadow:0 0 20px rgba(125,255,176,.4)}
-  .role-card .rc-emoji{font-size:44px;display:block;margin-bottom:6px}
-  .role-card .rc-name{font-size:16px;font-weight:800;color:#fff}
-  .waiting-dots{font-size:40px;letter-spacing:8px;animation:blink 1.2s infinite}
+  .code-box{font-size:34px;font-weight:900;letter-spacing:8px;padding:18px 24px;border-radius:14px;background:rgba(125,255,176,.15);color:#7dffb0;border:3px solid #7dffb0;font-family:monospace;margin:12px 0}
+  .code-input{font-size:28px;font-weight:900;letter-spacing:6px;padding:12px 18px;border-radius:12px;background:rgba(0,0,0,.4);color:#fff;border:2px solid rgba(125,170,255,.5);text-align:center;width:min(260px,80vw);font-family:monospace;text-transform:uppercase;outline:none}
+  .role-grid{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .role-card{padding:16px 20px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);min-width:120px;position:relative}
+  .role-card.selected{border-color:#7dffb0;background:rgba(125,255,176,.15)}
+  .role-card.disabled{opacity:.35;cursor:default}
+  .role-card svg{width:52px;height:52px;display:block;margin:0 auto 6px}
+  .role-card .rc-name{font-size:14px;font-weight:800;color:#fff}
+  .lobby-player{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);margin-bottom:6px;width:min(320px,90vw);text-align:left}
+  .lobby-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#8fe6ff,#4aa8ff);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:900;color:#08101f}
+  .lobby-name{flex:1;font-size:13px;font-weight:700;color:#fff}
+  .lobby-role{font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(125,255,176,.2);color:#7dffb0}
+  .lobby-role.chef{background:rgba(180,60,40,.35);color:#ffb8a8}
+  .lobby-role.waiter{background:rgba(40,120,180,.35);color:#a8d8ff}
+  .lobby-role.courier{background:rgba(140,40,180,.35);color:#e0a8ff}
+  .lobby-role.empty{background:rgba(255,255,255,.08);color:#66708a}
+  .waiting-dots{font-size:32px;letter-spacing:6px;animation:blink 1.2s infinite}
   @keyframes blink{50%{opacity:.3}}
-  .keys{font-size:12px;color:#7d8aa8;margin-top:8px;line-height:1.8}
-  kbd{background:rgba(255,255,255,.12);padding:2px 7px;border-radius:5px;
-      font-family:inherit;font-size:11px;border:1px solid rgba(255,255,255,.15)}
 </style>
 </head>
 <body>
 
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <symbol id="ico-patty" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="13" ry="5" fill="#6b3a1a"/><ellipse cx="16" cy="17" rx="13" ry="5" fill="#a85a3a"/></symbol>
+  <symbol id="ico-burger" viewBox="0 0 32 32"><path d="M4 12 Q4 6 16 6 Q28 6 28 12 Z" fill="#e8b866"/><rect x="3" y="12" width="26" height="2" fill="#7ed957"/><rect x="4" y="14" width="24" height="3" fill="#a85a3a"/><rect x="3" y="17" width="26" height="2" fill="#ffd84d"/><path d="M4 19 Q4 24 16 24 Q28 24 28 19 Z" fill="#e8b866"/></symbol>
+  <symbol id="ico-bun" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="13" ry="5" fill="#d4a043"/><path d="M3 15 Q3 8 16 8 Q29 8 29 15 Z" fill="#e8b866"/></symbol>
+  <symbol id="ico-lettuce" viewBox="0 0 32 32"><path d="M4 20 Q3 12 8 10 Q9 6 14 6 Q15 3 18 4 Q22 3 23 8 Q28 9 28 15 Q30 18 28 22 L4 22 Z" fill="#7ed957"/></symbol>
+  <symbol id="ico-tomato" viewBox="0 0 32 32"><circle cx="16" cy="19" r="11" fill="#e63946"/><path d="M12 8 Q16 5 16 8 Q16 5 20 8 Q18 10 16 10 Q14 10 12 8 Z" fill="#5a8f3a"/></symbol>
+  <symbol id="ico-cheese" viewBox="0 0 32 32"><path d="M4 22 L16 8 L28 22 Z" fill="#ffd84d"/><path d="M4 22 L16 22 L16 8 Z" fill="#e8b033"/><circle cx="12" cy="18" r="2" fill="#c9911a"/></symbol>
+  <symbol id="ico-pickle" viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="6" ry="12" fill="#5aaf3a"/><ellipse cx="16" cy="16" rx="4" ry="10" fill="#7dcf5a"/></symbol>
+  <symbol id="ico-sauce" viewBox="0 0 32 32"><rect x="8" y="8" width="16" height="20" rx="3" fill="#e8b033"/><rect x="11" y="4" width="10" height="6" rx="1" fill="#c9911a"/></symbol>
+  <symbol id="ico-onion" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#f0e0d0"/><circle cx="16" cy="16" r="8" fill="none" stroke="#c9b8a8" stroke-width="1"/><circle cx="16" cy="16" r="5" fill="none" stroke="#c9b8a8" stroke-width="1"/></symbol>
+  <symbol id="ico-fries" viewBox="0 0 32 32"><rect x="8" y="14" width="16" height="14" rx="2" fill="#c92a3a"/><rect x="9" y="8" width="3" height="10" fill="#ffd84d"/><rect x="13" y="5" width="3" height="13" fill="#ffd84d"/><rect x="17" y="7" width="3" height="11" fill="#ffd84d"/><rect x="21" y="9" width="3" height="9" fill="#ffd84d"/></symbol>
+  <symbol id="ico-onionrings" viewBox="0 0 32 32"><circle cx="10" cy="18" r="6" fill="none" stroke="#e8b033" stroke-width="3"/><circle cx="22" cy="18" r="6" fill="none" stroke="#e8b033" stroke-width="3"/><circle cx="16" cy="10" r="5" fill="none" stroke="#e8b033" stroke-width="3"/></symbol>
+  <symbol id="ico-cola" viewBox="0 0 32 32"><rect x="10" y="8" width="12" height="20" rx="2" fill="#8b2a1a"/><rect x="11" y="5" width="10" height="4" fill="#5a1a0a"/><rect x="11" y="12" width="10" height="5" fill="#fff"/></symbol>
+  <symbol id="ico-tray" viewBox="0 0 32 32"><ellipse cx="16" cy="18" rx="14" ry="4" fill="#cfd6e8"/><ellipse cx="16" cy="17" rx="12" ry="3" fill="#e8eef8"/><ellipse cx="16" cy="16" rx="10" ry="2" fill="#fff"/></symbol>
+  <symbol id="ico-package" viewBox="0 0 32 32"><rect x="4" y="10" width="24" height="16" fill="#c99a5a"/><path d="M4 10 L16 4 L28 10 L16 16 Z" fill="#e0b87a"/><path d="M16 16 L16 26" stroke="#a87a3a" stroke-width="1.5"/></symbol>
+  <symbol id="ico-box" viewBox="0 0 32 32"><path d="M4 10 L16 4 L28 10 L28 24 L16 30 L4 24 Z" fill="#c99a5a"/><path d="M4 10 L16 16 L28 10" stroke="#a87a3a" stroke-width="1.5" fill="none"/></symbol>
+  <symbol id="ico-cat" viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="10" ry="8" fill="#ff9f4d"/><path d="M8 14 L6 8 L11 12 Z" fill="#ff9f4d"/><path d="M24 14 L26 8 L21 12 Z" fill="#ff9f4d"/><circle cx="13" cy="19" r="1.5" fill="#1b1b1b"/><circle cx="19" cy="19" r="1.5" fill="#1b1b1b"/></symbol>
+  <symbol id="ico-chef" viewBox="0 0 32 32"><path d="M6 26 L6 16 Q6 8 16 8 Q26 8 26 16 L26 26 Z" fill="#fff"/><path d="M6 26 L26 26 L26 30 L6 30 Z" fill="#e8e8e8"/><circle cx="10" cy="14" r="4" fill="#fff"/><circle cx="16" cy="11" r="5" fill="#fff"/><circle cx="22" cy="14" r="4" fill="#fff"/></symbol>
+  <symbol id="ico-waiter" viewBox="0 0 32 32"><circle cx="16" cy="9" r="5" fill="#ffd9b3"/><path d="M8 14 Q8 30 16 30 Q24 30 24 14 Z" fill="#2a2a2a"/></symbol>
+  <symbol id="ico-courier" viewBox="0 0 32 32"><circle cx="16" cy="8" r="4" fill="#ffd9b3"/><path d="M8 14 L24 14 L24 24 Q24 28 22 28 L10 28 Q8 28 8 24 Z" fill="#8b2a1a"/><circle cx="8" cy="26" r="3" fill="#2a2a2a"/><circle cx="24" cy="26" r="3" fill="#2a2a2a"/></symbol>
+  <symbol id="ico-money" viewBox="0 0 32 32"><rect x="3" y="10" width="26" height="14" rx="2" fill="#5ad98a"/><circle cx="16" cy="17" r="5" fill="#33a85b"/></symbol>
+  <symbol id="ico-pc" viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="18" rx="2" fill="#4aa8ff"/><rect x="5" y="7" width="22" height="14" fill="#0a1428"/><rect x="13" y="23" width="6" height="4" fill="#2a3a5c"/><rect x="8" y="27" width="16" height="2" rx="1" fill="#2a3a5c"/></symbol>
+  <symbol id="ico-grill" viewBox="0 0 32 32"><rect x="4" y="10" width="24" height="12" rx="2" fill="#2a2a2a"/><line x1="6" y1="12" x2="6" y2="20" stroke="#666" stroke-width="1"/><line x1="12" y1="12" x2="12" y2="20" stroke="#666" stroke-width="1"/><line x1="18" y1="12" x2="18" y2="20" stroke="#666" stroke-width="1"/><line x1="24" y1="12" x2="24" y2="20" stroke="#666" stroke-width="1"/></symbol>
+  <symbol id="ico-assembly" viewBox="0 0 32 32"><rect x="3" y="22" width="26" height="4" rx="1" fill="#d9b88a"/><ellipse cx="16" cy="22" rx="10" ry="2" fill="#a88a5a"/><path d="M10 22 Q10 16 16 16 Q22 16 22 22 Z" fill="#e8b866"/></symbol>
+  <symbol id="ico-register" viewBox="0 0 32 32"><rect x="3" y="12" width="26" height="14" rx="2" fill="#2a2f3d"/><rect x="5" y="14" width="22" height="6" fill="#4aa8ff"/><rect x="8" y="22" width="16" height="2" fill="#7dffb0"/></symbol>
+  <symbol id="ico-settings" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#4aa8ff"/><circle cx="16" cy="16" r="5" fill="#fff"/><circle cx="16" cy="16" r="2" fill="#4aa8ff"/></symbol>
+  <symbol id="ico-hand" viewBox="0 0 32 32"><path d="M10 14 L10 8 Q10 6 12 6 Q14 6 14 8 L14 14 L14 6 Q14 4 16 4 Q18 4 18 6 L18 12 L18 8 Q18 6 20 6 Q22 6 22 8 L22 14 L22 12 Q22 10 24 10 Q26 10 26 12 L26 22 Q26 28 20 28 L16 28 Q12 28 10 25 L6 19 Q5 17 6.5 16 Q8 15 9 16 L10 18 Z" fill="#8fe6ff" stroke="#4aa8ff" stroke-width="1.5"/></symbol>
+  <symbol id="ico-storage" viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="22" rx="2" fill="#8b6a4a"/><rect x="6" y="8" width="20" height="8" fill="#a88a6a"/><rect x="6" y="18" width="20" height="8" fill="#a88a6a"/></symbol>
+  <symbol id="ico-lock" viewBox="0 0 32 32"><rect x="8" y="14" width="16" height="12" rx="2" fill="#ffd84d"/><path d="M11 14 L11 10 Q11 6 16 6 Q21 6 21 10 L21 14" fill="none" stroke="#ffd84d" stroke-width="2.5"/></symbol>
+  <symbol id="ico-phone" viewBox="0 0 32 32"><rect x="8" y="4" width="16" height="24" rx="3" fill="#2a2f3d"/><rect x="10" y="6" width="12" height="18" fill="#4aa8ff"/><circle cx="16" cy="26" r="1.5" fill="#fff"/></symbol>
+</defs>
+</svg>
+
 <div id="hud">
   <div id="topBar">
-    <div class="pill">💰 <b id="balance">1000</b> TL</div>
-    <div id="rolePill" class="chef">👨‍🍳 ŞEF</div>
-    <button id="quitBtn">🏁 Bitir</button>
+    <div class="pill"><svg class="svg-ico"><use href="#ico-money"/></svg><b id="balance">1000</b></div>
+    <div id="rolePill">TEK OYUNCU</div>
+    <button id="quitBtn">Bitir</button>
   </div>
-  <div id="stockBar">
-    <div class="stock-item" id="st-patty"><span>🥩</span><b>0</b></div>
-    <div class="stock-item" id="st-bun"><span>🍞</span><b>0</b></div>
-    <div class="stock-item" id="st-lettuce"><span>🥬</span><b>0</b></div>
-    <div class="stock-item" id="st-tomato"><span>🍅</span><b>0</b></div>
-    <div class="stock-item" id="st-cheese"><span>🧀</span><b>0</b></div>
+  <div id="stockBar"></div>
+  
+  <div id="sideMenu">
+    <button id="staffBtn" class="side-btn upgrade"><svg class="svg-ico"><use href="#ico-chef"/></svg> PERSONEL AL</button>
+    <button id="courierBtn" class="side-btn courier"><svg class="svg-ico"><use href="#ico-courier"/></svg> KURYE</button>
+    <button id="settingsBtn" class="side-btn settings"><svg class="svg-ico"><use href="#ico-settings"/></svg> AYARLAR</button>
   </div>
-  <div id="ordersPanel">
-    <div class="ptitle">SİPARİŞLER</div>
-    <div id="ordersList"></div>
-  </div>
+
+  <div id="ordersPanel"><div class="ptitle">SİPARİŞLER</div><div id="ordersList"></div></div>
   <div id="crosshair"></div>
   <div id="prompt" class="hidden"></div>
   <div id="hint"></div>
   <div id="toasts"></div>
 </div>
 
+<!-- Telefon Çalıyor UI -->
+<div id="phoneRing" class="hidden">
+  <button class="phone-btn reject" id="phoneRejectBtn">✕</button>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff">
+    <svg class="svg-ico xl" style="color:#ff5a5f;animation:ring 0.5s infinite"><use href="#ico-phone"/></svg>
+    <span style="font-weight:800;font-size:14px;margin-top:4px">Telefon Çalıyor</span>
+  </div>
+  <button class="phone-btn accept" id="phoneAcceptBtn">✓</button>
+</div>
+
 <div id="heldPanel" class="hidden">
-  <div class="held-emoji" id="heldEmoji">🍔</div>
+  <svg class="svg-ico xl" id="heldIcon"><use href="#ico-burger"/></svg>
   <div class="held-name" id="heldName">Burger</div>
 </div>
 
-<div id="interactBtn" class="hidden">👆</div>
+<!-- PREP UI -->
+<div id="prepUI" class="hidden">
+  <div id="recipePanel">
+    <div class="rp-title">MENÜ SEÇ</div>
+    <div id="recipeList"></div>
+    <button class="btn ghost" id="closePrepBtn" style="width:100%;margin-top:10px;padding:10px;">KAPAT</button>
+  </div>
+</div>
+
+<button id="interactBtn" class="hidden"><svg><use href="#ico-hand"/></svg></button>
 <div id="joyBase"><div id="joyKnob"></div></div>
 
+<!-- Modallar -->
 <div id="shopModal" class="modal hidden">
   <div class="modal-content">
-    <div class="modal-header"><h2>🖥️ MALZEME SİPARİŞİ</h2>
-      <button class="close-btn" data-close="shopModal">✕</button></div>
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-pc"/></svg> SİPARİŞ</h2><button class="close-btn" data-close="shopModal">✕</button></div>
     <div id="shopBody"></div>
   </div>
 </div>
 
-<div id="assemblyModal" class="modal hidden">
+<div id="staffModal" class="modal hidden">
   <div class="modal-content">
-    <div class="modal-header"><h2>🍔 BURGER YAP</h2>
-      <button class="close-btn" data-close="assemblyModal">✕</button></div>
-    <div id="assemblyBody"></div>
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-chef"/></svg> PERSONEL AL</h2><button class="close-btn" data-close="staffModal">✕</button></div>
+    <div id="staffBody"></div>
+  </div>
+</div>
+
+<div id="phoneModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-phone"/></svg> TELEFON</h2><button class="close-btn" id="phoneHangupBtn">KAPAT</button></div>
+    <div id="phoneBody"></div>
+  </div>
+</div>
+
+<div id="courierModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-courier"/></svg> KURYE SİSTEMİ</h2><button class="close-btn" data-close="courierModal">✕</button></div>
+    <div id="courierBody"></div>
+  </div>
+</div>
+
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-settings"/></svg> AYARLAR</h2><button class="close-btn" data-close="settingsModal">✕</button></div>
+    <div id="settingsBody"></div>
   </div>
 </div>
 
 <div id="cashModal" class="modal hidden">
-  <div class="modal-content cash-content">
-    <div class="modal-header"><h2>💵 PARA ÜSTÜ</h2></div>
+  <div class="modal-content">
+    <div class="modal-header"><h2><svg class="svg-ico"><use href="#ico-register"/></svg> KASA</h2></div>
     <div id="cashBody"></div>
   </div>
 </div>
 
 <div id="menuScreen" class="screen">
-  <h1>🍔 BURGER HOUSE 3D</h1>
-  <p>Tek başına yönet ya da arkadaşınla <b>şef</b> ve <b>garson</b> olarak birlikte oyna!</p>
-  <button class="btn" id="soloBtn">🎮 Tek Oyna</button>
-  <button class="btn secondary" id="multiBtn">👥 Arkadaşla Oyna</button>
-  <div class="keys">📱 Sol yarı: hareket • Sağ yarı: bakış • 👆 etkileşim<br>
-    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> + fare + <kbd>E</kbd></div>
+  <h1>BURGER HOUSE 3D</h1>
+  <p>Telefon ve Kurye Sistemi Aktif!</p>
+  <button class="btn" id="soloBtn">Tek Oyna</button>
+  <button class="btn secondary" id="multiBtn">Arkadaşla Oyna</button>
 </div>
 
-<div id="roleScreen" class="screen hidden">
-  <h1>Rolünü Seç</h1>
-  <p>Şef yemek yapar, garson müşteriye servis eder ve kasada ödeme alır.</p>
-  <div class="role-grid">
-    <div class="role-card" data-role="chef">
-      <span class="rc-emoji">👨‍🍳</span>
-      <div class="rc-name">Şef</div>
-    </div>
-    <div class="role-card" data-role="waiter">
-      <span class="rc-emoji">🧑‍🍳</span>
-      <div class="rc-name">Garson</div>
-    </div>
-  </div>
-  <button class="btn" id="roleNextBtn" disabled>DEVAM</button>
-  <button class="btn ghost" id="roleBackBtn">Geri</button>
-</div>
-
-<div id="roomChoiceScreen" class="screen hidden">
-  <h1>Oda</h1>
-  <p>Oda oluştur ve kodu arkadaşına ver, ya da arkadaşının kodunu gir.</p>
-  <button class="btn" id="createRoomBtn">🏠 Oda Oluştur</button>
-  <button class="btn secondary" id="joinRoomBtn">🔗 Odaya Katıl</button>
-  <button class="btn ghost" id="roomBackBtn">Geri</button>
+<div id="lobbyScreen" class="screen hidden">
+  <h1>Lobi</h1>
+  <p id="lobbyInfo">Oda kodu bekleniyor...</p>
+  <div id="lobbyPlayers"></div>
+  <div class="role-grid" id="lobbyRolePicker"></div>
+  <button class="btn" id="lobbyReadyBtn">HAZIR</button>
+  <button class="btn ghost" id="lobbyBackBtn">Geri</button>
 </div>
 
 <div id="hostScreen" class="screen hidden">
   <h1>Oda Kodun</h1>
-  <p>Bu kodu arkadaşına ver, o da bu kodu girip sana bağlansın.</p>
+  <p>Bu kodu arkadaşına ver.</p>
   <div class="code-box" id="roomCode">------</div>
   <p class="waiting-dots">●●●</p>
-  <p>Bağlantı bekleniyor...</p>
   <button class="btn ghost" id="hostCancelBtn">İptal</button>
 </div>
 
 <div id="joinScreen" class="screen hidden">
   <h1>Odaya Katıl</h1>
-  <p>Arkadaşının oda kodunu gir:</p>
-  <input type="text" class="code-input" id="codeInput" maxlength="6" placeholder="------" autocomplete="off" autocapitalize="characters">
+  <input type="text" class="code-input" id="codeInput" maxlength="6" placeholder="------" autocapitalize="characters">
   <button class="btn" id="joinConfirmBtn">BAĞLAN</button>
   <button class="btn ghost" id="joinBackBtn">Geri</button>
-  <p id="joinError" style="color:#ff7d8e;font-size:13px;min-height:18px;margin-top:6px"></p>
+  <p id="joinError" style="color:#ff7d8e;font-size:12px;margin-top:6px"></p>
 </div>
 
 <div id="endScreen" class="screen hidden">
   <h1>VARDİYA BİTTİ</h1>
-  <div style="font-size:46px;font-weight:900;color:#7dffb0" id="finalMoney">1000 TL</div>
+  <div style="font-size:40px;font-weight:900;color:#7dffb0" id="finalMoney">1000 TL</div>
   <p id="finalMsg"></p>
   <button class="btn" id="againBtn">TEKRAR OYNA</button>
 </div>
@@ -318,78 +353,61 @@
 <script type="module">
 import * as THREE from 'three';
 
-/* ═══════ SABİTLER ═══════ */
+function icoHTML(id, size){ return `<svg class="${size==='xl'?'svg-ico xl':'svg-ico'}" viewBox="0 0 32 32"><use href="#ico-${id}"/></svg>`; }
+
 const INGREDIENTS = [
-  { id:'patty',   name:'Köfte',   emoji:'🥩', cost:40, pack:10 },
-  { id:'bun',     name:'Ekmek',   emoji:'🍞', cost:20, pack:10 },
-  { id:'lettuce', name:'Marul',   emoji:'🥬', cost:15, pack:10 },
-  { id:'tomato',  name:'Domates', emoji:'🍅', cost:20, pack:10 },
-  { id:'cheese',  name:'Peynir',  emoji:'🧀', cost:30, pack:10 },
+  { id:'bun', name:'Ekmek', cost:20, pack:10, cat:'burger' },
+  { id:'patty', name:'Köfte', cost:40, pack:10, cat:'burger' },
+  { id:'cheese', name:'Peynir', cost:30, pack:10, cat:'burger' },
+  { id:'lettuce', name:'Marul', cost:15, pack:10, cat:'burger' },
+  { id:'tomato', name:'Domates', cost:20, pack:10, cat:'burger' },
+  { id:'pickle', name:'Turşu', cost:15, pack:10, cat:'burger' },
+  { id:'sauce', name:'Sos', cost:10, pack:10, cat:'burger' },
+  { id:'onion', name:'Soğan', cost:10, pack:10, cat:'burger' },
+  { id:'fries', name:'Patates', cost:20, pack:10, cat:'side' },
+  { id:'onionrings', name:'Soğan Halkası', cost:25, pack:10, cat:'side' },
+  { id:'cola', name:'Kola', cost:15, pack:10, cat:'side' }
 ];
-const BURGERS = {
-  plain:   { name:'Sade',   price:35, needs:{ bun:1 } },
-  classic: { name:'Klasik', price:55, needs:{ bun:1, lettuce:1 } },
-  deluxe:  { name:'Deluxe', price:85, needs:{ bun:1, lettuce:1, tomato:1, cheese:1 } },
-};
-const BURGER_KEYS = ['plain','classic','deluxe'];
 
-const ROOM = 14;
-const EYE = 1.65;
-const PLAYER_R = 0.35;
-const MOVE_SPEED = 4.5;
-const INTERACT_DIST = 3.2;
-const DELIVERY_DELAY = 10;
-const COOK_TIME = 6;
-const BURNT_TIME = 11;
-const BILLS = [10, 20, 50, 100, 200];
-const COUNTER_Z = -3.6;
+const MENUS = {
+  klassik: { name:'Klasik Menü', price:160, burger:['bun','patty','lettuce','tomato','sauce'], sides:['fries','cola'], address:'Mavi Ev' },
+  sef: { name:'Şef Menü', price:220, burger:['bun','patty','cheese','pickle','sauce','onion'], sides:['fries','cola'], address:'Sarı Ev' },
+  double: { name:'Double Menü', price:280, burger:['bun','patty','patty','cheese','sauce','onion'], sides:['onionrings','cola'], address:'Beyaz Ev' },
+  cocuk: { name:'Çocuk Menü', price:120, burger:['bun','patty','sauce'], sides:['fries','cola'], address:'Kırmızı Ev' },
+  vejetaryen: { name:'Vejetaryen Menü', price:140, burger:['bun','cheese','lettuce','tomato','pickle','sauce'], sides:['fries','cola'], address:'Yeşil Ev' }
+};
+const MENU_KEYS = Object.keys(MENUS);
+const ROLES = { chef: { name:'Şef', icon:'chef' }, waiter: { name:'Garson', icon:'waiter' }, courier: { name:'Kurye', icon:'courier' } };
+const VALID_ADDRESSES = ['Mavi Ev', 'Sarı Ev', 'Beyaz Ev', 'Kırmızı Ev', 'Yeşil Ev'];
+
+const ROOM = 14, EYE = 1.65, PLAYER_R = 0.35, MOVE_SPEED = 4.5, INTERACT_DIST = 3.0;
+const DELIVERY_DELAY = 10, COOK_TIME = 6, BURNT_TIME = 11, 
+      BILLS = [20, 50, 100, 200, 500, 1000];
+const COUNTER_Z = -3.6, DOOR_X = 4, DOOR_Z = ROOM/2 - 0.2;
 const REGISTER_SPOT = new THREE.Vector3(4, 0, COUNTER_Z + 1.7);
-const TABLES = [
-  { x:-4, z:2.0, occupied:false, id:0 },
-  { x: 0, z:3.0, occupied:false, id:1 },
-  { x: 4, z:2.0, occupied:false, id:2 },
-];
-const SERVING_SLOTS = [
-  new THREE.Vector3(0.3, 1.2, COUNTER_Z),
-  new THREE.Vector3(0.9, 1.2, COUNTER_Z),
-  new THREE.Vector3(1.5, 1.2, COUNTER_Z),
-];
+const TABLES = [{ x:-4, z:2.0, occupied:false, id:0 }, { x:0, z:3.0, occupied:false, id:1 }, { x:4, z:2.0, occupied:false, id:2 }];
+const SERVING_SLOTS = [new THREE.Vector3(0.3, 1.2, COUNTER_Z), new THREE.Vector3(0.9, 1.2, COUNTER_Z), new THREE.Vector3(1.5, 1.2, COUNTER_Z)];
+const STORAGE_COST = 5000;
 
-/* ═══════ DURUM ═══════ */
 const game = {
-  balance: 1000,
-  stock: { patty:0, bun:0, lettuce:0, tomato:0, cheese:0 },
-  customers: [],
-  customerSpawnTimer: 4,
-  deliveries: [],
-  counterBurgers: [],
-  time: 0,
-  ordersDone: 0,
-  over: false,
-  running: false,
-  role: 'chef',
-  multiplayer: false,
-  isHost: false,
+  balance: 2000, stock: {}, customers: [], customerSpawnTimer: 3, deliveries: [], counterItems: [], waste: [], time: 0, ordersDone: 0,
+  over: false, running: false, role: null, multiplayer: false, isHost: false, shopName: 'BURGER HOUSE', open: true, neonColor: 0xff5a5f, storageUnlocked: false, players: [],
+  staff: { chef: false, waiter: false },
+  volume: 0.5,
+  phone: { ringing: false, active: false, timer: 120, currentOrder: null, step: 0 },
+  courier: { status: 'at_shop', timer: 0 }
 };
-let nextCustomerId = 1;
-let nextBurgerId = 1;
+INGREDIENTS.forEach(i => game.stock[i.id] = 0);
 
-const player = {
-  pos: new THREE.Vector3(0, 0, -1.5),
-  yaw: Math.PI, pitch: -0.05,
-  bobPhase: 0, bobAmount: 0,
-  held: null,
-};
+let nextCustomerId = 1, nextItemId = 1;
+const player = { pos: new THREE.Vector3(0, 0, -1.5), yaw: Math.PI, pitch: -0.05, bobPhase: 0, bobAmount: 0, held: null };
+const grill = { patties: [] };
+const interactables = [], colliders = [];
+let chefNPC = null, waiterNPC = null, npcTimer = 0;
 
-const grill = { state:'empty', timer:0, pattyMesh:null };
-const interactables = [];
-const colliders = [];
-
-/* ═══════ RENDERER ═══════ */
-const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
@@ -400,1717 +418,925 @@ scene.fog = new THREE.Fog(0xf2d5b8, 24, 50);
 const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.05, 100);
 camera.rotation.order = 'YXZ';
 
-/* ═══════ IŞIK ═══════ */
 scene.add(new THREE.HemisphereLight(0xfff4e0, 0x8a7050, 1.0));
 const sun = new THREE.DirectionalLight(0xfff0c8, 1.6);
-sun.position.set(6, 14, 4);
-sun.castShadow = true;
+sun.position.set(6, 14, 4); sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left:-10, right:10, top:10, bottom:-10, near:1, far:35 });
-sun.shadow.bias = -0.0008;
 scene.add(sun, sun.target);
 scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+const neonLight = new THREE.PointLight(0xff5a5f, 2, 6, 2);
+neonLight.position.set(0, 2.5, -5); scene.add(neonLight);
 
-/* ═══════ DOKULAR ═══════ */
 function floorTex(){
-  const c = document.createElement('canvas'); c.width = c.height = 256;
-  const g = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
   g.fillStyle = '#e8d0b0'; g.fillRect(0,0,256,256);
   g.strokeStyle = '#c9a87e'; g.lineWidth = 3;
-  for (let i=0;i<=256;i+=64){
-    g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.stroke();
-    g.beginPath(); g.moveTo(0,i); g.lineTo(256,i); g.stroke();
-  }
-  const t = new THREE.CanvasTexture(c);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4,4);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return t;
+  for (let i=0;i<=256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.stroke(); g.beginPath(); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4,4); return t;
 }
 function textTex(text, bg, fg='#fff'){
-  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
-  const g = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128; const g = c.getContext('2d');
   g.fillStyle = bg; g.fillRect(0,0,512,128);
   g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(0,104,512,24);
-  g.fillStyle = fg;
-  g.font = '900 58px system-ui,sans-serif';
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText(text, 256, 62);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return t;
+  g.fillStyle = fg; g.font = '900 52px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 256, 62);
+  return new THREE.CanvasTexture(c);
 }
 
-/* ═══════ ODA ═══════ */
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(ROOM, ROOM),
-  new THREE.MeshStandardMaterial({ map: floorTex(), roughness:0.85 })
-);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM, ROOM), new THREE.MeshStandardMaterial({ map: floorTex(), roughness:0.85 }));
 floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
 
-const WALL_H = 4.2;
-const wallMat = new THREE.MeshStandardMaterial({ color:0xf5ead8, roughness:0.95 });
-function addWall(w,h,d,x,y,z){
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat);
-  m.position.set(x,y,z); m.receiveShadow = true; scene.add(m);
-}
-addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2, -ROOM/2);
-addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2,  ROOM/2);
-addWall(0.3, WALL_H, ROOM, -ROOM/2, WALL_H/2, 0);
-addWall(0.3, WALL_H, ROOM,  ROOM/2, WALL_H/2, 0);
-
-const ceiling = new THREE.Mesh(
-  new THREE.PlaneGeometry(ROOM, ROOM),
-  new THREE.MeshStandardMaterial({ color:0xfff8f0, roughness:1, side:THREE.DoubleSide })
-);
+const WALL_H = 4.2; const wallMat = new THREE.MeshStandardMaterial({ color:0xf5ead8, roughness:0.95 });
+function addWall(w,h,d,x,y,z){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat); m.position.set(x,y,z); m.receiveShadow = true; scene.add(m); }
+addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2, -ROOM/2); addWall(ROOM, WALL_H, 0.3, 0, WALL_H/2, ROOM/2);
+addWall(0.3, WALL_H, ROOM, -ROOM/2, WALL_H/2, 0); addWall(0.3, WALL_H, ROOM, ROOM/2, WALL_H/2, 0);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM, ROOM), new THREE.MeshStandardMaterial({ color:0xfff8f0, roughness:1, side:THREE.DoubleSide }));
 ceiling.rotation.x = Math.PI/2; ceiling.position.y = WALL_H; scene.add(ceiling);
 
 for (let i=-1;i<=1;i++) for (let j=-1;j<=1;j++){
-  const panel = new THREE.Mesh(
-    new THREE.BoxGeometry(1.6, 0.06, 1.6),
-    new THREE.MeshBasicMaterial({ color:0xfff9e8 })
-  );
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.06, 1.6), new THREE.MeshBasicMaterial({ color:0xfff9e8 }));
   panel.position.set(i*4.5, WALL_H-0.04, j*4.5); scene.add(panel);
-  const pl = new THREE.PointLight(0xfff0d0, 8, 12, 2);
-  pl.position.set(i*4.5, WALL_H-0.5, j*4.5); scene.add(pl);
+  const pl = new THREE.PointLight(0xfff0d0, 8, 12, 2); pl.position.set(i*4.5, WALL_H-0.5, j*4.5); scene.add(pl);
 }
 
-const shopSign = new THREE.Mesh(
-  new THREE.PlaneGeometry(6, 1.4),
-  new THREE.MeshBasicMaterial({ map: textTex('🍔 BURGER HOUSE', '#7a2a1a') })
-);
-shopSign.position.set(0, 3.2, -ROOM/2 + 0.2); scene.add(shopSign);
+const entranceDoor = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.0, 0.15), new THREE.MeshStandardMaterial({ color:0x8b4a2a }));
+entranceDoor.position.set(DOOR_X, 1.5, DOOR_Z); scene.add(entranceDoor);
+const signPlane = new THREE.Mesh(new THREE.PlaneGeometry(6, 1.2), new THREE.MeshBasicMaterial({ map: textTex('BURGER HOUSE', '#ff5a5f') }));
+signPlane.position.set(0, 3.2, -ROOM/2 + 0.2); scene.add(signPlane);
 
-/* ═══════ TEZGAH ═══════ */
-const counter = new THREE.Group();
-counter.position.set(0, 0, COUNTER_Z);
-const counterBody = new THREE.Mesh(
-  new THREE.BoxGeometry(11, 1.05, 0.9),
-  new THREE.MeshStandardMaterial({ color:0x6b3a1a, roughness:0.7 })
-);
-counterBody.position.y = 0.525; counterBody.castShadow = true; counterBody.receiveShadow = true;
-counter.add(counterBody);
-const counterTop = new THREE.Mesh(
-  new THREE.BoxGeometry(11.2, 0.1, 1.0),
-  new THREE.MeshStandardMaterial({ color:0xf4f0e8, roughness:0.35 })
-);
-counterTop.position.y = 1.1; counterTop.castShadow = true; counter.add(counterTop);
-scene.add(counter);
+const counter = new THREE.Group(); counter.position.set(0, 0, COUNTER_Z);
+const cb = new THREE.Mesh(new THREE.BoxGeometry(11, 1.05, 0.9), new THREE.MeshStandardMaterial({ color:0x6b3a1a }));
+cb.position.y = 0.525; cb.castShadow = true; counter.add(cb);
+const ct = new THREE.Mesh(new THREE.BoxGeometry(11.2, 0.1, 1.0), new THREE.MeshStandardMaterial({ color:0xf4f0e8 }));
+ct.position.y = 1.1; counter.add(ct); scene.add(counter);
 colliders.push({ minX:-5.6, maxX:5.6, minZ:COUNTER_Z-0.5, maxZ:COUNTER_Z+0.5 });
 
-/* ═══════ IZGARA ═══════ */
-const grillGroup = new THREE.Group();
-grillGroup.position.set(-2.8, 1.15, COUNTER_Z);
-{
-  const surf = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2, 0.08, 0.75),
-    new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.5, metalness:0.7 })
-  );
-  grillGroup.add(surf);
-  for (let i=0;i<6;i++){
-    const grate = new THREE.Mesh(
-      new THREE.BoxGeometry(1.15, 0.03, 0.04),
-      new THREE.MeshStandardMaterial({ color:0x4a4a4a, metalness:0.9 })
-    );
-    grate.position.set(0, 0.055, -0.3 + i*0.12); grillGroup.add(grate);
-  }
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.9, 0.22),
-    new THREE.MeshBasicMaterial({ map: textTex('IZGARA', '#7a2a1a') })
-  );
-  label.position.set(0, 0.42, 0.36); grillGroup.add(label);
-  grill.pattyMesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.17, 0.17, 0.07, 18),
-    new THREE.MeshStandardMaterial({ color:0xe8a0a0, roughness:0.75 })
-  );
-  grill.pattyMesh.position.y = 0.14;
-  grill.pattyMesh.visible = false;
-  grill.pattyMesh.castShadow = true;
-  grillGroup.add(grill.pattyMesh);
-}
-grillGroup.userData.interactType = 'grill';
-scene.add(grillGroup);
-interactables.push(grillGroup);
+const storageGroup = new THREE.Group(); storageGroup.position.set(4, 0, COUNTER_Z - 2.2);
+const sd = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.6, 0.15), new THREE.MeshStandardMaterial({ color:0x5a3a1a })); sd.position.y = 1.3; storageGroup.add(sd);
+const lock = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.1), new THREE.MeshStandardMaterial({ color:0xffd84d })); lock.position.set(0, 1.4, 0.1); storageGroup.add(lock); storageGroup.userData.lockMesh = lock;
+storageGroup.userData.interactType = 'storage'; scene.add(storageGroup); interactables.push(storageGroup);
 
-/* ═══════ MONTAJ ═══════ */
-const assemblyGroup = new THREE.Group();
-assemblyGroup.position.set(-1.2, 1.15, COUNTER_Z);
-{
-  const board = new THREE.Mesh(
-    new THREE.BoxGeometry(1.3, 0.05, 0.8),
-    new THREE.MeshStandardMaterial({ color:0xd9b88a, roughness:0.85 })
-  );
-  board.position.y = 0.02; board.castShadow = true; assemblyGroup.add(board);
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.0, 0.22),
-    new THREE.MeshBasicMaterial({ map: textTex('MONTAJ', '#3a5a2a') })
-  );
-  label.position.set(0, 0.42, 0.36); assemblyGroup.add(label);
-}
-assemblyGroup.userData.interactType = 'assembly';
-scene.add(assemblyGroup);
-interactables.push(assemblyGroup);
+const grillGroup = new THREE.Group(); grillGroup.position.set(-2.8, 1.15, COUNTER_Z);
+const gs = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.08, 0.75), new THREE.MeshStandardMaterial({ color:0x1a1a1a, metalness:0.7 })); grillGroup.add(gs);
+grillGroup.userData.interactType = 'grill'; scene.add(grillGroup); interactables.push(grillGroup);
 
-/* ═══════ SERVİS TEPSİSİ ═══════ */
-const servingGroup = new THREE.Group();
-servingGroup.position.set(0.9, 1.15, COUNTER_Z);
-{
-  const tray = new THREE.Mesh(
-    new THREE.BoxGeometry(1.8, 0.04, 0.6),
-    new THREE.MeshStandardMaterial({ color:0xcfd6e8, roughness:0.3, metalness:0.7 })
-  );
-  tray.position.y = 0.02; tray.castShadow = true; servingGroup.add(tray);
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.9, 0.22),
-    new THREE.MeshBasicMaterial({ map: textTex('SERVİS', '#5a3a8a') })
-  );
-  label.position.set(0, 0.42, 0.36); servingGroup.add(label);
-}
-servingGroup.userData.interactType = 'serving';
-scene.add(servingGroup);
-interactables.push(servingGroup);
+const assemblyGroup = new THREE.Group(); assemblyGroup.position.set(-1.2, 1.15, COUNTER_Z);
+const board = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, 0.8), new THREE.MeshStandardMaterial({ color:0xd9b88a })); board.position.y = 0.02; assemblyGroup.add(board);
+assemblyGroup.userData.interactType = 'assembly'; scene.add(assemblyGroup); interactables.push(assemblyGroup);
 
-/* ═══════ KASA ═══════ */
-const registerGroup = new THREE.Group();
-registerGroup.position.set(4, 1.15, COUNTER_Z);
-{
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.35, 0.4),
-    new THREE.MeshStandardMaterial({ color:0x2a2f3d, roughness:0.4, metalness:0.5 })
-  );
-  base.position.y = 0.2; base.castShadow = true; registerGroup.add(base);
-  const screen = new THREE.Mesh(
-    new THREE.BoxGeometry(0.42, 0.3, 0.04),
-    new THREE.MeshBasicMaterial({ color:0x7dffb0 })
-  );
-  screen.position.set(0, 0.42, 0.18); screen.rotation.x = -0.35;
-  registerGroup.add(screen);
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.7, 0.2),
-    new THREE.MeshBasicMaterial({ map: textTex('KASA', '#1a5a3a') })
-  );
-  label.position.set(0, 0.65, 0.06); registerGroup.add(label);
-}
-registerGroup.userData.interactType = 'register';
-scene.add(registerGroup);
-interactables.push(registerGroup);
+const servingGroup = new THREE.Group(); servingGroup.position.set(0.9, 1.15, COUNTER_Z);
+const tray = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.04, 0.6), new THREE.MeshStandardMaterial({ color:0xcfd6e8, metalness:0.7 })); servingGroup.add(tray);
+servingGroup.userData.interactType = 'serving'; scene.add(servingGroup); interactables.push(servingGroup);
 
-/* ═══════ BİLGİSAYAR ═══════ */
-const pcGroup = new THREE.Group();
-pcGroup.position.set(-4, 1.15, COUNTER_Z);
-{
-  const stand = new THREE.Mesh(
-    new THREE.BoxGeometry(0.4, 0.05, 0.25),
-    new THREE.MeshStandardMaterial({ color:0x1a1d28 })
-  );
-  pcGroup.add(stand);
-  const neck = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.035, 0.035, 0.18, 8),
-    new THREE.MeshStandardMaterial({ color:0x2a2f3d, metalness:0.5 })
-  );
-  neck.position.y = 0.11; pcGroup.add(neck);
-  const monitor = new THREE.Mesh(
-    new THREE.BoxGeometry(0.55, 0.38, 0.05),
-    new THREE.MeshStandardMaterial({ color:0x14171f, metalness:0.3 })
-  );
-  monitor.position.y = 0.35; pcGroup.add(monitor);
-  const screen = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.48, 0.32),
-    new THREE.MeshBasicMaterial({ color:0x4aa8ff })
-  );
-  screen.position.set(0, 0.35, 0.03); pcGroup.add(screen);
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.8, 0.2),
-    new THREE.MeshBasicMaterial({ map: textTex('SİPARİŞ', '#2a4a8a') })
-  );
-  label.position.set(0, 0.68, 0.03); pcGroup.add(label);
-}
-pcGroup.userData.interactType = 'computer';
-scene.add(pcGroup);
-interactables.push(pcGroup);
+const registerGroup = new THREE.Group(); registerGroup.position.set(4, 1.15, COUNTER_Z);
+const rb = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.4), new THREE.MeshStandardMaterial({ color:0x2a2f3d })); rb.position.y = 0.2; registerGroup.add(rb);
+const rs = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.3, 0.04), new THREE.MeshBasicMaterial({ color:0x7dffb0 })); rs.position.set(0, 0.42, 0.18); rs.rotation.x = -0.35; registerGroup.add(rs);
+registerGroup.userData.interactType = 'register'; scene.add(registerGroup); interactables.push(registerGroup);
 
-/* ═══════ MASALAR ═══════ */
-TABLES.forEach(makeTable);
-function makeTable(t){
+const pcGroup = new THREE.Group(); pcGroup.position.set(-4, 1.15, COUNTER_Z);
+const pcs = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.25), new THREE.MeshStandardMaterial({ color:0x1a1d28 })); pcGroup.add(pcs);
+const pcm = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.38, 0.05), new THREE.MeshStandardMaterial({ color:0x14171f })); pcm.position.y = 0.35; pcGroup.add(pcm);
+const pcsc = new THREE.Mesh(new THREE.PlaneGeometry(0.48, 0.32), new THREE.MeshBasicMaterial({ color:0x4aa8ff })); pcsc.position.set(0, 0.35, 0.03); pcGroup.add(pcsc);
+pcGroup.userData.interactType = 'computer'; scene.add(pcGroup); interactables.push(pcGroup);
+
+const settingsGroup = new THREE.Group(); settingsGroup.position.set(-6, 1.15, COUNTER_Z);
+const sp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.08), new THREE.MeshStandardMaterial({ color:0x2a2f3d })); sp.position.y = 0.35; settingsGroup.add(sp);
+settingsGroup.userData.interactType = 'settings'; scene.add(settingsGroup); interactables.push(settingsGroup);
+
+TABLES.forEach(t => {
+  const g = new THREE.Group(); g.position.set(t.x, 0, t.z);
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.08, 24), new THREE.MeshStandardMaterial({ color:0x8b4a2a })); top.position.y = 0.85; g.add(top);
+  const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.85, 12), new THREE.MeshStandardMaterial({ color:0x3a2a1a })); leg.position.y = 0.425; g.add(leg);
+  scene.add(g); colliders.push({ minX:t.x-0.8, maxX:t.x+0.8, minZ:t.z-0.8, maxZ:t.z+0.8 });
+});
+
+function makeCat(color, scale=1){
   const g = new THREE.Group();
-  g.position.set(t.x, 0, t.z);
-  const top = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.75, 0.75, 0.08, 24),
-    new THREE.MeshStandardMaterial({ color:0x8b4a2a, roughness:0.6 })
-  );
-  top.position.y = 0.85; top.castShadow = true; top.receiveShadow = true;
-  g.add(top);
-  const leg = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.09, 0.13, 0.85, 12),
-    new THREE.MeshStandardMaterial({ color:0x3a2a1a, roughness:0.7 })
-  );
-  leg.position.y = 0.425; leg.castShadow = true; g.add(leg);
-  const chairs = [{dx:1.15,dz:0},{dx:-1.15,dz:0},{dx:0,dz:1.15},{dx:0,dz:-1.15}];
-  for (const cd of chairs){
-    const ch = new THREE.Group();
-    ch.position.set(cd.dx, 0, cd.dz);
-    const seat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.06, 0.42),
-      new THREE.MeshStandardMaterial({ color:0x8b4a2a, roughness:0.7 })
-    );
-    seat.position.y = 0.45; seat.castShadow = true; ch.add(seat);
-    const dir = Math.atan2(cd.dx, cd.dz);
-    const back = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.55, 0.06),
-      new THREE.MeshStandardMaterial({ color:0x6a3a1a, roughness:0.7 })
-    );
-    back.position.set(Math.sin(dir)*0.18, 0.72, Math.cos(dir)*0.18);
-    back.rotation.y = dir; back.castShadow = true; ch.add(back);
-    for (const lx of [-0.15, 0.15]) for (const lz of [-0.15, 0.15]){
-      const l = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.025, 0.025, 0.45, 6),
-        new THREE.MeshStandardMaterial({ color:0x2a1a0a })
-      );
-      l.position.set(lx, 0.225, lz); ch.add(l);
-    }
-    g.add(ch);
-  }
-  scene.add(g);
-  colliders.push({ minX:t.x-0.8, maxX:t.x+0.8, minZ:t.z-0.8, maxZ:t.z+0.8 });
+  const b = new THREE.Mesh(new THREE.SphereGeometry(0.22*scale, 10, 8), new THREE.MeshStandardMaterial({ color })); b.position.y = 0.22*scale; g.add(b);
+  const h = new THREE.Mesh(new THREE.SphereGeometry(0.17*scale, 10, 8), new THREE.MeshStandardMaterial({ color })); h.position.set(0, 0.42*scale, 0.15*scale); g.add(h);
+  return g;
 }
+const catMother = makeCat(0xff9f4d, 1); catMother.position.set(DOOR_X - 1.0, 0, DOOR_Z - 0.8); catMother.userData = { interactType:'cat' }; scene.add(catMother); interactables.push(catMother);
+const catKitten = makeCat(0xffb87a, 0.65); catKitten.position.set(DOOR_X - 0.6, 0, DOOR_Z - 0.8); catKitten.userData = { interactType:'cat' }; scene.add(catKitten); interactables.push(catKitten);
 
-/* ═══════ İNSAN MODELİ ═══════ */
-const SKINS  = [0xffd9b3, 0xf0b98a, 0xc98b5e, 0xffe0bd];
-const SHIRTS = [0xff6b9d, 0x6ba8ff, 0x7ed957, 0xffb347, 0xb07cff, 0xff7b7b];
-
-function makeHumanoid(shirtCol, skinCol, isPlayer, role){
+const SKINS = [0xffd9b3, 0xf0b98a, 0xc98b5e, 0xffe0bd], SHIRTS = [0xff6b9d, 0x6ba8ff, 0x7ed957, 0xffb347, 0xb07cff, 0xff7b7b];
+function makeHumanoid(shirtCol, skinCol, role){
   const g = new THREE.Group();
-  const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.28, 0.36, 1.0, 14),
-    new THREE.MeshStandardMaterial({ color: shirtCol, roughness:0.75 })
-  );
-  body.position.y = 0.72; body.castShadow = true; g.add(body);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.36, 1.0, 14), new THREE.MeshStandardMaterial({ color: shirtCol })); body.position.y = 0.72; g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 12), new THREE.MeshStandardMaterial({ color: skinCol })); head.position.y = 1.46; g.add(head);
   for (const s of [-1,1]){
-    const arm = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.09, 0.55, 4, 8),
-      new THREE.MeshStandardMaterial({ color: shirtCol, roughness:0.75 })
-    );
-    arm.position.set(s*0.34, 0.78, 0); arm.rotation.z = s*0.14;
-    arm.castShadow = true; g.add(arm);
+    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.55, 4, 8), new THREE.MeshStandardMaterial({ color: shirtCol })); arm.position.set(s*0.34, 0.78, 0); arm.rotation.z = s*0.14; g.add(arm);
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.42, 8), new THREE.MeshStandardMaterial({ color:0x3a4a6b })); leg.position.set(s*0.15, 0.2, 0); g.add(leg);
   }
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.28, 18, 14),
-    new THREE.MeshStandardMaterial({ color: skinCol, roughness:0.8 })
-  );
-  head.position.y = 1.46; head.castShadow = true; g.add(head);
-  const eyeMat = new THREE.MeshBasicMaterial({ color:0x1b1b1b });
-  for (const s of [-1,1]){
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), eyeMat);
-    eye.position.set(s*0.095, 1.49, 0.255); g.add(eye);
-  }
-  for (const s of [-1,1]){
-    const leg = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.1, 0.1, 0.42, 8),
-      new THREE.MeshStandardMaterial({ color:0x3a4a6b, roughness:0.85 })
-    );
-    leg.position.set(s*0.15, 0.2, 0); leg.castShadow = true; g.add(leg);
-  }
-  if (isPlayer && role === 'chef'){
-    const hat = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.22, 0.18, 0.28, 12),
-      new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 })
-    );
-    hat.position.y = 1.82; g.add(hat);
-    const puff = new THREE.Mesh(
-      new THREE.SphereGeometry(0.26, 12, 8),
-      new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 })
-    );
-    puff.position.y = 2.0; g.add(puff);
-  } else if (isPlayer && role === 'waiter'){
-    const apron = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 0.55, 0.05),
-      new THREE.MeshStandardMaterial({ color:0x1a1a1a, roughness:0.8 })
-    );
-    apron.position.set(0, 0.7, 0.32); g.add(apron);
-  } else {
-    const hair = new THREE.Mesh(
-      new THREE.SphereGeometry(0.29, 18, 14, 0, Math.PI*2, 0, Math.PI*0.55),
-      new THREE.MeshStandardMaterial({ color:0x2a2018, roughness:0.9 })
-    );
-    hair.position.y = 1.5; g.add(hair);
+  if (role === 'chef'){
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.28, 12), new THREE.MeshStandardMaterial({ color:0xffffff })); hat.position.y = 1.82; g.add(hat);
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 8), new THREE.MeshStandardMaterial({ color:0xffffff })); puff.position.y = 2.0; g.add(puff);
+  } else if (role === 'waiter'){
+    const apron = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.05), new THREE.MeshStandardMaterial({ color:0x1a1a1a })); apron.position.set(0, 0.7, 0.32); g.add(apron);
+  } else if (role === 'courier'){
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 10), new THREE.MeshStandardMaterial({ color:0x8b2a1a })); helmet.position.y = 1.5; g.add(helmet);
   }
   return g;
 }
 
-/* ═══════ BURGER MESH ═══════ */
-function makeBurgerMesh(type){
-  const g = new THREE.Group();
-  const bun = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.16, 0.16, 0.05, 16),
-    new THREE.MeshStandardMaterial({ color:0xe8b866, roughness:0.8 })
-  );
-  bun.position.y = 0.03; bun.castShadow = true; g.add(bun);
-  const patty = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.14, 0.14, 0.05, 16),
-    new THREE.MeshStandardMaterial({ color:0x6b3a1a, roughness:0.9 })
-  );
-  patty.position.y = 0.08; g.add(patty);
-  if (type !== 'plain'){
-    const let_ = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.16, 0.16, 0.02, 16),
-      new THREE.MeshStandardMaterial({ color:0x7ed957, roughness:0.9 })
-    );
-    let_.position.y = 0.11; g.add(let_);
-  }
-  if (type === 'deluxe'){
-    const tom = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.14, 0.14, 0.02, 16),
-      new THREE.MeshStandardMaterial({ color:0xff5a5f, roughness:0.9 })
-    );
-    tom.position.y = 0.13; g.add(tom);
-    const cheese = new THREE.Mesh(
-      new THREE.BoxGeometry(0.28, 0.015, 0.28),
-      new THREE.MeshStandardMaterial({ color:0xffd84d, roughness:0.7 })
-    );
-    cheese.position.y = 0.15; g.add(cheese);
-  }
-  const topBun = new THREE.Mesh(
-    new THREE.SphereGeometry(0.16, 16, 8, 0, Math.PI*2, 0, Math.PI/2),
-    new THREE.MeshStandardMaterial({ color:0xe8b866, roughness:0.8 })
-  );
-  topBun.position.y = 0.17; topBun.castShadow = true; g.add(topBun);
-  return g;
-}
+function makeBox(){ const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color:0xc99a5a })); b.position.y = 0.35; g.add(b); return g; }
+function makePrepMesh(id){ if (id === 'package') return new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.35), new THREE.MeshStandardMaterial({ color:0xc99a5a })); return new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1)); }
 
-/* ═══════ KUTU ═══════ */
-function makeBox(){
-  const g = new THREE.Group();
-  const size = 0.7;
-  const body = new THREE.Mesh(
-    new THREE.BoxGeometry(size, size, size),
-    new THREE.MeshStandardMaterial({ color:0xc99a5a, roughness:0.9 })
-  );
-  body.position.y = size/2; body.castShadow = true; body.receiveShadow = true; g.add(body);
-  return g;
-}
-
-/* ═══════ UI ═══════ */
 const $ = id => document.getElementById(id);
 function updateBalanceUI(){ $('balance').textContent = game.balance; }
 function updateStockUI(){
+  const bar = $('stockBar'); bar.innerHTML = '';
   for (const ING of INGREDIENTS){
-    const el = $('st-' + ING.id);
-    if (!el) continue;
     const c = game.stock[ING.id];
-    el.querySelector('b').textContent = c;
-    el.classList.toggle('low', c > 0 && c <= 3);
-    el.classList.toggle('empty', c === 0);
+    const el = document.createElement('div'); el.className = 'stock-item' + (c === 0 ? ' empty' : (c <= 3 ? ' low' : ''));
+    el.innerHTML = `<svg><use href="#ico-${ING.id}"/></svg><b>${c}</b>`; bar.appendChild(el);
   }
 }
 function updateHeldUI(){
   const p = $('heldPanel');
   if (!player.held){ p.classList.add('hidden'); return; }
   p.classList.remove('hidden');
-  if (player.held.kind === 'patty'){
-    $('heldEmoji').textContent = '🥩';
-    $('heldName').textContent = 'Pişmiş Köfte';
-  } else if (player.held.kind === 'burger'){
-    $('heldEmoji').textContent = '🍔';
-    $('heldName').textContent = BURGERS[player.held.type].name;
-  }
+  if (player.held.kind === 'patty'){ $('heldIcon').innerHTML = '<use href="#ico-patty"/>'; $('heldName').textContent = 'Pişmiş Köfte'; }
+  else if (player.held.kind === 'menu'){ $('heldIcon').innerHTML = '<use href="#ico-burger"/>'; $('heldName').textContent = MENUS[player.held.menuKey].name; }
+  else if (player.held.kind === 'waste'){ $('heldIcon').innerHTML = '<use href="#ico-burger"/>'; $('heldName').textContent = 'Atık'; }
 }
 function updateRolePill(){
   const p = $('rolePill');
-  p.className = '';
-  if (game.multiplayer){
-    p.classList.add(game.role);
-    p.textContent = game.role === 'chef' ? '👨‍🍳 ŞEF' : '🧑‍🍳 GARSON';
-  } else {
-    p.classList.add('chef');
-    p.textContent = '👤 TEK OYUNCU';
-  }
+  if (game.multiplayer && game.role){ p.className = game.role; p.innerHTML = icoHTML(ROLES[game.role].icon) + ' ' + ROLES[game.role].name.toUpperCase(); }
+  else { p.className = ''; p.innerHTML = 'TEK OYUNCU'; }
 }
 function updateOrdersPanel(){
-  const list = $('ordersList');
-  list.innerHTML = '';
-  if (game.customers.length === 0){
-    list.innerHTML = '<div style="color:#66708a;font-size:11px;text-align:center;padding:6px">Boş</div>';
-    return;
-  }
+  const list = $('ordersList'); list.innerHTML = '';
+  if (game.customers.length === 0){ list.innerHTML = '<div style="color:#66708a;font-size:10px;text-align:center;padding:4px">Boş</div>'; return; }
   for (const c of game.customers){
     if (c.state === 'entering' || c.state === 'leaving') continue;
-    const B = BURGERS[c.order];
-    const row = document.createElement('div');
-    row.className = 'order-row ' + c.state;
-    const stateLabel = c.state === 'waiting' ? '⏳' : c.state === 'eating' ? '🍴' : c.state === 'paying' ? '💳' : '';
-    row.innerHTML = `<span class="em">${stateLabel}</span><span class="nm">${B.name}</span>`;
-    list.appendChild(row);
+    const row = document.createElement('div'); row.className = 'order-row ' + (c.state === 'angry' ? 'angry' : c.state);
+    const icon = c.state === 'waiting' ? '⏳' : c.state === 'eating' ? '🍴' : c.state === 'paying' ? '💳' : c.state === 'angry' ? '😡' : '';
+    row.innerHTML = `<span>${icon}</span><span>${MENUS[c.menu].name}</span>`; list.appendChild(row);
   }
 }
-
 let hintTimer = 0;
-function hint(text){
-  $('hint').textContent = text;
-  $('hint').classList.add('show');
-  hintTimer = 2.2;
-}
-function toast(text, gold){
-  const d = document.createElement('div');
-  d.className = 'toast' + (gold ? ' gold' : '');
-  d.textContent = text;
-  $('toasts').appendChild(d);
-  requestAnimationFrame(() => { d.style.transform = 'translateY(-30px)'; d.style.opacity = '0'; });
-  setTimeout(() => d.remove(), 1200);
-}
+function hint(text){ $('hint').innerHTML = text; $('hint').classList.add('show'); hintTimer = 2.2; }
+function toast(text, gold){ const d = document.createElement('div'); d.className = 'toast' + (gold ? ' gold' : ''); d.innerHTML = text; $('toasts').appendChild(d); requestAnimationFrame(() => { d.style.transform = 'translateY(-30px)'; d.style.opacity = '0'; }); setTimeout(() => d.remove(), 1200); }
 
-/* ═══════ SES ═══════ */
-let actx = null;
-function initAudio(){
-  if (actx) return;
-  try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
-}
+// --- SES SİSTEMİ (GÜNCELLENDİ) ---
+let actx = null; function initAudio(){ if (actx) return; try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
 function beep(freq, dur=0.1, type='sine', vol=0.07){
-  if (!actx) return;
+  if (!actx || game.volume <= 0) return;
   const t = actx.currentTime;
   const o = actx.createOscillator(), g = actx.createGain();
-  o.type = type; o.frequency.setValueAtTime(freq, t);
-  o.connect(g); g.connect(actx.destination);
-  g.gain.setValueAtTime(vol, t);
+  o.type = type; o.frequency.setValueAtTime(freq, t); o.connect(g); g.connect(actx.destination);
+  g.gain.setValueAtTime(vol * game.volume, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   o.start(t); o.stop(t + dur + 0.02);
 }
 function errorBeep(){ beep(180, 0.18, 'sawtooth', 0.09); }
-function successChime(){
-  beep(660, 0.08, 'triangle', 0.08);
-  setTimeout(()=>beep(880, 0.1, 'triangle', 0.08), 70);
-  setTimeout(()=>beep(1180, 0.14, 'triangle', 0.07), 150);
+function successChime(){ beep(660, 0.08, 'triangle', 0.08); setTimeout(()=>beep(880, 0.1, 'triangle', 0.08), 70); setTimeout(()=>beep(1180, 0.14, 'triangle', 0.07), 150); }
+function playSound(type) {
+  if (type === 'click') beep(800, 0.05, 'sine', 0.05);
+  if (type === 'cash') beep(1000, 0.15, 'sine', 0.08);
+  if (type === 'phone') { beep(440, 0.2, 'square', 0.1); setTimeout(()=>beep(440, 0.2, 'square', 0.1), 250); }
 }
 
-/* ═══════ GİRDİ ═══════ */
 const joy = { active:false, id:null, ox:0, oy:0, x:0, y:0 };
 const look = { active:false, id:null, lx:0, ly:0 };
 const keys = {};
 const joyBase = $('joyBase'), joyKnob = $('joyKnob');
 
 function onDown(e){
-  if (!game.running || game.over) return;
-  if (document.querySelector('.modal:not(.hidden)')) return;
-  if (e.target.closest('.screen')) return;
+  if (!game.running || game.over || !$('prepUI').classList.contains('hidden') || e.target.closest('.screen') || e.target.closest('#prepUI') || document.querySelector('.modal:not(.hidden)')) return;
   const x = e.clientX, y = e.clientY;
   if (e.pointerType === 'touch' && x < innerWidth * 0.5){
-    if (joy.active) return;
-    joy.active = true; joy.id = e.pointerId;
-    joy.ox = x; joy.oy = y; joy.x = 0; joy.y = 0;
-    joyBase.style.left = x + 'px'; joyBase.style.top = y + 'px';
-    joyBase.classList.add('on');
-    joyKnob.style.transform = 'translate(-50%,-50%)';
+    if (joy.active) return; joy.active = true; joy.id = e.pointerId; joy.ox = x; joy.oy = y; joy.x = 0; joy.y = 0;
+    joyBase.style.left = x + 'px'; joyBase.style.top = y + 'px'; joyBase.classList.add('on'); joyKnob.style.transform = 'translate(-50%,-50%)';
   } else {
-    if (look.active) return;
-    look.active = true; look.id = e.pointerId;
-    look.lx = x; look.ly = y;
+    if (look.active) return; look.active = true; look.id = e.pointerId; look.lx = x; look.ly = y;
   }
 }
 function onMove(e){
   if (e.pointerId === joy.id && joy.active){
-    const dx = e.clientX - joy.ox, dy = e.clientY - joy.oy;
-    const max = 55; let len = Math.hypot(dx, dy);
-    let nx = dx, ny = dy;
-    if (len > max){ nx = dx/len*max; ny = dy/len*max; }
-    joy.x = nx/max; joy.y = ny/max;
-    joyKnob.style.transform = `translate(calc(-50% + ${nx}px), calc(-50% + ${ny}px))`;
+    const dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const max = 55; let len = Math.hypot(dx, dy);
+    let nx = dx, ny = dy; if (len > max){ nx = dx/len*max; ny = dy/len*max; }
+    joy.x = nx/max; joy.y = ny/max; joyKnob.style.transform = `translate(calc(-50% + ${nx}px), calc(-50% + ${ny}px))`;
   } else if (e.pointerId === look.id && look.active){
-    const dx = e.clientX - look.lx, dy = e.clientY - look.ly;
-    look.lx = e.clientX; look.ly = e.clientY;
-    player.yaw -= dx * 0.0038;
-    player.pitch -= dy * 0.0038;
-    player.pitch = Math.max(-1.15, Math.min(1.15, player.pitch));
+    const dx = e.clientX - look.lx, dy = e.clientY - look.ly; look.lx = e.clientX; look.ly = e.clientY;
+    player.yaw -= dx * 0.0038; player.pitch -= dy * 0.0038; player.pitch = Math.max(-1.15, Math.min(1.15, player.pitch));
   }
 }
-function onUp(e){
-  if (e.pointerId === joy.id){ joy.active=false; joy.id=null; joy.x=0; joy.y=0; joyBase.classList.remove('on'); }
-  if (e.pointerId === look.id){ look.active=false; look.id=null; }
-}
-addEventListener('pointerdown', onDown, { passive:false });
-addEventListener('pointermove', onMove, { passive:false });
-addEventListener('pointerup', onUp);
-addEventListener('pointercancel', onUp);
-addEventListener('keydown', e => {
-  keys[e.code] = true;
-  if (e.code === 'KeyE') tryInteract();
-});
-addEventListener('keyup', e => { keys[e.code] = false; });
+function onUp(e){ if (e.pointerId === joy.id){ joy.active=false; joy.id=null; joy.x=0; joy.y=0; joyBase.classList.remove('on'); } if (e.pointerId === look.id){ look.active=false; look.id=null; } }
+addEventListener('pointerdown', onDown, { passive:false }); addEventListener('pointermove', onMove, { passive:false }); addEventListener('pointerup', onUp); addEventListener('pointercancel', onUp);
+addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'KeyE') tryInteract(); }); addEventListener('keyup', e => { keys[e.code] = false; });
 
-/* ═══════ ROL KONTROLÜ ═══════ */
 function canCook(){ return !game.multiplayer || game.role === 'chef'; }
 function canServe(){ return !game.multiplayer || game.role === 'waiter'; }
 
-/* ═══════ MÜŞTERİ ═══════ */
 function trySpawnCustomer(){
-  if (game.over) return;
-  const free = TABLES.find(t => !t.occupied);
-  if (!free) return;
-  const orderKey = BURGER_KEYS[(Math.random()*BURGER_KEYS.length)|0];
-  const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
-  const skinCol = SKINS[(Math.random()*SKINS.length)|0];
-  const group = makeHumanoid(shirtCol, skinCol, false, null);
-  group.position.set(0, 0, ROOM/2 - 0.5);
-  scene.add(group);
-  const seatZ = free.z - 1.0;
-  const cust = {
-    id: nextCustomerId++,
-    group, table: free, order: orderKey,
-    state: 'entering',
-    target: new THREE.Vector3(free.x, 0, seatZ),
-    bob: 0, eatTimer: 0,
-    sprite: null, cash: null,
-  };
-  group.add(makeOrderSprite(cust));
-  free.occupied = true;
-  group.userData.interactType = 'customer';
-  group.userData.customer = cust;
-  interactables.push(group);
-  game.customers.push(cust);
-  beep(500, 0.06, 'sine', 0.04);
-  updateOrdersPanel();
+  if (game.over || !game.open || game.phone.ringing) return;
+  const free = TABLES.find(t => !t.occupied); if (!free) return;
+  const menuKey = MENU_KEYS[(Math.random()*MENU_KEYS.length)|0];
+  const group = makeHumanoid(SHIRTS[(Math.random()*SHIRTS.length)|0], SKINS[(Math.random()*SKINS.length)|0], null);
+  group.position.set(DOOR_X, 0, DOOR_Z - 0.5); scene.add(group);
+  const cust = { id: nextCustomerId++, group, table: free, menu: menuKey, state: 'entering', target: new THREE.Vector3(free.x, 0, free.z - 1.0), bob: 0, eatTimer: 0, angerTimer: 0, sprite: null, cash: null };
+  cust.sprite = makeOrderSprite(cust); group.add(cust.sprite);
+  free.occupied = true; group.userData.interactType = 'customer'; group.userData.customer = cust;
+  interactables.push(group); game.customers.push(cust); updateOrdersPanel();
 }
-
 function makeOrderSprite(c){
-  const B = BURGERS[c.order];
-  const canvas = document.createElement('canvas');
-  canvas.width = 320; canvas.height = 140;
-  const g = canvas.getContext('2d');
-  g.fillStyle = 'rgba(20,25,45,0.9)'; g.fillRect(0,0,320,140);
+  const M = MENUS[c.menu]; const canvas = document.createElement('canvas'); canvas.width = 320; canvas.height = 140;
+  const g = canvas.getContext('2d'); g.fillStyle = 'rgba(20,25,45,0.9)'; g.fillRect(0,0,320,140);
   g.strokeStyle = '#7dffb0'; g.lineWidth = 4; g.strokeRect(4,4,312,132);
-  g.font = 'bold 72px sans-serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
-  g.fillText('🍔', 20, 70);
-  g.fillStyle = '#fff'; g.font = 'bold 40px sans-serif';
-  g.fillText(B.name, 110, 55);
-  g.fillStyle = '#7dffb0'; g.font = 'bold 30px sans-serif';
-  g.fillText(B.price + ' TL', 110, 95);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: tex, depthTest: false, transparent: true
-  }));
-  sprite.scale.set(1.6, 0.7, 1);
-  sprite.position.y = 2.5;
-  c.sprite = sprite;
-  return sprite;
+  g.fillStyle = '#fff'; g.font = 'bold 36px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(M.name, 160, 50);
+  g.fillStyle = '#7dffb0'; g.font = 'bold 28px sans-serif'; g.fillText(M.price + ' TL', 160, 100);
+  const tex = new THREE.CanvasTexture(canvas); const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
+  sprite.scale.set(1.6, 0.7, 1); sprite.position.y = 2.5; return sprite;
 }
 
 function updateCustomers(dt){
   for (let i = game.customers.length - 1; i >= 0; i--){
-    const c = game.customers[i];
-    const g = c.group;
-
+    const c = game.customers[i]; const g = c.group;
     if (c.state === 'entering' || c.state === 'toRegister' || c.state === 'leaving'){
-      const dx = c.target.x - g.position.x;
-      const dz = c.target.z - g.position.z;
-      const dist = Math.hypot(dx, dz);
+      const dx = c.target.x - g.position.x, dz = c.target.z - g.position.z; const dist = Math.hypot(dx, dz);
       if (dist > 0.1){
-        const spd = c.state === 'leaving' ? 3.5 : 3.2;
-        const step = Math.min(dist, spd * dt);
-        g.position.x += dx/dist * step;
-        g.position.z += dz/dist * step;
-        g.rotation.y = Math.atan2(dx, dz);
-        c.bob += dt * 9;
-        g.position.y = Math.abs(Math.sin(c.bob)) * 0.06;
+        const step = Math.min(dist, (c.state === 'leaving' ? 3.5 : 3.2) * dt);
+        g.position.x += dx/dist * step; g.position.z += dz/dist * step; g.rotation.y = Math.atan2(dx, dz);
+        c.bob += dt * 9; g.position.y = Math.abs(Math.sin(c.bob)) * 0.06;
       } else {
         g.position.y = 0;
         if (c.state === 'entering') c.state = 'waiting';
         else if (c.state === 'toRegister') c.state = 'paying';
-        else if (c.state === 'leaving'){
-          scene.remove(g);
-          const idx = interactables.indexOf(g);
-          if (idx >= 0) interactables.splice(idx, 1);
-          c.table.occupied = false;
-          game.customers.splice(i, 1);
-        }
+        else if (c.state === 'leaving'){ scene.remove(g); interactables.splice(interactables.indexOf(g), 1); c.table.occupied = false; game.customers.splice(i, 1); }
         updateOrdersPanel();
       }
-    }
-    else if (c.state === 'waiting' || c.state === 'paying'){
-      const pdx = player.pos.x - g.position.x;
-      const pdz = player.pos.z - g.position.z;
-      const targetRot = Math.atan2(pdx, pdz);
-      let diff = targetRot - g.rotation.y;
-      while (diff > Math.PI) diff -= Math.PI*2;
-      while (diff < -Math.PI) diff += Math.PI*2;
-      g.rotation.y += diff * Math.min(1, dt*4);
-    }
-    else if (c.state === 'eating'){
+    } else if (c.state === 'waiting' || c.state === 'paying'){
+      c.angerTimer += dt;
+      if (c.state === 'waiting' && c.angerTimer > 60){
+        c.state = 'leaving'; c.target = new THREE.Vector3(DOOR_X, 0, DOOR_Z + 1);
+        if (c.sprite){ g.remove(c.sprite); c.sprite = null; } updateOrdersPanel();
+      }
+    } else if (c.state === 'eating'){
       c.eatTimer -= dt;
-      g.position.y = Math.abs(Math.sin(c.eatTimer * 8)) * 0.04;
       if (c.eatTimer <= 0){
-        g.position.y = 0;
-        c.state = 'toRegister';
-        c.target = new THREE.Vector3(REGISTER_SPOT.x + (Math.random()-0.5)*0.8, 0, REGISTER_SPOT.z + (Math.random()-0.5)*0.4);
-        c.cash = (() => {
-          const B = BURGERS[c.order];
-          const paid = BILLS.find(b => b >= B.price) || 200;
-          return { price: B.price, paid, changeNeeded: paid - B.price, changeGiven: 0 };
-        })();
-        if (c.sprite){ g.remove(c.sprite); c.sprite = null; }
-        updateOrdersPanel();
-        toast('💳 Müşteri kasaya gidiyor');
+        c.state = 'toRegister'; c.target = new THREE.Vector3(REGISTER_SPOT.x, 0, REGISTER_SPOT.z);
+        const price = MENUS[c.menu].price; const paid = BILLS.find(b => b >= price) || 1000;
+        c.cash = { price, paid, changeNeeded: paid - price, changeGiven: 0 };
+        if (c.sprite){ g.remove(c.sprite); c.sprite = null; } updateOrdersPanel();
       }
+    } else if (c.state === 'angry'){
+      c.angerTimer -= dt; if (c.angerTimer <= 0){ c.state = 'leaving'; c.target = new THREE.Vector3(DOOR_X, 0, DOOR_Z + 1); }
     }
   }
 }
 
-/* ═══════ IZGARA ═══════ */
+// Çoklu Izgara Mantığı
 function updateGrill(dt){
-  if (grill.state === 'empty') return;
-  grill.timer += dt;
-  if (grill.timer < 3){
-    grill.pattyMesh.material.color.setHex(0xe8a0a0);
-  } else if (grill.timer < COOK_TIME){
-    const t = (grill.timer - 3) / (COOK_TIME - 3);
-    const col = new THREE.Color(0xe8a0a0).lerp(new THREE.Color(0x8b4513), t);
-    grill.pattyMesh.material.color.copy(col);
-  } else if (grill.timer < BURNT_TIME){
-    if (grill.state === 'cooking'){
-      grill.state = 'ready';
-      beep(900, 0.1, 'triangle', 0.06);
-      if (canCook()) toast('🥩 Köfte hazır!');
+  for (let i = grill.patties.length - 1; i >= 0; i--) {
+    const p = grill.patties[i];
+    p.timer += dt;
+    if (p.timer < 3) p.mesh.material.color.setHex(0xe8a0a0);
+    else if (p.timer < COOK_TIME) p.mesh.material.color.copy(new THREE.Color(0xe8a0a0).lerp(new THREE.Color(0x8b4513), (p.timer - 3) / 3));
+    else if (p.timer < BURNT_TIME) {
+      if (p.state === 'cooking') { p.state = 'ready'; beep(900, 0.1); }
+      p.mesh.material.color.setHex(0x8b4513);
+    } else {
+      if (p.state !== 'burnt') { p.state = 'burnt'; errorBeep(); }
+      p.mesh.material.color.setHex(0x1a1a1a);
     }
-    grill.pattyMesh.material.color.setHex(0x8b4513);
-  } else {
-    if (grill.state !== 'burnt'){
-      grill.state = 'burnt';
-      errorBeep();
-      if (canCook()) toast('🔥 Yanmış!');
-    }
-    grill.pattyMesh.material.color.setHex(0x1a1a1a);
   }
 }
 
 function handleGrill(){
   if (!canCook()){ hint('Bu iş şefe ait'); return; }
-  if (grill.state === 'empty'){
-    if (player.held){ hint('Elinde bir şey var'); return; }
-    if (game.stock.patty <= 0){ hint('Köfte yok!'); errorBeep(); return; }
-    game.stock.patty--;
-    updateStockUI();
-    grill.state = 'cooking'; grill.timer = 0;
-    grill.pattyMesh.visible = true;
-    grill.pattyMesh.material.color.setHex(0xe8a0a0);
-    beep(400, 0.1, 'sine', 0.06);
-    hint('Köfte pişiyor...');
-    sendAction({ action: 'useIngredient', id:'patty' });
-  } else if (grill.state === 'cooking'){
-    hint(`Henüz pişmedi (${Math.ceil(COOK_TIME - grill.timer)}s)`);
-    errorBeep();
-  } else if (grill.state === 'ready'){
-    if (player.held){ hint('Elinde bir şey var'); return; }
-    grill.state = 'empty'; grill.pattyMesh.visible = false;
-    player.held = { kind: 'patty' };
-    updateHeldUI();
-    beep(800, 0.08, 'triangle', 0.07);
-    toast('🥩 Köfte elinde');
-  } else if (grill.state === 'burnt'){
-    grill.state = 'empty'; grill.pattyMesh.visible = false;
-    errorBeep(); toast('Yanmış köfte atıldı');
-  }
-}
+  if (player.held) { hint('Elinde bir şey var'); return; }
 
-/* ═══════ MONTAJ ═══════ */
-function handleAssembly(){
-  if (!canCook()){ hint('Bu iş şefe ait'); return; }
-  if (!player.held || player.held.kind !== 'patty'){
-    hint('Önce köfteyi pişir');
+  const readyIdx = grill.patties.findIndex(p => p.state === 'ready');
+  if (readyIdx !== -1) {
+    const p = grill.patties.splice(readyIdx, 1)[0];
+    scene.remove(p.mesh);
+    player.held = { kind: 'patty' };
+    updateHeldUI(); beep(800,0.1);
     return;
   }
-  $('assemblyModal').classList.remove('hidden');
-  $('interactBtn').classList.add('hidden');
-  joyBase.classList.remove('on');
-  renderAssembly();
+
+  if (grill.patties.length < 4) {
+    if (game.stock.patty <= 0) { hint('Köfte yok'); errorBeep(); return; }
+    game.stock.patty--; updateStockUI();
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.07, 18), new THREE.MeshStandardMaterial({ color:0xe8a0a0 }));
+    const offsets = [[-0.25, -0.15], [0.25, -0.15], [-0.25, 0.15], [0.25, 0.15]];
+    const pos = offsets[grill.patties.length];
+    mesh.position.set(pos[0], 0.14, pos[1]);
+    mesh.castShadow = true;
+    grillGroup.add(mesh);
+    grill.patties.push({ mesh, timer: 0, state: 'cooking' });
+    beep(400, 0.1);
+  } else {
+    hint('Izgara dolu');
+  }
 }
 
-function renderAssembly(){
-  const body = $('assemblyBody');
-  body.innerHTML = '';
-  for (const key of BURGER_KEYS){
-    const B = BURGERS[key];
-    let canMake = true;
-    const needsHtml = Object.entries(B.needs).map(([id, qty]) => {
-      const ING = INGREDIENTS.find(i => i.id === id);
-      const have = game.stock[id] >= qty;
-      if (!have) canMake = false;
-      return `<span class="${have?'ok':'missing'}">${ING.emoji} ${ING.name} ×${qty}</span>`;
-    }).join('');
-    const item = document.createElement('div');
-    item.className = 'burger-option';
-    item.innerHTML = `
-      <div class="bo-header">
-        <span class="bo-emoji">🍔</span>
-        <div>
-          <div class="bo-name">${B.name} Burger</div>
-          <div class="bo-price">${B.price} TL</div>
+// Personel Sistemi
+function openStaff(){
+  $('staffModal').classList.remove('hidden'); $('interactBtn').classList.add('hidden');
+  renderStaff();
+}
+function renderStaff(){
+  const body = $('staffBody');
+  body.innerHTML = `
+    <div class="shop-balance">Bakiye: <b>${game.balance} TL</b></div>
+    <div class="shop-grid">
+      <div class="shop-item">
+        <svg class="si-ico" viewBox="0 0 32 32"><use href="#ico-chef"/></svg>
+        <div class="si-info">
+          <div class="si-name">Şef (NPC)</div>
+          <div class="si-stock">${game.staff.chef ? 'ÇALIŞIYOR' : 'Otomatik yemek yapar'}</div>
         </div>
+        ${game.staff.chef ? '<button class="buy-btn" disabled>ALINDI</button>' : `<button class="buy-btn" data-type="chef" ${game.balance < 3000 ? 'disabled' : ''}>Al<small>3000 TL</small></button>`}
       </div>
-      <div class="bo-needs">${needsHtml}</div>
-      <button class="bo-btn" ${canMake?'':'disabled'}>${canMake?'YAP':'MALZEME EKSİK'}</button>
-    `;
-    body.appendChild(item);
-    if (canMake){
-      item.querySelector('.bo-btn').addEventListener('click', () => makeBurger(key));
+      <div class="shop-item">
+        <svg class="si-ico" viewBox="0 0 32 32"><use href="#ico-waiter"/></svg>
+        <div class="si-info">
+          <div class="si-name">Garson (NPC)</div>
+          <div class="si-stock">${game.staff.waiter ? 'ÇALIŞIYOR' : 'Otomatik servis ve kasa'}</div>
+        </div>
+        ${game.staff.waiter ? '<button class="buy-btn" disabled>ALINDI</button>' : `<button class="buy-btn" data-type="waiter" ${game.balance < 2000 ? 'disabled' : ''}>Al<small>2000 TL</small></button>`}
+      </div>
+    </div>
+  `;
+  body.querySelectorAll('.buy-btn[data-type]').forEach(b => b.onclick = () => {
+    const type = b.dataset.type;
+    const cost = type === 'chef' ? 3000 : 2000;
+    if (game.balance >= cost) {
+      game.balance -= cost;
+      game.staff[type] = true;
+      updateBalanceUI();
+      successChime();
+      toast(`Personel alındı!`, true);
+      renderStaff();
+      spawnNPCs();
+      sendAction({ action: 'hireStaff', type });
+    }
+  });
+}
+function spawnNPCs(){
+  if (game.staff.chef && !chefNPC) {
+    chefNPC = makeHumanoid(0xffffff, 0xffd9b3, 'chef');
+    chefNPC.position.set(-2.8, 0, COUNTER_Z - 0.5);
+    scene.add(chefNPC);
+  }
+  if (game.staff.waiter && !waiterNPC) {
+    waiterNPC = makeHumanoid(0x1a1a1a, 0xffd9b3, 'waiter');
+    waiterNPC.position.set(1.0, 0, COUNTER_Z - 0.5);
+    scene.add(waiterNPC);
+  }
+}
+
+// NPC Yapay Zekası
+function updateNPCs(dt) {
+  if (!game.running) return;
+  npcTimer += dt;
+  if (npcTimer < 2.0) return;
+  npcTimer = 0;
+
+  if (game.staff.chef) {
+    if (grill.patties.length < 4 && game.stock.patty > 0) {
+      game.stock.patty--; updateStockUI();
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.07, 18), new THREE.MeshStandardMaterial({ color:0xe8a0a0 }));
+      const offsets = [[-0.25, -0.15], [0.25, -0.15], [-0.25, 0.15], [0.25, 0.15]];
+      const pos = offsets[grill.patties.length];
+      mesh.position.set(pos[0], 0.14, pos[1]);
+      grillGroup.add(mesh);
+      grill.patties.push({ mesh, timer: 0, state: 'cooking' });
+    }
+    const waiting = game.customers.find(c => c.state === 'waiting');
+    if (waiting && game.counterItems.length < 3) {
+      const M = MENUS[waiting.menu];
+      let canMake = true;
+      const readyPatty = grill.patties.find(p => p.state === 'ready');
+      if (!readyPatty && game.stock.patty <= 0) canMake = false;
+      const otherIngs = M.burger.filter(x => x !== 'patty');
+      for (const ing of otherIngs) if (game.stock[ing] <= 0) canMake = false;
+      for (const ing of M.sides) if (game.stock[ing] <= 0) canMake = false;
+
+      if (canMake) {
+        if (readyPatty) { scene.remove(readyPatty.mesh); grill.patties.splice(grill.patties.indexOf(readyPatty), 1); }
+        else game.stock.patty--;
+        for (const ing of otherIngs) game.stock[ing]--;
+        for (const ing of M.sides) game.stock[ing]--;
+        updateStockUI();
+        game.counterItems.push({ id: nextItemId++, menuKey: waiting.menu, price: M.price });
+        renderCounterItems();
+        sendAction({ action: 'addMenu', menu: game.counterItems[game.counterItems.length - 1] });
+      }
+    }
+  }
+
+  if (game.staff.waiter) {
+    const item = game.counterItems[0];
+    if (item) {
+      const cust = game.customers.find(c => c.state === 'waiting' && c.menu === item.menuKey);
+      if (cust) {
+        game.counterItems.shift(); renderCounterItems();
+        cust.state = 'eating'; cust.eatTimer = 3;
+        if (cust.sprite) { cust.group.remove(cust.sprite); cust.sprite = null; }
+        updateOrdersPanel();
+        sendAction({ action: 'serve', customerId: cust.id });
+        sendAction({ action: 'takeMenu', menuId: item.id });
+      }
+    }
+    const paying = game.customers.find(c => c.state === 'paying');
+    if (paying && paying.cash) {
+      game.balance += paying.cash.price; updateBalanceUI();
+      paying.state = 'leaving'; paying.target = new THREE.Vector3(DOOR_X, 0, DOOR_Z + 1);
+      updateOrdersPanel();
+      sendAction({ action: 'pay', customerId: paying.id, amount: paying.cash.price });
     }
   }
 }
 
-function makeBurger(key){
-  const B = BURGERS[key];
-  for (const [id, qty] of Object.entries(B.needs)){
-    if (game.stock[id] < qty) return;
-  }
-  for (const [id, qty] of Object.entries(B.needs)){
-    game.stock[id] -= qty;
-  }
-  player.held = null;
-  updateHeldUI();
-  updateStockUI();
-  addCounterBurger(key);
-  beep(700, 0.08, 'triangle', 0.07);
-  setTimeout(()=>beep(900, 0.08, 'triangle', 0.07), 80);
-  toast(`🍔 ${B.name} tezgahta!`, true);
-  $('assemblyModal').classList.add('hidden');
-  $('interactBtn').classList.remove('hidden');
+function startPrep(){
+  if (!canCook()){ hint('Bu iş şefe ait'); return; }
+  if (!player.held || player.held.kind !== 'patty') { hint('Önce köfteyi pişir ve eline al!'); errorBeep(); return; }
+  $('prepUI').classList.remove('hidden'); $('interactBtn').classList.add('hidden'); renderPrepUI();
 }
+function endPrep(){ $('prepUI').classList.add('hidden'); $('interactBtn').classList.remove('hidden'); }
+$('closePrepBtn').onclick = endPrep;
 
-/* ═══════ SERVİS TEPSİSİ ═══════ */
-function addCounterBurger(type){
-  if (game.counterBurgers.length >= 3){ hint('Tezgah dolu!'); return; }
-  const b = { id: nextBurgerId++, type };
-  game.counterBurgers.push(b);
-  renderCounterBurgers();
-  sendAction({ action: 'addBurger', burger: b });
-}
-
-function renderCounterBurgers(){
-  for (const obj of [...servingGroup.children]){
-    if (obj.userData.isBurger) servingGroup.remove(obj);
-  }
-  for (let i = 0; i < game.counterBurgers.length; i++){
-    const b = game.counterBurgers[i];
-    const mesh = makeBurgerMesh(b.type);
-    const slot = SERVING_SLOTS[i];
-    mesh.position.set(slot.x - servingGroup.position.x, 0.05, slot.z - servingGroup.position.z);
-    mesh.userData.isBurger = true;
-    servingGroup.add(mesh);
+function renderPrepUI(){
+  const recipeList = $('recipeList'); recipeList.innerHTML = '';
+  for (const [key, M] of Object.entries(MENUS)) {
+    let canMake = true; let missing = [];
+    let hasPattyInHand = player.held && player.held.kind === 'patty';
+    let stockPattyNeeded = M.burger.filter(x => x === 'patty').length - (hasPattyInHand ? 1 : 0);
+    if (stockPattyNeeded > game.stock.patty) { canMake = false; missing.push('Köfte'); }
+    const otherBurgerIngs = M.burger.filter(x => x !== 'patty');
+    for (const ing of otherBurgerIngs) if (game.stock[ing] <= 0) { canMake = false; missing.push(INGREDIENTS.find(i => i.id === ing).name); }
+    for (const ing of M.sides) if (game.stock[ing] <= 0) { canMake = false; missing.push(INGREDIENTS.find(i => i.id === ing).name); }
+    
+    const card = document.createElement('div'); card.className = 'recipe-card' + (canMake ? '' : ' disabled');
+    card.innerHTML = `
+      <div class="rc-name">${M.name}</div>
+      <div class="rc-price">${M.price} TL</div>
+      <div class="rc-layers">${M.burger.concat(M.sides).map(l => icoHTML(l)).join('')}</div>
+      ${!canMake ? `<div class="rc-missing">Eksik: ${[...new Set(missing)].join(', ')}</div>` : '<div class="rc-ready">HAZIR (Köfte Elinde)</div>'}
+    `;
+    if (canMake) card.onclick = () => makeBurger(key);
+    recipeList.appendChild(card);
   }
 }
 
-function takeBurgerFromCounter(){
+function makeBurger(menuKey) {
+  const M = MENUS[menuKey];
+  let hasPattyInHand = player.held && player.held.kind === 'patty';
+  let stockPattyNeeded = M.burger.filter(x => x === 'patty').length - (hasPattyInHand ? 1 : 0);
+  if (stockPattyNeeded > game.stock.patty) { hint('Yetersiz köfte!'); errorBeep(); return; }
+  const otherBurgerIngs = M.burger.filter(x => x !== 'patty');
+  for (const ing of otherBurgerIngs) if (game.stock[ing] <= 0) { hint('Eksik: ' + INGREDIENTS.find(i => i.id === ing).name); errorBeep(); return; }
+  for (const ing of M.sides) if (game.stock[ing] <= 0) { hint('Eksik: ' + INGREDIENTS.find(i => i.id === ing).name); errorBeep(); return; }
+  
+  if (stockPattyNeeded > 0) game.stock.patty -= stockPattyNeeded;
+  player.held = null; 
+  for (const ing of otherBurgerIngs) game.stock[ing]--;
+  for (const ing of M.sides) game.stock[ing]--;
+  
+  updateStockUI(); updateHeldUI();
+  game.counterItems.push({ id: nextItemId++, menuKey, price: M.price });
+  renderCounterItems(); toast(`${M.name} tezgaha kondu!`, true); successChime();
+  sendAction({ action: 'addMenu', menu: game.counterItems[game.counterItems.length - 1] });
+  endPrep();
+}
+
+function renderCounterItems(){
+  for (const obj of [...servingGroup.children]) if (obj.userData.isItem) servingGroup.remove(obj);
+  for (let i = 0; i < Math.min(game.counterItems.length, 3); i++){
+    const m = makePrepMesh('package'); m.position.set(SERVING_SLOTS[i].x - servingGroup.position.x, 0.05, SERVING_SLOTS[i].z - servingGroup.position.z); m.userData.isItem = true; servingGroup.add(m);
+  }
+}
+function takeFromCounter(){
   if (!canServe()){ hint('Bu iş garsona ait'); return; }
-  if (player.held){ hint('Elinde bir şey var'); return; }
-  if (game.counterBurgers.length === 0){ hint('Tezgah boş'); errorBeep(); return; }
-  const b = game.counterBurgers[0];
-  player.held = { kind: 'burger', type: b.type, id: b.id };
-  game.counterBurgers.shift();
-  updateHeldUI();
-  renderCounterBurgers();
-  beep(600, 0.06, 'triangle', 0.06);
-  toast(`🍔 ${BURGERS[b.type].name} elinde`);
-  sendAction({ action: 'takeBurger', burgerId: b.id });
+  if (player.held || game.counterItems.length === 0) { hint('Elinde bir şey var veya tezgah boş'); return; }
+  const item = game.counterItems.shift(); player.held = { kind: 'menu', menuKey: item.menuKey, price: item.price, id: item.id }; updateHeldUI(); renderCounterItems(); sendAction({action:'takeMenu', menuId: item.id});
 }
 
-/* ═══════ MÜŞTERİ SERVİS ═══════ */
 function serveCustomer(cust){
-  if (!canServe()){ hint('Bu iş garsona ait'); return; }
-  if (cust.state !== 'waiting'){ hint('Müşteri beklenmiyor'); return; }
-  if (!player.held || player.held.kind !== 'burger'){ hint('Burger taşımıyorsun'); return; }
-  if (player.held.type !== cust.order){
-    hint('Yanlış sipariş! ' + BURGERS[cust.order].name + ' istiyor');
-    errorBeep();
-    return;
+  if (!canServe()) { hint('Bu iş garsona ait'); return; }
+  if (cust.state !== 'waiting') { hint('Müşteri beklemiyor'); return; }
+  if (!player.held || player.held.kind !== 'menu') { hint('Elinde menü yok'); return; }
+  if (player.held.menuKey !== cust.menu){
+    cust.state = 'angry'; cust.angerTimer = 3; if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; }
+    player.held = null; updateHeldUI(); game.balance -= 5; updateBalanceUI(); errorBeep(); hint('Yanlış menü!'); sendAction({action:'angry', customerId: cust.id}); return;
   }
-  player.held = null;
-  updateHeldUI();
-  cust.state = 'eating';
-  cust.eatTimer = 3;
-  if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; }
-  beep(700, 0.08, 'triangle', 0.06);
-  toast('😋 Afiyet olsun!');
-  updateOrdersPanel();
-  sendAction({ action: 'serve', customerId: cust.id });
+  player.held = null; updateHeldUI(); cust.state = 'eating'; cust.eatTimer = 3; if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; } toast('Afiyet olsun!'); sendAction({action:'serve', customerId: cust.id});
 }
 
-/* ═══════ KASA ═══════ */
 function handleRegister(){
   if (!canServe()){ hint('Bu iş garsona ait'); return; }
-  const payingCust = game.customers.find(c => c.state === 'paying' && c.cash);
-  if (!payingCust){ hint('Ödeme bekleyen müşteri yok'); return; }
-  $('cashModal').classList.remove('hidden');
-  $('interactBtn').classList.add('hidden');
-  joyBase.classList.remove('on');
-  renderCash(payingCust);
+  const paying = game.customers.find(c => c.state === 'paying' && c.cash); if (!paying) { hint('Ödeme bekleyen yok'); return; }
+  $('cashModal').classList.remove('hidden'); $('interactBtn').classList.add('hidden'); renderCash(paying);
 }
-
 function renderCash(cust){
-  const c = cust.cash;
-  const body = $('cashBody');
-  const exact = c.changeGiven === c.changeNeeded;
-  const over = c.changeGiven > c.changeNeeded;
-  body.innerHTML = `
-    <div class="cash-display">
-      <div class="cash-row"><span>Sipariş</span><b>${BURGERS[cust.order].name}</b></div>
-      <div class="cash-row"><span>Fiyat</span><b>${c.price} TL</b></div>
-      <div class="cash-row"><span>Müşteri Verdi</span><b>${c.paid} TL</b></div>
-      <div class="cash-row highlight"><span>Para Üstü</span><b>${c.changeNeeded} TL</b></div>
-      <div class="cash-row given"><span>Verilen</span><b>${c.changeGiven} TL</b></div>
-      ${over?'<div class="cash-row over"><span>⚠️ Fazla verdin!</span><b></b></div>':''}
-    </div>
-    <div class="denom-grid">
-      ${[1,5,10,20,50].map(v=>`<button class="denom-btn" data-val="${v}">${v} TL</button>`).join('')}
-    </div>
-    <div class="cash-actions">
-      <button id="cashClear">TEMİZLE</button>
-      <button id="cashConfirm" ${exact?'':'disabled'}>ONAYLA</button>
-    </div>
-  `;
-  body.querySelectorAll('.denom-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      c.changeGiven += parseInt(btn.dataset.val);
-      beep(400 + parseInt(btn.dataset.val)*2, 0.04, 'sine', 0.05);
-      renderCash(cust);
-    });
-  });
-  $('cashClear').addEventListener('click', () => {
-    c.changeGiven = 0; beep(300, 0.06, 'sine', 0.05); renderCash(cust);
-  });
-  $('cashConfirm').addEventListener('click', () => {
-    if (c.changeGiven === c.changeNeeded) completePayment(cust);
-  });
+  const c = cust.cash; const body = $('cashBody'); const exact = c.changeGiven === c.changeNeeded;
+  body.innerHTML = `<div class="cash-display"><div class="cash-row"><span>Fiyat</span><b>${c.price} TL</b></div><div class="cash-row"><span>Müşteri</span><b>${c.paid} TL</b></div><div class="cash-row highlight"><span>Para Üstü</span><b>${c.changeNeeded} TL</b></div><div class="cash-row given"><span>Verilen</span><b>${c.changeGiven} TL</b></div></div>
+    <div class="denom-grid">${[1,5,10,20,50,100].map(v=>`<button class="denom-btn" data-val="${v}">${v} TL</button>`).join('')}</div>
+    <div class="cash-actions"><button id="cashClear">TEMİZLE</button><button id="cashConfirm" ${exact?'':'disabled'}>ONAYLA</button></div>`;
+  body.querySelectorAll('.denom-btn').forEach(b => b.onclick = () => { c.changeGiven += parseInt(b.dataset.val); playSound('click'); renderCash(cust); });
+  $('cashClear').onclick = () => { c.changeGiven = 0; renderCash(cust); };
+  $('cashConfirm').onclick = () => { if (exact){ game.balance += c.price; updateBalanceUI(); successChime(); toast(`+${c.price} TL`, true); $('cashModal').classList.add('hidden'); $('interactBtn').classList.remove('hidden'); cust.state = 'leaving'; cust.target = new THREE.Vector3(DOOR_X, 0, DOOR_Z + 1); if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; } updateOrdersPanel(); sendAction({action:'pay', customerId: cust.id, amount: c.price}); } };
 }
 
-function completePayment(cust){
-  game.balance += cust.cash.price;
-  game.ordersDone++;
-  updateBalanceUI();
-  successChime();
-  toast(`+${cust.cash.price} TL`, true);
-  $('cashModal').classList.add('hidden');
-  $('interactBtn').classList.remove('hidden');
-  cust.state = 'leaving';
-  cust.target = new THREE.Vector3(0, 0, ROOM/2 + 1);
-  if (cust.sprite){ cust.group.remove(cust.sprite); cust.sprite = null; }
-  updateOrdersPanel();
-  sendAction({ action: 'pay', customerId: cust.id, amount: cust.cash.price });
-}
-
-/* ═══════ SHOP ═══════ */
 function openShop(){
-  if (!canCook()){ hint('Bu iş şefe ait'); return; }
-  $('shopModal').classList.remove('hidden');
-  $('interactBtn').classList.add('hidden');
-  joyBase.classList.remove('on');
-  renderShop();
+  if (!canCook()) { hint('Bu iş şefe ait'); return; }
+  $('shopModal').classList.remove('hidden'); $('interactBtn').classList.add('hidden');
+  $('shopBody').innerHTML = `<div class="shop-balance">Bakiye: <b>${game.balance} TL</b></div>` + INGREDIENTS.map(ING => `<div class="shop-item"><svg class="si-ico" viewBox="0 0 32 32"><use href="#ico-${ING.id}"/></svg><div class="si-info"><div class="si-name">${ING.name}</div><div class="si-stock">Stok: ${game.stock[ING.id]}</div></div><button class="buy-btn" data-id="${ING.id}" ${game.balance >= ING.cost?'':'disabled'}>+${ING.pack}<small>${ING.cost} TL</small></button></div>`).join('');
+  $('shopBody').querySelectorAll('.buy-btn').forEach(b => b.onclick = () => { const ING = INGREDIENTS.find(i => i.id === b.dataset.id); if (game.balance >= ING.cost){ game.balance -= ING.cost; updateBalanceUI(); game.deliveries.push({ id: ING.id, quantity: ING.pack, arriveTime: game.time + DELIVERY_DELAY }); toast(`${ING.name} sipariş edildi`); openShop(); sendAction({action:'orderIngredient', id: ING.id, cost: ING.cost}); } });
 }
+document.querySelectorAll('.close-btn').forEach(b => b.onclick = () => { $(b.dataset.close).classList.add('hidden'); if (game.running && !game.over) $('interactBtn').classList.remove('hidden'); });
 
-document.querySelectorAll('.close-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $(btn.dataset.close).classList.add('hidden');
-    if (game.running && !game.over) $('interactBtn').classList.remove('hidden');
-  });
-});
-
-function renderShop(){
-  const body = $('shopBody');
-  body.innerHTML = `
-    <div class="shop-balance">Bakiye: <b>${game.balance} TL</b></div>
-    <div class="shop-grid" id="shopGrid"></div>
-  `;
-  const grid = $('shopGrid');
-  for (const ING of INGREDIENTS){
-    const have = game.stock[ING.id];
-    const canAfford = game.balance >= ING.cost;
-    const item = document.createElement('div');
-    item.className = 'shop-item';
-    item.innerHTML = `
-      <div class="si-emoji">${ING.emoji}</div>
-      <div class="si-info">
-        <div class="si-name">${ING.name}</div>
-        <div class="si-stock">Stok: ${have}</div>
-      </div>
-      <button class="buy-btn" data-id="${ING.id}" ${canAfford?'':'disabled'}>
-        +${ING.pack} Adet<small>${ING.cost} TL</small>
-      </button>
-    `;
-    grid.appendChild(item);
-  }
-  grid.querySelectorAll('.buy-btn').forEach(btn => {
-    btn.addEventListener('click', () => buyIngredient(btn.dataset.id));
-  });
+function spawnDeliveryBox(d){
+  const ING = INGREDIENTS.find(i => i.id === d.id); const box = makeBox();
+  box.position.set(DOOR_X + (Math.random()-0.5)*1.5, 0, DOOR_Z - 1.0); box.userData = { interactType: 'box', delivery: d, ingredient: ING };
+  scene.add(box); interactables.push(box); d.box = box; toast(`${ING.name} kargo geldi`);
 }
-
-function buyIngredient(id){
-  const ING = INGREDIENTS.find(i => i.id === id);
-  if (game.balance < ING.cost){ errorBeep(); return; }
-  game.balance -= ING.cost;
-  updateBalanceUI();
-  beep(700, 0.06, 'triangle', 0.06);
-  game.deliveries.push({
-    id, quantity: ING.pack,
-    arriveTime: game.time + DELIVERY_DELAY, box: null,
-  });
-  toast(`${ING.emoji} Sipariş verildi`);
-  hint(`${DELIVERY_DELAY}s sonra kapıda`);
-  renderShop();
-  sendAction({ action: 'orderIngredient', id, cost: ING.cost });
-}
-
-function spawnDeliveryBox(delivery){
-  const ING = INGREDIENTS.find(i => i.id === delivery.id);
-  const box = makeBox();
-  const offsetX = (Math.random()-0.5)*3;
-  box.position.set(offsetX, 0, ROOM/2 - 1.0);
-  box.userData.interactType = 'box';
-  box.userData.delivery = delivery;
-  box.userData.ingredient = ING;
-  scene.add(box);
-  interactables.push(box);
-  delivery.box = box;
-  beep(500, 0.1, 'square', 0.06);
-  toast(`📦 ${ING.emoji} kargo geldi`);
-}
-
 function pickupBox(box){
-  const d = box.userData.delivery;
-  const ING = box.userData.ingredient;
-  if (!d || !ING) return;
-  game.stock[ING.id] += d.quantity;
-  updateStockUI();
-  scene.remove(box);
-  const idx = interactables.indexOf(box);
-  if (idx >= 0) interactables.splice(idx, 1);
-  const di = game.deliveries.indexOf(d);
-  if (di >= 0) game.deliveries.splice(di, 1);
-  beep(600, 0.08, 'triangle', 0.07);
-  setTimeout(()=>beep(800, 0.08, 'triangle', 0.06), 80);
-  toast(`+${d.quantity} ${ING.emoji}`, true);
-  sendAction({ action: 'pickupBox', ingredientId: ING.id, quantity: d.quantity });
+  const d = box.userData.delivery; game.stock[d.id] += d.quantity; updateStockUI();
+  scene.remove(box); interactables.splice(interactables.indexOf(box), 1); game.deliveries.splice(game.deliveries.indexOf(d), 1); toast(`+${d.quantity} ${box.userData.ingredient.name}`, true);
+  sendAction({action:'pickupBox', id:d.id, quantity:d.quantity});
 }
 
-/* ═══════ ETKİLEŞİM ═══════ */
+function feedCat(cat){ if (!player.held) { hint('Elinde yemek yok'); return; } player.held = null; updateHeldUI(); cat.position.y = 0.3; setTimeout(() => cat.position.y = 0, 200); toast('Kedi mutlu!'); }
+function handleStorage(){ if (game.storageUnlocked) { hint('Depo açık'); return; } if (game.balance < STORAGE_COST) { hint('Para yetmiyor'); errorBeep(); return; } game.balance -= STORAGE_COST; game.storageUnlocked = true; updateBalanceUI(); successChime(); storageGroup.remove(storageGroup.userData.lockMesh); sendAction({action:'storage'}); }
+
+// --- TELEFON VE KURYE SİSTEMİ (YENİ) ---
+$('courierBtn').onclick = () => { $('courierModal').classList.remove('hidden'); renderCourier(); };
+$('settingsBtn').onclick = () => {
+  $('settingsModal').classList.remove('hidden');
+  const body = $('settingsBody');
+  body.innerHTML = `
+    <div class="custom-row" style="flex-direction:column;align-items:flex-start;gap:12px">
+      <label style="width:100%">Ses Seviyesi (%${Math.round(game.volume*100)})</label>
+      <div class="slider-container"><input type="range" id="volRange" min="0" max="1" step="0.1" value="${game.volume}"></div>
+    </div>
+    <button class="btn danger" onclick="location.reload()">OYUNU SIFIRLA</button>
+  `;
+  $('volRange').oninput = (e) => { game.volume = parseFloat(e.target.value); playSound('click'); $('settingsModal').classList.remove('hidden'); $('settingsBody').querySelector('label').textContent = `Ses Seviyesi (%${Math.round(game.volume*100)})`; };
+};
+
+function renderCourier() {
+  const body = $('courierBody');
+  let html = '';
+  
+  if (game.courier.status === 'at_shop') {
+    html += `<div style="color:#7dffb0;font-weight:800;text-align:center;margin-bottom:10px">Kurye Dükkanda (Hazır)</div>`;
+    if (game.phone.currentOrder && game.phone.currentOrder.status === 'ready_for_courier') {
+      const order = game.phone.currentOrder;
+      html += `
+        <div class="courier-item pending">
+          <div style="font-weight:800;color:#ffd84d">Bekleyen Sipariş: ${MENUS[order.menu].name}</div>
+          <div style="font-size:12px;color:#a9b6d6">Müşteri Adresi: ${order.address}</div>
+          <input type="text" class="address-input" id="courierAddrInput" placeholder="Adresi girin (örn: Mavi Ev)">
+          <button class="btn" id="dispatchBtn" style="padding:8px;font-size:13px">Yola Çıkar</button>
+        </div>
+      `;
+    } else {
+      html += `<div style="color:#a9b6d6;text-align:center">Bekleyen kurye siparişi yok.</div>`;
+    }
+  } else if (game.courier.status === 'delivering') {
+    html += `<div style="color:#ffd84d;font-weight:800;text-align:center">Kurye Yolda! (Kalan: ${Math.ceil(game.courier.timer)}s)</div>`;
+  } else if (game.courier.status === 'returning') {
+    html += `<div style="color:#a9b6d6;font-weight:800;text-align:center">Kurye Dükkana Dönüyor...</div>`;
+  }
+  body.innerHTML = html;
+
+  if ($('dispatchBtn')) {
+    $('dispatchBtn').onclick = () => {
+      const val = $('courierAddrInput').value.trim();
+      if (!val) { playSound('error'); return; }
+      if (!VALID_ADDRESSES.includes(val)) { hint('Böyle bir adres yok!'); playSound('error'); return; }
+      
+      if (val !== game.phone.currentOrder.address) {
+        hint('Yanlış sipariş adresi!'); playSound('error'); return;
+      }
+      
+      game.courier.status = 'delivering';
+      game.courier.timer = 60;
+      game.phone.currentOrder.status = 'delivering';
+      $('courierModal').classList.add('hidden');
+      playSound('success'); toast('Kurye yola çıktı!');
+    };
+  }
+}
+
+function startPhoneRing() {
+  if (game.phone.ringing || game.phone.active || game.phone.currentOrder) return;
+  game.phone.ringing = true;
+  $('phoneRing').classList.remove('hidden');
+  playSound('phone');
+}
+
+$('phoneRejectBtn').onclick = () => {
+  game.phone.ringing = false; $('phoneRing').classList.add('hidden');
+  hint('Telefonu kapattın. Müşteri sayısı azalacak.');
+  game.customerSpawnTimer = 30;
+  playSound('error');
+};
+
+$('phoneAcceptBtn').onclick = () => {
+  game.phone.ringing = false; $('phoneRing').classList.add('hidden');
+  game.phone.active = true; $('phoneModal').classList.remove('hidden');
+  
+  const keysArr = Object.keys(MENUS);
+  const menuKey = keysArr[Math.floor(Math.random() * keysArr.length)];
+  const M = MENUS[menuKey];
+  
+  game.phone.currentOrder = { menu: menuKey, address: M.address, status: 'asking_stock' };
+  game.phone.step = 0;
+  renderPhoneModal();
+};
+
+function renderPhoneModal() {
+  const body = $('phoneBody');
+  const o = game.phone.currentOrder;
+  const M = MENUS[o.menu];
+  
+  let chat = '';
+  if (game.phone.step === 0) {
+    chat = `<div class="chat-bubble cust">Merhaba, ${M.name} sipariş vermek istiyorum. Stokta var mı?</div>`;
+    body.innerHTML = `<div class="phone-chat">${chat}</div><div class="phone-actions">
+      <button class="btn" id="phBtnVar">Stokta Var</button>
+      <button class="btn danger" id="phBtnYok">Stokta Yok</button>
+    </div>`;
+    $('phBtnVar').onclick = () => { game.phone.step = 1; playSound('click'); renderPhoneModal(); };
+    $('phBtnYok').onclick = () => { playSound('error'); body.innerHTML += `<div class="chat-bubble cust">Anladım, iyi günler.</div>`; setTimeout(closePhone, 1500); };
+  } else if (game.phone.step === 1) {
+    chat = `<div class="chat-bubble cust">Harika! Yanına bir şey ister misiniz?</div>`;
+    body.innerHTML = `<div class="phone-chat">${chat}</div><div class="phone-actions">
+      <button class="btn" id="phBtnSideYes">Evet, ${M.sides[0] ? INGREDIENTS.find(i=>i.id===M.sides[0]).name : 'Yan Yemek'} Ekle</button>
+      <button class="btn ghost" id="phBtnSideNo">Hayır, Sadece Menü</button>
+    </div>`;
+    $('phBtnSideYes').onclick = () => { game.phone.step = 2; playSound('click'); renderPhoneModal(); };
+    $('phBtnSideNo').onclick = () => { game.phone.step = 2; playSound('click'); renderPhoneModal(); };
+  } else if (game.phone.step === 2) {
+    chat = `<div class="chat-bubble cust">Peki, adresinizi alabilir miyim?</div>`;
+    body.innerHTML = `<div class="phone-chat">${chat}</div><div class="phone-actions"><button class="btn" id="phBtnAddr">Adresi İste</button></div>`;
+    $('phBtnAddr').onclick = () => { game.phone.step = 3; playSound('click'); renderPhoneModal(); };
+  } else if (game.phone.step === 3) {
+    chat = `<div class="chat-bubble cust">Adresim: ${o.address}. Siparişimi bekliyorum!</div>`;
+    body.innerHTML = `<div class="phone-chat">${chat}</div><div class="phone-actions"><button class="btn secondary" id="phBtnEnd">Görüşmeyi Bitir</button></div>`;
+    $('phBtnEnd').onclick = () => {
+      o.status = 'ready_for_courier'; playSound('success');
+      hint('Sipariş alındı. Kurye menüsünden adresi girip yollayın!');
+      closePhone();
+    };
+  }
+}
+function closePhone() { game.phone.active = false; $('phoneModal').classList.add('hidden'); }
+$('phoneHangupBtn').onclick = closePhone;
+
+function updateTimers(dt) {
+  if (game.courier.status === 'delivering') {
+    game.courier.timer -= dt;
+    if (game.courier.timer <= 0) {
+      game.courier.status = 'returning';
+      game.courier.timer = 5;
+      game.phone.currentOrder = null;
+      game.balance += 300; updateBalanceUI();
+      toast('Kurye teslimatı tamamladı! (+300 TL)', true); playSound('success');
+    }
+  } else if (game.courier.status === 'returning') {
+    game.courier.timer -= dt;
+    if (game.courier.timer <= 0) game.courier.status = 'at_shop';
+  }
+
+  if (!game.phone.currentOrder && game.phone.timer > 0) {
+    game.phone.timer -= dt;
+    if (game.phone.timer <= 0) { startPhoneRing(); game.phone.timer = 120; }
+  }
+}
+
 let currentTarget = null;
 function findInteractable(){
-  const camPos = camera.position;
-  const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-  forward.y = 0;
-  if (forward.lengthSq() < 0.001) return null;
-  forward.normalize();
+  const camPos = camera.position; const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); forward.y = 0; forward.normalize();
   let best = null, bestScore = 0;
   for (const obj of interactables){
     if (!obj.parent) continue;
-    const wp = obj.getWorldPosition(new THREE.Vector3());
-    const dx = wp.x - camPos.x, dz = wp.z - camPos.z;
-    const dist = Math.hypot(dx, dz);
+    const wp = obj.getWorldPosition(new THREE.Vector3()); const dx = wp.x - camPos.x, dz = wp.z - camPos.z; const dist = Math.hypot(dx, dz);
     if (dist > INTERACT_DIST) continue;
     if (dist < 0.5) return obj;
-    const tx = dx/dist, tz = dz/dist;
-    const dot = forward.x*tx + forward.z*tz;
-    if (dot < 0.2) continue;
-    const score = dot * (1 - dist/INTERACT_DIST);
-    if (score > bestScore){ bestScore = score; best = obj; }
+    const dot = forward.x * (dx/dist) + forward.z * (dz/dist); if (dot < 0.2) continue;
+    const score = dot * (1 - dist/INTERACT_DIST); if (score > bestScore){ bestScore = score; best = obj; }
   }
   return best;
 }
-
 function tryInteract(){
-  if (!game.running || game.over) return;
-  if (document.querySelector('.modal:not(.hidden)')) return;
-  const target = findInteractable();
-  if (!target) return;
-  currentTarget = target;
+  if (!game.running || game.over || !$('prepUI').classList.contains('hidden') || document.querySelector('.modal:not(.hidden)')) return;
+  const target = findInteractable(); if (!target) return;
   const type = target.userData.interactType;
-  if (type === 'grill') handleGrill();
-  else if (type === 'assembly') handleAssembly();
-  else if (type === 'computer') openShop();
-  else if (type === 'serving') takeBurgerFromCounter();
-  else if (type === 'register') handleRegister();
-  else if (type === 'box') pickupBox(target);
-  else if (type === 'customer') serveCustomer(target.userData.customer);
+  if (type === 'grill') handleGrill(); else if (type === 'assembly') startPrep(); else if (type === 'computer') openShop();
+  else if (type === 'serving') takeFromCounter(); else if (type === 'register') handleRegister();
+  else if (type === 'box') pickupBox(target); else if (type === 'customer') serveCustomer(target.userData.customer);
+  else if (type === 'storage') handleStorage(); else if (type === 'cat') feedCat(target);
 }
-$('interactBtn').addEventListener('click', tryInteract);
+$('interactBtn').onclick = tryInteract;
+$('staffBtn').onclick = openStaff;
 
 function updatePrompt(){
-  const target = findInteractable();
-  currentTarget = target;
-  const prompt = $('prompt'), crosshair = $('crosshair'), btn = $('interactBtn');
+  if (!$('prepUI').classList.contains('hidden')){ $('prompt').classList.add('hidden'); $('crosshair').classList.remove('active'); $('interactBtn').classList.add('hidden'); return; }
+  const target = findInteractable(); const prompt = $('prompt'), crosshair = $('crosshair'), btn = $('interactBtn');
   if (target && !document.querySelector('.modal:not(.hidden)')){
-    let text = '';
-    const type = target.userData.interactType;
-    if (type === 'grill'){
-      if (grill.state === 'empty') text = '🔥 IZGARA';
-      else if (grill.state === 'cooking') text = `⏱️ ${Math.ceil(COOK_TIME - grill.timer)}s`;
-      else if (grill.state === 'ready') text = '🥩 HAZIR — Al';
-      else text = '🔥 Yanmış';
-    }
-    else if (type === 'assembly') text = player.held?.kind==='patty' ? '🍔 MONTAJ' : '🍔 Köfte gerek';
-    else if (type === 'computer') text = '🖥️ SİPARİŞ';
-    else if (type === 'serving'){
-      const n = game.counterBurgers.length;
-      text = n === 0 ? '🍽️ Servis (boş)' : `🍽️ Servis (${n})`;
-    }
-    else if (type === 'register') text = '💵 KASA';
-    else if (type === 'box'){
-      const d = target.userData.delivery, ING = target.userData.ingredient;
-      if (d && ING) text = `📦 ${ING.emoji} ×${d.quantity}`;
-    }
-    else if (type === 'customer'){
-      const c = target.userData.customer;
-      if (c){
-        if (c.state === 'waiting') text = player.held?.kind==='burger' ? '🍔 SERVİS ET' : `👤 ${BURGERS[c.order].name} istiyor`;
-        else if (c.state === 'eating') text = '😋 Yiyor...';
-        else if (c.state === 'paying') text = '💳 Kasada bekliyor';
-      }
-    }
-    if (text){
-      prompt.textContent = text;
-      prompt.classList.remove('hidden');
-      crosshair.classList.add('active');
-      btn.classList.remove('hidden');
-      btn.classList.add('pulse');
-    }
-  } else {
-    prompt.classList.add('hidden');
-    crosshair.classList.remove('active');
-    if (!document.querySelector('.modal:not(.hidden)') && game.running && !game.over){
-      btn.classList.add('hidden');
-    }
-    btn.classList.remove('pulse');
-  }
+    let text = ''; const type = target.userData.interactType;
+    if (type === 'grill') text = icoHTML('grill') + ' IZGARA'; else if (type === 'assembly') text = icoHTML('assembly') + ' HAZIRLA';
+    else if (type === 'computer') text = icoHTML('pc') + ' SİPARİŞ'; else if (type === 'serving') text = icoHTML('tray') + ` SERVİS (${game.counterItems.length})`;
+    else if (type === 'register') text = icoHTML('register') + ' KASA'; else if (type === 'box') text = icoHTML('box') + ' KUTU';
+    else if (type === 'customer') text = target.userData.customer.state === 'waiting' ? icoHTML('burger') + ' SERVİS' : 'MÜŞTERİ';
+    else if (type === 'cat') text = icoHTML('cat') + ' KEDİ'; else if (type === 'storage') text = game.storageUnlocked ? 'DEPO' : icoHTML('lock') + ` DEPO (${STORAGE_COST} TL)`;
+    prompt.innerHTML = text; prompt.classList.remove('hidden'); crosshair.classList.add('active'); btn.classList.remove('hidden'); btn.classList.add('pulse');
+  } else { prompt.classList.add('hidden'); crosshair.classList.remove('active'); if (!document.querySelector('.modal:not(.hidden)') && game.running && !game.over) btn.classList.add('hidden'); btn.classList.remove('pulse'); }
 }
 
-/* ═══════ OYUNCU HAREKETİ ═══════ */
 function resolveCollisions(pos){
-  const lim = ROOM/2 - 0.45;
-  pos.x = Math.max(-lim, Math.min(lim, pos.x));
-  pos.z = Math.max(-lim, Math.min(lim, pos.z));
+  const lim = ROOM/2 - 0.45; pos.x = Math.max(-lim, Math.min(lim, pos.x)); pos.z = Math.max(-lim, Math.min(lim, pos.z));
   for (const b of colliders){
-    const cx = Math.max(b.minX, Math.min(pos.x, b.maxX));
-    const cz = Math.max(b.minZ, Math.min(pos.z, b.maxZ));
-    let dx = pos.x - cx, dz = pos.z - cz;
-    let d2 = dx*dx + dz*dz;
+    const cx = Math.max(b.minX, Math.min(pos.x, b.maxX)), cz = Math.max(b.minZ, Math.min(pos.z, b.maxZ));
+    let dx = pos.x - cx, dz = pos.z - cz, d2 = dx*dx + dz*dz;
     if (d2 < PLAYER_R*PLAYER_R){
-      if (d2 > 1e-8){
-        const d = Math.sqrt(d2);
-        pos.x = cx + dx/d*PLAYER_R;
-        pos.z = cz + dz/d*PLAYER_R;
-      } else {
-        const toL = pos.x - b.minX, toR = b.maxX - pos.x;
-        const toB = pos.z - b.minZ, toT = b.maxZ - pos.z;
-        const m = Math.min(toL, toR, toB, toT);
-        if (m === toL) pos.x = b.minX - PLAYER_R;
-        else if (m === toR) pos.x = b.maxX + PLAYER_R;
-        else if (m === toB) pos.z = b.minZ - PLAYER_R;
-        else pos.z = b.maxZ + PLAYER_R;
-      }
+      if (d2 > 1e-8){ const d = Math.sqrt(d2); pos.x = cx + dx/d*PLAYER_R; pos.z = cz + dz/d*PLAYER_R; }
+      else { const toL = pos.x - b.minX, toR = b.maxX - pos.x, toB = pos.z - b.minZ, toT = b.maxZ - pos.z; const m = Math.min(toL, toR, toB, toT); if (m === toL) pos.x = b.minX - PLAYER_R; else if (m === toR) pos.x = b.maxX + PLAYER_R; else if (m === toB) pos.z = b.minZ - PLAYER_R; else pos.z = b.maxZ + PLAYER_R; }
     }
   }
 }
-
 function updatePlayer(dt){
-  let mx = joy.x, my = joy.y;
-  if (keys['KeyW'] || keys['ArrowUp'])    my -= 1;
-  if (keys['KeyS'] || keys['ArrowDown'])  my += 1;
-  if (keys['KeyA'] || keys['ArrowLeft'])  mx -= 1;
-  if (keys['KeyD'] || keys['ArrowRight']) mx += 1;
-  const mag = Math.hypot(mx, my);
-  if (mag > 1){ mx /= mag; my /= mag; }
-  const fwd   = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
-  const right = new THREE.Vector3( Math.cos(player.yaw), 0, -Math.sin(player.yaw));
-  const move = new THREE.Vector3().addScaledVector(right, mx).addScaledVector(fwd, -my);
-  const len = move.length();
-  if (len > 0.02){
-    move.multiplyScalar(1 / Math.max(1, len));
-    player.pos.x += move.x * MOVE_SPEED * dt;
-    player.pos.z += move.z * MOVE_SPEED * dt;
-    player.bobPhase += dt * 10;
-    player.bobAmount += (1 - player.bobAmount) * Math.min(1, dt*8);
-  } else {
-    player.bobAmount += (0 - player.bobAmount) * Math.min(1, dt*8);
-  }
+  if (!$('prepUI').classList.contains('hidden')) return;
+  let mx = joy.x, my = joy.y; if (keys['KeyW'] || keys['ArrowUp']) my -= 1; if (keys['KeyS'] || keys['ArrowDown']) my += 1; if (keys['KeyA'] || keys['ArrowLeft']) mx -= 1; if (keys['KeyD'] || keys['ArrowRight']) mx += 1;
+  const mag = Math.hypot(mx, my); if (mag > 1){ mx /= mag; my /= mag; }
+  const fwd = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw)), right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  const move = new THREE.Vector3().addScaledVector(right, mx).addScaledVector(fwd, -my); const len = move.length();
+  if (len > 0.02){ move.multiplyScalar(1 / Math.max(1, len)); player.pos.x += move.x * MOVE_SPEED * dt; player.pos.z += move.z * MOVE_SPEED * dt; player.bobPhase += dt * 10; player.bobAmount += (1 - player.bobAmount) * Math.min(1, dt*8); }
+  else { player.bobAmount += (0 - player.bobAmount) * Math.min(1, dt*8); }
   resolveCollisions(player.pos);
-  const bob = Math.sin(player.bobPhase) * 0.04 * player.bobAmount;
-  camera.position.set(player.pos.x, EYE + bob, player.pos.z);
-  camera.rotation.set(player.pitch, player.yaw, 0);
-  sun.position.set(player.pos.x + 6, 14, player.pos.z + 4);
-  sun.target.position.set(player.pos.x, 0, player.pos.z);
+  camera.position.set(player.pos.x, EYE + Math.sin(player.bobPhase) * 0.04 * player.bobAmount, player.pos.z); camera.rotation.set(player.pitch, player.yaw, 0);
+  sun.position.set(player.pos.x + 6, 14, player.pos.z + 4); sun.target.position.set(player.pos.x, 0, player.pos.z);
 }
 
-/* ═══════ MULTIPLAYER ═══════ */
-let peer = null;
-let conn = null;
-let peerRole = null;
-let remotePlayerMesh = null;
-let lastSyncTime = 0;
-const SYNC_INTERVAL = 100;
+/* MULTIPLAYER LOGIC */
+let peer = null, conn = null, remoteMesh = null;
+let lastSync = 0;
+function genCode(){ let c = ''; const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (let i=0;i<6;i++) c += chars[Math.floor(Math.random()*chars.length)]; return c; }
 
-function generateCode(){
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random()*chars.length)];
-  return code;
-}
-
-function createRoom(code){
-  return new Promise((resolve, reject) => {
-    peer = new Peer('hamburger-sim-' + code, { debug: 0 });
-    let resolved = false;
-    peer.on('open', () => { if (!resolved){ resolved = true; resolve(); } });
-    peer.on('error', (err) => {
-      if (!resolved){ resolved = true; reject(err); }
-      else hint('Bağlantı hatası: ' + (err.type || 'bilinmeyen'));
-    });
-    peer.on('connection', (c) => {
-      if (conn) return;
-      conn = c;
-      conn.on('open', () => setupConnection());
-    });
-    setTimeout(() => { if (!resolved){ resolved = true; reject(new Error('timeout')); } }, 15000);
-  });
-}
-
-function joinRoom(code){
-  return new Promise((resolve, reject) => {
-    peer = new Peer({ debug: 0 });
-    let resolved = false;
-    peer.on('open', () => {
-      const c = peer.connect('hamburger-sim-' + code, { reliable: true });
-      c.on('open', () => {
-        conn = c;
-        if (!resolved){ resolved = true; resolve(); }
-        setupConnection();
-      });
-      c.on('error', (err) => { if (!resolved){ resolved = true; reject(err); } });
-    });
-    peer.on('error', (err) => {
-      if (!resolved){ resolved = true; reject(err); }
-      else hint('Bağlantı hatası: ' + (err.type || 'bilinmeyen'));
-    });
-    setTimeout(() => { if (!resolved){ resolved = true; reject(new Error('timeout')); } }, 15000);
-  });
-}
-
-function setupConnection(){
-  if (!conn) return;
-  conn.on('data', (data) => handlePeerData(data));
-  conn.on('close', () => {
-    if (game.running && !game.over){
-      hint('Rakip ayrıldı');
-      if (game.isHost){
-        game.multiplayer = false;
-        updateRolePill();
-      } else {
-        endGame();
-      }
-    }
-  });
-  conn.on('error', (err) => {
-    hint('Bağlantı hatası');
-    console.error(err);
-  });
-}
-
-function handlePeerData(data){
-  if (!data) return;
-
-  if (data.type === 'hello'){
-    peerRole = data.role;
-    if (game.isHost && peerRole === game.role){
-      conn.send({ type: 'roleConflict' });
-      setTimeout(() => { if (conn) conn.close(); }, 500);
-      hint('Rol çakışması! Farklı rol seç');
-      return;
-    }
-    if (game.isHost){
-      conn.send({ type: 'hello', role: game.role });
-    }
-    // Her iki taraf da oyunu başlatır (hello alınca)
-    if (!game.running){
-      startGame();
-    }
-    createRemotePlayerMesh();
-  }
-  else if (data.type === 'roleConflict'){
-    hint('Rol çakışması! Farklı rol seç');
-    if (conn) conn.close();
-    backToMenu();
-  }
-  else if (data.type === 'state'){
-    if (!game.isHost) applyState(data.state);
-  }
-  else if (data.type === 'action'){
-    if (game.isHost) applyRemoteAction(data.action);
-  }
-  else if (data.type === 'playerPos'){
-    updateRemotePlayer(data.pos, data.yaw);
-  }
-}
-
-function sendAction(action){
-  if (!conn || !conn.open) return;
-  conn.send({ type: 'action', action });
-}
-
-function applyRemoteAction(action){
-  if (!action) return;
-  if (action.action === 'orderIngredient'){
-    const ING = INGREDIENTS.find(i => i.id === action.id);
-    if (ING && game.balance >= action.cost){
-      game.balance -= action.cost;
-      updateBalanceUI();
-      game.deliveries.push({
-        id: action.id, quantity: ING.pack,
-        arriveTime: game.time + DELIVERY_DELAY, box: null,
-      });
-    }
-  }
-  else if (action.action === 'useIngredient'){
-    game.stock[action.id] = Math.max(0, game.stock[action.id] - 1);
-    updateStockUI();
-  }
-  else if (action.action === 'addBurger'){
-    if (action.burger && !game.counterBurgers.find(b => b.id === action.burger.id)){
-      game.counterBurgers.push(action.burger);
-      renderCounterBurgers();
-    }
-  }
-  else if (action.action === 'takeBurger'){
-    const idx = game.counterBurgers.findIndex(b => b.id === action.burgerId);
-    if (idx >= 0){ game.counterBurgers.splice(idx, 1); renderCounterBurgers(); }
-  }
-  else if (action.action === 'serve'){
-    const c = game.customers.find(cc => cc.id === action.customerId);
-    if (c && c.state === 'waiting'){
-      c.state = 'eating';
-      c.eatTimer = 3;
-      if (c.sprite){ c.group.remove(c.sprite); c.sprite = null; }
-      updateOrdersPanel();
-    }
-  }
-  else if (action.action === 'pay'){
-    const c = game.customers.find(cc => cc.id === action.customerId);
-    if (c){
-      game.balance += action.amount;
-      game.ordersDone++;
-      updateBalanceUI();
-      c.state = 'leaving';
-      c.target = new THREE.Vector3(0, 0, ROOM/2 + 1);
-      if (c.sprite){ c.group.remove(c.sprite); c.sprite = null; }
-      updateOrdersPanel();
-    }
-  }
-  else if (action.action === 'pickupBox'){
-    const ING = INGREDIENTS.find(i => i.id === action.ingredientId);
-    if (ING){
-      game.stock[ING.id] += action.quantity;
-      updateStockUI();
-      // Kutuyu bul ve kaldır
-      const box = interactables.find(o => o.userData.interactType === 'box' && o.userData.ingredient?.id === action.ingredientId);
-      if (box){
-        scene.remove(box);
-        const idx = interactables.indexOf(box);
-        if (idx >= 0) interactables.splice(idx, 1);
-        const di = game.deliveries.findIndex(d => d.id === action.ingredientId);
-        if (di >= 0) game.deliveries.splice(di, 1);
-      }
-    }
-  }
-}
-
-function buildState(){
-  return {
-    balance: game.balance,
-    stock: { ...game.stock },
-    counterBurgers: game.counterBurgers.map(b => ({ id: b.id, type: b.type })),
-    customers: game.customers.map(c => ({
-      id: c.id, order: c.order, state: c.state,
-      x: c.group.position.x, z: c.group.position.z, yaw: c.group.rotation.y,
-      cash: c.cash,
-    })),
-    boxes: interactables.filter(o => o.userData.interactType === 'box' && o.userData.delivery).map(o => ({
-      x: o.position.x, z: o.position.z,
-      ingredientId: o.userData.ingredient?.id,
-      quantity: o.userData.delivery.quantity,
-    })),
-  };
-}
-
-function applyState(s){
-  if (!s) return;
-  game.balance = s.balance;
-  game.stock = { ...s.stock };
-  game.counterBurgers = s.counterBurgers;
-  updateBalanceUI();
-  updateStockUI();
-  renderCounterBurgers();
-
-  // Kutuları senkronize et
-  const myBoxes = interactables.filter(o => o.userData.interactType === 'box');
-  for (const box of [...myBoxes]){
-    const inState = s.boxes.some(sb => Math.abs(box.position.x - sb.x) < 0.05 && Math.abs(box.position.z - sb.z) < 0.05);
-    if (!inState){
-      scene.remove(box);
-      interactables.splice(interactables.indexOf(box), 1);
-    }
-  }
-  for (const sb of s.boxes){
-    const exists = myBoxes.some(b => Math.abs(b.position.x - sb.x) < 0.05 && Math.abs(b.position.z - sb.z) < 0.05);
-    if (!exists){
-      const ING = INGREDIENTS.find(i => i.id === sb.ingredientId);
-      if (!ING) continue;
-      const box = makeBox();
-      box.position.set(sb.x, 0, sb.z);
-      box.userData.interactType = 'box';
-      box.userData.delivery = { id: sb.ingredientId, quantity: sb.quantity, box: null };
-      box.userData.ingredient = ING;
-      scene.add(box);
-      interactables.push(box);
-    }
-  }
-
-  // Müşterileri senkronize et
-  for (let i = game.customers.length - 1; i >= 0; i--){
-    const c = game.customers[i];
-    if (!s.customers.find(sc => sc.id === c.id)){
-      scene.remove(c.group);
-      const idx = interactables.indexOf(c.group);
-      if (idx >= 0) interactables.splice(idx, 1);
-      c.table.occupied = false;
-      game.customers.splice(i, 1);
-    }
-  }
-  for (const sc of s.customers){
-    let c = game.customers.find(cc => cc.id === sc.id);
-    if (!c){
-      const free = TABLES.find(t => !t.occupied);
-      if (!free) continue;
-      const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
-      const skinCol = SKINS[(Math.random()*SKINS.length)|0];
-      const group = makeHumanoid(shirtCol, skinCol, false, null);
-      group.position.set(sc.x, 0, sc.z);
-      scene.add(group);
-      c = {
-        id: sc.id, group, table: free, order: sc.order,
-        state: sc.state, target: new THREE.Vector3(sc.x, 0, sc.z),
-        bob: 0, eatTimer: 0, sprite: null, cash: sc.cash,
-      };
-      group.add(makeOrderSprite(c));
-      free.occupied = true;
-      group.userData.interactType = 'customer';
-      group.userData.customer = c;
-      interactables.push(group);
-      game.customers.push(c);
-    } else {
-      if (c.state !== sc.state){
-        if (c.state === 'waiting' && sc.state === 'eating'){ c.eatTimer = 3; }
-        c.state = sc.state;
-        if (c.sprite && ['eating','paying','toRegister','leaving'].includes(sc.state)){
-          c.group.remove(c.sprite); c.sprite = null;
-        }
-      }
-      c.cash = sc.cash;
-      c.group.position.x = sc.x;
-      c.group.position.z = sc.z;
-      c.group.rotation.y = sc.yaw;
-      if (sc.state === 'toRegister' || sc.state === 'leaving'){
-        c.target.set(sc.x, 0, sc.z);
-      }
-    }
-  }
-  updateOrdersPanel();
-}
-
-function createRemotePlayerMesh(){
-  if (remotePlayerMesh) return;
-  const shirtCol = SHIRTS[(Math.random()*SHIRTS.length)|0];
-  const skinCol = SKINS[(Math.random()*SKINS.length)|0];
-  remotePlayerMesh = makeHumanoid(shirtCol, skinCol, true, peerRole);
-  remotePlayerMesh.position.set(0, 0, -1.5);
-  scene.add(remotePlayerMesh);
-}
-
-function updateRemotePlayer(pos, yaw){
-  if (!remotePlayerMesh) return;
-  remotePlayerMesh.position.x = pos.x;
-  remotePlayerMesh.position.z = pos.z;
-  remotePlayerMesh.rotation.y = yaw;
-}
-
-/* ═══════ MENÜ ═══════ */
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  if (id) $(id).classList.remove('hidden');
-}
-
-let selectedRole = null;
-document.querySelectorAll('.role-card').forEach(card => {
-  card.addEventListener('click', () => {
-    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    selectedRole = card.dataset.role;
-    $('roleNextBtn').disabled = false;
-  });
-});
-
-// ✅ FIX: Solo direkt başlar, rol seçimi yok
-$('soloBtn').addEventListener('click', () => {
-  game.multiplayer = false;
-  game.isHost = false;
-  game.role = null;
-  startGame();
-});
-
-$('multiBtn').addEventListener('click', () => {
-  selectedRole = null;
-  $('roleNextBtn').disabled = true;
-  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-  showScreen('roleScreen');
-});
-
-$('roleBackBtn').addEventListener('click', () => showScreen('menuScreen'));
-
-$('roleNextBtn').addEventListener('click', () => {
-  if (!selectedRole) return;
-  game.role = selectedRole;
-  showScreen('roomChoiceScreen');
-});
-
-$('roomBackBtn').addEventListener('click', () => showScreen('roleScreen'));
-
-$('createRoomBtn').addEventListener('click', async () => {
-  const code = generateCode();
-  $('roomCode').textContent = code;
-  showScreen('hostScreen');
-  game.isHost = true;
-  game.multiplayer = true;
-  try {
-    await createRoom(code);
-  } catch (err) {
-    hint('Oda oluşturulamadı');
-    showScreen('roomChoiceScreen');
-  }
-});
-
-$('hostCancelBtn').addEventListener('click', () => {
-  if (peer){ peer.destroy(); peer = null; }
-  conn = null;
-  showScreen('roomChoiceScreen');
-});
-
-$('joinRoomBtn').addEventListener('click', () => {
-  showScreen('joinScreen');
-  $('codeInput').value = '';
-  $('joinError').textContent = '';
-  setTimeout(() => $('codeInput').focus(), 200);
-});
-
-$('joinBackBtn').addEventListener('click', () => {
-  if (peer){ peer.destroy(); peer = null; }
-  conn = null;
-  showScreen('roomChoiceScreen');
-});
-
-$('codeInput').addEventListener('input', (e) => {
-  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-});
-
-// ✅ FIX: Misafir de oyunu başlatır (hello alınca)
-$('joinConfirmBtn').addEventListener('click', async () => {
-  const code = $('codeInput').value.trim().toUpperCase();
-  if (code.length !== 6){
-    $('joinError').textContent = 'Kod 6 karakter olmalı';
-    return;
-  }
-  $('joinError').textContent = 'Bağlanılıyor...';
-  $('joinConfirmBtn').disabled = true;
-  game.isHost = false;
-  game.multiplayer = true;
-  try {
-    await joinRoom(code);
-    conn.send({ type: 'hello', role: game.role });
-    createRemotePlayerMesh();
-    $('joinError').textContent = 'Bağlandı, oyun başlıyor...';
-    // Oyun hello alınca başlayacak (handlePeerData içinde)
-  } catch (err) {
-    $('joinError').textContent = 'Bağlanılamadı. Kodu kontrol et.';
-    $('joinConfirmBtn').disabled = false;
-    if (peer){ peer.destroy(); peer = null; }
-    conn = null;
-  }
-});
-
-function backToMenu(){
-  if (peer){ peer.destroy(); peer = null; }
-  conn = null;
-  if (remotePlayerMesh){ scene.remove(remotePlayerMesh); remotePlayerMesh = null; }
-  game.multiplayer = false;
-  game.isHost = false;
-  showScreen('menuScreen');
-}
-
-/* ═══════ OYUN BAŞLAT ═══════ */
-function startGame(){
-  if (game.running) return; // Zaten çalışıyorsa tekrar başlatma
-  initAudio();
-  if (actx && actx.state === 'suspended') actx.resume();
-
-  game.balance = 1000;
-  game.stock = { patty:0, bun:0, lettuce:0, tomato:0, cheese:0 };
-  game.customers = [];
-  game.customerSpawnTimer = 4;
-  game.deliveries = [];
-  game.counterBurgers = [];
-  game.time = 0;
-  game.ordersDone = 0;
-  game.over = false;
-  game.running = true;
-  nextCustomerId = 1;
-  nextBurgerId = 1;
-
-  for (const obj of [...interactables]){
-    const t = obj.userData.interactType;
-    if (t === 'box' || t === 'customer'){
-      scene.remove(obj);
-      const i = interactables.indexOf(obj);
-      if (i >= 0) interactables.splice(i, 1);
-    }
-  }
-  TABLES.forEach(t => t.occupied = false);
-  grill.state = 'empty'; grill.pattyMesh.visible = false; grill.timer = 0;
-  player.held = null;
-  renderCounterBurgers();
-
-  // Başlangıç pozisyonu: solo ortada, multiplayer role göre
-  let startX = 0;
-  if (game.multiplayer) startX = game.role === 'chef' ? -1.5 : 2;
-  player.pos.set(startX, 0, -1.5);
-  player.yaw = Math.PI;
-  player.pitch = -0.05;
-  player.bobPhase = 0; player.bobAmount = 0;
-
-  showScreen(null);
-  ['shopModal','assemblyModal','cashModal'].forEach(id => $(id).classList.add('hidden'));
-  $('toasts').innerHTML = '';
-  $('heldPanel').classList.add('hidden');
-
-  updateBalanceUI();
-  updateStockUI();
-  updateRolePill();
-  updateOrdersPanel();
-  updateHeldUI();
-
-  if (game.multiplayer){
-    hint(`${game.role === 'chef' ? 'Şef' : 'Garson'} olarak oynuyorsun`);
-  } else {
-    hint('Bilgisayardan malzeme sipariş et!');
-  }
-}
-
-function endGame(){
-  game.running = false;
-  game.over = true;
-  ['shopModal','assemblyModal','cashModal'].forEach(id => $(id).classList.add('hidden'));
-  $('prompt').classList.add('hidden');
-  $('interactBtn').classList.add('hidden');
-  $('finalMoney').textContent = game.balance + ' TL';
-  let msg = 'Fena değil!';
-  if (game.balance >= 3500) msg = 'Efsanevi ekip! 🏆';
-  else if (game.balance >= 2200) msg = 'Harika iş! ⭐';
-  else if (game.balance >= 1400) msg = 'İyi iş! 👍';
-  $('finalMsg').textContent = msg + ` (${game.ordersDone} sipariş)`;
-  $('endScreen').classList.remove('hidden');
-  beep(880, 0.15, 'triangle', 0.08);
-  setTimeout(()=>beep(660, 0.15, 'triangle', 0.08), 160);
-  setTimeout(()=>beep(440, 0.3, 'triangle', 0.08), 320);
-}
-
-$('againBtn').addEventListener('click', () => {
-  $('endScreen').classList.add('hidden');
-  if (game.multiplayer && !conn){
-    backToMenu();
-  } else {
+function startMultiplayerGame(){
+  if (game.running) return;
+  if (game.isHost){
+    if (conn && conn.open) conn.send({ type: 'start', players: game.players });
+    const me = game.players.find(x => x.id === 'host'); if (me) game.role = me.role;
     startGame();
   }
-});
-$('quitBtn').addEventListener('click', () => { if (game.running) endGame(); });
+}
 
-/* ═══════ ANA DÖNGÜ ═══════ */
-let lastT = performance.now();
-let clockT = 0;
+function broadcastLobby(){ if (conn && conn.open) conn.send({ type: 'lobby', players: game.players }); }
+function sendAction(act){ if (conn && conn.open) conn.send({ type: 'action', action: act }); }
 
-function animate(now){
-  requestAnimationFrame(animate);
-  const dt = Math.min(0.05, (now - lastT) / 1000);
-  lastT = now;
-  clockT += dt;
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden')); if (id) $(id).classList.remove('hidden'); }
 
-  const modalOpen = !!document.querySelector('.modal:not(.hidden)');
+$('soloBtn').onclick = () => { game.multiplayer = false; game.isHost = false; startGame(); };
+$('multiBtn').onclick = () => { showScreen('lobbyScreen'); renderLobbyChoice(); };
+$('lobbyBackBtn').onclick = () => { if (peer) peer.destroy(); conn = null; showScreen('menuScreen'); };
 
-  if (game.running && !game.over){
-    game.time += dt;
+function renderLobbyChoice(){
+  $('lobbyInfo').textContent = 'Oda oluştur veya katıl'; $('lobbyPlayers').innerHTML = `<button class="btn" id="hostBtn">Oda Oluştur</button><button class="btn secondary" id="joinBtn">Odaya Katıl</button>`;
+  $('lobbyRolePicker').innerHTML = ''; $('lobbyReadyBtn').classList.add('hidden');
+  $('hostBtn').onclick = () => {
+    const code = genCode(); $('roomCode').textContent = code; showScreen('hostScreen'); game.isHost = true; game.multiplayer = true;
+    peer = new Peer('burger-mp-' + code);
+    peer.on('open', () => { game.players = [{ id: 'host', name: 'Ev Sahibi', role: null, ready: false }]; });
+    peer.on('connection', c => {
+      conn = c; conn.on('open', () => {
+        conn.on('data', data => {
+          if (data.type === 'join'){ game.players.push({ id: 'guest', name: 'Misafir', role: null, ready: false }); broadcastLobby(); showLobby(); }
+          if (data.type === 'role'){ const p = game.players.find(x => x.id === 'guest'); if (p) p.role = data.role; broadcastLobby(); showLobby(); }
+          if (data.type === 'ready'){ const p = game.players.find(x => x.id === 'guest'); if (p) p.ready = true; broadcastLobby(); showLobby(); if (game.players.length === 2 && game.players.every(x => x.ready && x.role)) startMultiplayerGame(); }
+          if (data.type === 'action') applyRemoteAction(data.action);
+          if (data.type === 'pos') updateRemotePlayer(data.pos, data.yaw);
+        });
+      });
+    });
+  };
+  $('joinBtn').onclick = () => { showScreen('joinScreen'); $('codeInput').value = ''; $('joinError').textContent = ''; };
+}
 
-    if (!modalOpen){
-      updatePlayer(dt);
-      updateCustomers(dt);
-      updateGrill(dt);
-      updatePrompt();
+$('hostCancelBtn').onclick = $('joinBackBtn').onclick = () => { if (peer) peer.destroy(); conn = null; showScreen('lobbyScreen'); renderLobbyChoice(); };
+$('joinConfirmBtn').onclick = () => {
+  const code = $('codeInput').value.trim().toUpperCase(); if (code.length !== 6) return;
+  game.isHost = false; game.multiplayer = true;
+  peer = new Peer();
+  peer.on('open', () => {
+    conn = peer.connect('burger-mp-' + code);
+    conn.on('open', () => {
+      conn.send({ type: 'join' });
+      conn.on('data', data => {
+        if (data.type === 'lobby'){ game.players = data.players; showLobby(); }
+        if (data.type === 'start'){ game.players = data.players; const me = game.players.find(x => x.id === 'guest'); if (me) game.role = me.role; startGame(); }
+        if (data.type === 'state') applyState(data.state);
+      });
+    });
+  });
+  peer.on('error', () => { $('joinError').textContent = 'Bağlantı hatası!'; });
+};
 
-      // Sadece host (veya solo) müşteri spawn etsin ve kargo spawn etsin
-      if (game.isHost || !game.multiplayer){
-        if (game.customers.length < TABLES.length){
-          game.customerSpawnTimer -= dt;
-          if (game.customerSpawnTimer <= 0){
-            trySpawnCustomer();
-            game.customerSpawnTimer = 4 + Math.random()*3;
-          }
-        }
-        for (const d of game.deliveries){
-          if (!d.box && game.time >= d.arriveTime){
-            spawnDeliveryBox(d);
-          }
-        }
-      }
+function showLobby(){
+  showScreen('lobbyScreen'); $('lobbyInfo').textContent = 'Lobi';
+  $('lobbyPlayers').innerHTML = game.players.map(p => `<div class="lobby-player"><div class="lobby-avatar">${(p.name[0]||'?').toUpperCase()}</div><div class="lobby-name">${p.name} ${p.ready?'✓':''}</div><div class="lobby-role ${p.role||'empty'}">${p.role?ROLES[p.role].name:'Rol Seç'}</div></div>`).join('');
+  const me = game.players.find(p => p.id === (game.isHost ? 'host' : 'guest'));
+  $('lobbyRolePicker').innerHTML = Object.entries(ROLES).map(([rid, rd]) => {
+    const taken = game.players.some(p => p.id !== (game.isHost?'host':'guest') && p.role === rid);
+    const sel = me?.role === rid;
+    return `<div class="role-card ${sel?'selected':''} ${taken?'disabled':''}" data-role="${rid}">${icoHTML(rd.icon, 'xl')}<div class="rc-name">${rd.name}</div></div>`;
+  }).join('');
+  $('lobbyRolePicker').querySelectorAll('.role-card:not(.disabled)').forEach(card => card.onclick = () => {
+    const role = card.dataset.role;
+    if (game.isHost){ const p = game.players.find(x => x.id === 'host'); if (p) p.role = role; broadcastLobby(); showLobby(); }
+    else { conn.send({ type: 'role', role }); }
+  });
+  if (me?.role){
+    $('lobbyReadyBtn').classList.remove('hidden'); $('lobbyReadyBtn').textContent = me.ready ? 'BEKLENİYOR...' : 'HAZIR'; $('lobbyReadyBtn').disabled = me.ready;
+    $('lobbyReadyBtn').onclick = () => {
+      if (game.isHost){ const p = game.players.find(x => x.id === 'host'); if (p) p.ready = true; broadcastLobby(); showLobby(); if (game.players.length === 2 && game.players.every(x => x.ready && x.role)) startMultiplayerGame(); }
+      else { conn.send({ type: 'ready' }); }
+    };
+  } else $('lobbyReadyBtn').classList.add('hidden');
+}
 
-      // State sync (host → guest)
-      if (game.multiplayer && game.isHost && conn && conn.open){
-        if (now - lastSyncTime > SYNC_INTERVAL){
-          conn.send({ type: 'state', state: buildState() });
-          lastSyncTime = now;
-        }
-      }
-
-      // Player pos sync
-      if (game.multiplayer && conn && conn.open){
-        if (now - (game._lastPosSync || 0) > SYNC_INTERVAL){
-          conn.send({ type: 'playerPos', pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw });
-          game._lastPosSync = now;
-        }
-      }
-    }
-
-    if (hintTimer > 0){
-      hintTimer -= dt;
-      if (hintTimer <= 0) $('hint').classList.remove('show');
-    }
-  } else if (!game.running && !game.over){
-    camera.position.set(Math.sin(clockT*0.25)*3.5, 1.9, 2 + Math.cos(clockT*0.2)*2.5);
-    camera.lookAt(0, 1.2, COUNTER_Z);
+function applyRemoteAction(act){
+  if (act.action === 'addMenu'){ if (!game.counterItems.find(c => c.id === act.menu.id)) game.counterItems.push(act.menu); renderCounterItems(); }
+  if (act.action === 'takeMenu'){ const i = game.counterItems.findIndex(c => c.id === act.menuId); if (i>=0) game.counterItems.splice(i,1); renderCounterItems(); }
+  if (act.action === 'serve'){ const c = game.customers.find(x => x.id === act.customerId); if (c && c.state==='waiting'){ c.state='eating'; c.eatTimer=3; if(c.sprite){c.group.remove(c.sprite);c.sprite=null;} updateOrdersPanel(); } }
+  if (act.action === 'pay'){ const c = game.customers.find(x => x.id === act.customerId); if (c){ game.balance += act.amount; updateBalanceUI(); c.state='leaving'; c.target=new THREE.Vector3(DOOR_X,0,DOOR_Z+1); if(c.sprite){c.group.remove(c.sprite);c.sprite=null;} updateOrdersPanel(); } }
+  if (act.action === 'orderIngredient'){ const ING = INGREDIENTS.find(x => x.id === act.id); if (ING){ game.balance -= act.cost; updateBalanceUI(); game.deliveries.push({ id: ING.id, quantity: ING.pack, arriveTime: game.time + DELIVERY_DELAY }); } }
+  if (act.action === 'pickupBox'){ game.stock[act.id] += act.quantity; updateStockUI(); }
+  if (act.action === 'hireStaff'){ game.staff[act.type] = true; spawnNPCs(); }
+}
+function buildState(){ return { balance: game.balance, stock: {...game.stock}, counterItems: game.counterItems, staff: game.staff, grill: grill.patties.map(p => ({state: p.state, timer: p.timer, x: p.mesh.position.x, z: p.mesh.position.z})), customers: game.customers.map(c=>({id:c.id,menu:c.menu,state:c.state,x:c.group.position.x,z:c.group.position.z,cash:c.cash})) }; }
+function applyState(s){
+  game.balance = s.balance; game.stock = {...s.stock}; game.counterItems = s.counterItems; game.staff = s.staff;
+  updateBalanceUI(); updateStockUI(); renderCounterItems(); spawnNPCs();
+  
+  for (const p of grill.patties) scene.remove(p.mesh);
+  grill.patties = [];
+  for (const sp of s.grill) {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.07, 18), new THREE.MeshStandardMaterial({ color:0xe8a0a0 }));
+    mesh.position.set(sp.x, 0.14, sp.z);
+    grillGroup.add(mesh);
+    grill.patties.push({ mesh, timer: sp.timer, state: sp.state });
   }
 
+  for (let i=game.customers.length-1; i>=0; i--){ const c = game.customers[i]; if (!s.customers.find(x => x.id === c.id)){ scene.remove(c.group); interactables.splice(interactables.indexOf(c.group),1); c.table.occupied=false; game.customers.splice(i,1); } }
+  for (const sc of s.customers){ let c = game.customers.find(x => x.id === sc.id); if (!c){ const free = TABLES.find(t=>!t.occupied); if(free){ const g = makeHumanoid(0xffffff, 0xffd9b3, null); g.position.set(sc.x,0,sc.z); scene.add(g); c = { id: sc.id, group: g, table: free, menu: sc.menu, state: sc.state, target: new THREE.Vector3(sc.x,0,sc.z), bob:0, eatTimer:0, sprite: null, cash: sc.cash }; free.occupied=true; g.userData={interactType:'customer',customer:c}; interactables.push(g); game.customers.push(c); } } else { c.state = sc.state; c.cash = sc.cash; c.group.position.set(sc.x,0,sc.z); } }
+  updateOrdersPanel();
+}
+function updateRemotePlayer(pos, yaw){ if (remoteMesh){ remoteMesh.position.set(pos.x, 0, pos.z); remoteMesh.rotation.y = yaw; } }
+
+function startGame(){
+  if (game.running) return;
+  initAudio(); game.balance = 2000; INGREDIENTS.forEach(i => game.stock[i.id] = 0);
+  game.customers = []; game.customerSpawnTimer = 3; game.deliveries = []; game.counterItems = []; game.time = 0; game.running = true; game.over = false;
+  game.staff = { chef: false, waiter: false };
+  game.phone = { ringing: false, active: false, timer: 120, currentOrder: null, step: 0 };
+  game.courier = { status: 'at_shop', timer: 0 };
+  
+  if (chefNPC) { scene.remove(chefNPC); chefNPC = null; }
+  if (waiterNPC) { scene.remove(waiterNPC); waiterNPC = null; }
+  for (const p of grill.patties) scene.remove(p.mesh);
+  grill.patties = [];
+  
+  for (const obj of [...interactables]) if (obj.userData.interactType === 'box' || obj.userData.interactType === 'customer'){ scene.remove(obj); interactables.splice(interactables.indexOf(obj),1); }
+  TABLES.forEach(t => t.occupied = false); player.held = null; renderCounterItems(); endPrep();
+  player.pos.set(game.role === 'waiter' ? 2 : -1.5, 0, -1.5); player.yaw = Math.PI;
+  showScreen(null); ['shopModal','cashModal','customModal','staffModal','phoneModal','courierModal','settingsModal'].forEach(id => $(id).classList.add('hidden')); updateBalanceUI(); updateStockUI(); updateRolePill(); updateOrdersPanel(); updateHeldUI();
+  
+  if (game.multiplayer && game.role){ hint(`${ROLES[game.role].name} olarak oynuyorsun`); if (game.isHost && conn) remoteMesh = makeHumanoid(0x6ba8ff, 0xffd9b3, game.players.find(x=>x.id!=='host').role); if (remoteMesh) scene.add(remoteMesh); }
+  if (!game.multiplayer) $('staffBtn').classList.remove('hidden'); else $('staffBtn').classList.add('hidden');
+}
+
+function endGame(){ game.running = false; game.over = true; ['shopModal','cashModal','customModal','staffModal','phoneModal','courierModal','settingsModal'].forEach(id => $(id).classList.add('hidden')); $('prompt').classList.add('hidden'); $('interactBtn').classList.add('hidden'); $('staffBtn').classList.add('hidden'); endPrep(); $('finalMoney').textContent = game.balance + ' TL'; $('endScreen').classList.remove('hidden'); }
+$('againBtn').onclick = () => { $('endScreen').classList.add('hidden'); startGame(); };
+$('quitBtn').onclick = endGame;
+
+let lastT = performance.now();
+function animate(now){
+  requestAnimationFrame(animate); const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+  if (game.running && !game.over){
+    game.time += dt;
+    if (!document.querySelector('.modal:not(.hidden)')){
+      updatePlayer(dt); updateCustomers(dt); updateGrill(dt); updateNPCs(dt); updateTimers(dt); updatePrompt();
+      
+      if (game.isHost || !game.multiplayer){
+        if (game.customers.length < TABLES.length && game.open && !game.phone.ringing){ game.customerSpawnTimer -= dt; if (game.customerSpawnTimer <= 0){ trySpawnCustomer(); game.customerSpawnTimer = 4 + Math.random()*3; } }
+        for (const d of game.deliveries) if (!d.box && game.time >= d.arriveTime) spawnDeliveryBox(d);
+      }
+      if (game.multiplayer && game.isHost && conn && conn.open && now - lastSync > 100){ conn.send({ type: 'state', state: buildState() }); lastSync = now; }
+      if (game.multiplayer && conn && conn.open && now - (game._lastPos || 0) > 100){ conn.send({ type: 'pos', pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw }); game._lastPos = now; }
+    }
+    if (hintTimer > 0){ hintTimer -= dt; if (hintTimer <= 0) $('hint').classList.remove('show'); }
+  }
   renderer.render(scene, camera);
 }
-
-function onResize(){
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
-}
-addEventListener('resize', onResize);
-addEventListener('orientationchange', () => setTimeout(onResize, 150));
-
-updateBalanceUI();
-updateStockUI();
+addEventListener('resize', () => { camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 requestAnimationFrame(animate);
 </script>
 </body>
